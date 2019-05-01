@@ -1,6 +1,6 @@
 #include "transmitter.h"
 #include <QDataStream>
-#include <exception>
+#include <functional>
 
 namespace speech
 {
