@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <type_traits>
+#include <type_info>
 
 namespace speech
 {
