@@ -1,10 +1,7 @@
 #include <QDataStream>
 #include <QCoreApplication>
 #include <QHostAddress>
-#include <QTimer>
 #include <QThread>
-#include <QCommandLineParser>
-#include <QCommandLineOption>
 #include <speech/udp/udp_transmitter.h>
 #include "models.h"
 
