@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.1)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
