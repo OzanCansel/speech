@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
+
+if(NOT TARGET speech::speech)
+    include(${CMAKE_CURRENT_LIST_DIR}/speech-targets.cmake)
+endif()
