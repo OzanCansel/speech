@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.com/OzanCansel/speech.svg?branch=master)](https://travis-ci.com/OzanCansel/speech)
+## develop [![Build Status](https://travis-ci.com/OzanCansel/speech.svg?branch=develop)](https://travis-ci.com/OzanCansel/speech)
+## master [![Build Status](https://travis-ci.com/OzanCansel/speech.svg?branch=master)](https://travis-ci.com/OzanCansel/speech)
+
 # speech
 
 This project aims to develop a qt-based generic serialization/deserialization mechanism and strongly-typed messaging over network. It is under-development for now.
