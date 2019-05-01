@@ -12,7 +12,7 @@ It is under GNU General Public License.
 speech library uses CMake build system. We are using modern-cmake approach and paradigm which enforces us to use CMake 3.1x.
 
 # QMake
-speech library current doesn't use qmake as build system but it will be supported at future.
+speech library doesn't use qmake as build system currently but it will be supported at future.
 
 # Dependencies and required(recommended) tools
 - Qt5
