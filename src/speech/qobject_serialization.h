@@ -13,7 +13,6 @@ namespace speech
     template<class T>
     typename std::enable_if<std::is_base_of<QObject , T>::value , QDataStream&>::type operator<<(QDataStream& out , const T& obj)
     {
-        qDebug() << "auto_serialize_out";
         auto meta_info = obj.metaObject();
 
         for(auto i = 0; i < meta_info->propertyCount(); ++i)
@@ -34,8 +33,7 @@ namespace speech
     template<class T>
     typename std::enable_if<std::is_base_of<QObject , T>::value , QDataStream&>::type operator>>(QDataStream& in , T& obj)
     {
-        qDebug() << "auto_serialize_in";
-                auto meta_info = obj.metaObject();
+        auto meta_info = obj.metaObject();
 
         for(auto i = 0; i < meta_info->propertyCount(); ++i)
         {
