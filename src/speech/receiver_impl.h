@@ -16,6 +16,53 @@ template <size_t N, typename H, typename... T>
 const QString receiver_impl<N, H, T...>::type_hash = speech::impl::identify<H>();
 
 template <size_t N, typename H, typename... T>
+template <typename Regular>
+typename std::enable_if<!std::is_base_of<QObject, Regular>::value>::type receiver_impl<N, H, T...>::receive(QString code, const QByteArray &value, specializer<N> s)
+{
+    if (code != type_hash)
+    {
+        specializer<N + 1> s;
+        return receiver_impl<N, Regular, T...>::receive(code, value, s);
+    }
+
+    QDataStream ss(&const_cast<QByteArray &>(value), QIODevice::ReadOnly);
+    ss.setVersion(QDataStream::Qt_5_0);
+    Regular val;
+
+    ss >> val;
+
+    on_receive(val);
+
+    m_messages.push(std::move(val));
+}
+
+template <size_t N, typename H, typename... T>
+template <typename X>
+typename std::enable_if<std::is_same<X, H>::value, std::queue<H> &>::type receiver_impl<N , H , T...>::messages(identifier<H>)
+{
+    return m_messages;
+}
+
+template <size_t N, typename H, typename... T>
+template <typename QObj>
+typename std::enable_if<std::is_base_of<QObject, QObj>::value>::type receiver_impl<N, H, T...>::receive(QString code, const QByteArray &value, specializer<N> s)
+{
+    if (code != type_hash)
+    {
+        specializer<N + 1> s;
+        return receiver_impl<N, QObj, T...>::receive(code, value, s);
+    }
+
+    QDataStream ss(&const_cast<QByteArray &>(value), QIODevice::ReadOnly);
+    ss.setVersion(QDataStream::Qt_5_0);
+    auto val = new QObj();
+
+    ss >> *val;
+
+    on_receive(*val);
+}
+
+template <size_t N, typename H, typename... T>
 size_t receiver_impl<N, H, T...>::parse(const QByteArray &entity_data)
 {
     //Check whether data is available

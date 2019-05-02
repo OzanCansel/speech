@@ -61,47 +61,15 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
 
     //Primary template
     template<typename Regular = H>
-    typename std::enable_if<!std::is_base_of<QObject , Regular>::value>::type receive(QString code, const QByteArray &value, specializer<N> s)
-    { 
-        if (code != type_hash)
-        {
-            specializer<N + 1> s;
-            return receiver_impl<N, Regular, T...>::receive(code, value, s);
-        }
-
-        QDataStream ss(&const_cast<QByteArray &>(value), QIODevice::ReadOnly);
-        ss.setVersion(QDataStream::Qt_5_0);
-        Regular val;
-
-        ss >> val;
-
-        on_receive(val);
-
-        m_messages.push(std::move(val));
-    }
+    typename std::enable_if<!std::is_base_of<QObject , Regular>::value>::type receive(QString code, const QByteArray &value, specializer<N> s);
 
     //Specialization for QObject
     template<typename QObj = H>
-    typename std::enable_if<std::is_base_of<QObject , QObj>::value>::type receive(QString code, const QByteArray &value, specializer<N> s) 
-    {
-        if (code != type_hash)
-        {
-            specializer<N + 1> s;
-            return receiver_impl<N, QObj, T...>::receive(code, value, s);
-        }
-
-        QDataStream ss(&const_cast<QByteArray &>(value), QIODevice::ReadOnly);
-        ss.setVersion(QDataStream::Qt_5_0);
-        auto val = new QObj();
-
-        ss >> *val;
-
-        on_receive(*val);
-    }
+    typename std::enable_if<std::is_base_of<QObject , QObj>::value>::type receive(QString code, const QByteArray &value, specializer<N> s);
 
     // template<typename M>
     template <typename X>
-    inline typename std::enable_if<std::is_same<X, H>::value, std::queue<H>&>::type messages(identifier<H> = identifier<H>{}) { return m_messages; }
+    typename std::enable_if<std::is_same<X, H>::value, std::queue<H>&>::type messages(identifier<H> = identifier<H>{});
 
   protected:
 
