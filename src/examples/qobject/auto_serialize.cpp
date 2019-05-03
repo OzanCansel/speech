@@ -28,10 +28,8 @@ int main(int argc, char **argv)
     auto fps = 2;
 
     if (parser.isSet("p"))
-    {
-        qDebug() << parser.value("p");
         port = parser.value("p").toInt();
-    }
+
     if (parser.isSet("f"))
         fps = parser.value("f").toInt();
 
