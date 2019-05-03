@@ -1,14 +1,16 @@
 #include <QCoreApplication>
+#include <QCommandLineParser>
 #include <QDebug>
 #include <QTimer>
 #include <speech/udp/udp_receiver.h>
 #include <speech/qobject_serialization.h>
 #include "entity.h"
+#include "car_info.h"
 
-struct qobject_receiver : speech::udp::udp_receiver<entity>
+struct qobject_receiver : speech::udp::udp_receiver<entity , car_info>
 {
     
-    qobject_receiver() : speech::udp::udp_receiver<entity>{ speech::port(12345) } { }
+    qobject_receiver(int port) : speech::udp::udp_receiver<entity , car_info> { speech::port(port) } { }
 
     protected:
         
@@ -17,6 +19,13 @@ struct qobject_receiver : speech::udp::udp_receiver<entity>
             using namespace speech;
             
             qDebug() << "receive => " << greeting;
+        }
+
+        void on_receive(const car_info& car) override
+        {
+            using namespace speech;
+
+            qDebug() << "receive => " << car;
         }
 };
 
@@ -28,7 +37,25 @@ int main(int argc, char **argv)
 
     QCoreApplication app(argc, argv);
 
-    qobject_receiver receiver;
+    
+    QCommandLineParser parser;
+    parser.addHelpOption();
+
+    parser.addOptions(
+        {{ {"p", "port"} , "Specify listening port" , "port number" }
+         });
+
+    parser.process(app);
+
+    //Defaults
+    auto port = 12345;
+
+    if (parser.isSet("p"))
+        port = parser.value("p").toInt();
+
+    qDebug() << "Starting to listen udp port " << port;
+
+    qobject_receiver receiver { port };
 
     return app.exec();
 }
