@@ -50,6 +50,7 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
 
     static_assert(implements_right_stream<QDataStream, H>::value, "T must be deserialized from QDataStream, so must implement QDataStream& operator>>");
     static_assert(std::is_constructible<H>::value, "T must have default constructor.");
+    static_assert(std::is_base_of<QObject , H>::value || (std::is_copy_constructible<H>::value || std::is_move_constructible<H>::value) , "T type must be either copy constructible or move constructible.");
 
     constexpr static size_t SizeOfLengthTag = 8;
     static const QString type_hash;
@@ -69,7 +70,10 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
 
     // template<typename M>
     template <typename X>
-    typename std::enable_if<std::is_same<X, H>::value, std::queue<H>&>::type messages(identifier<H> = identifier<H>{});
+    typename std::enable_if<std::is_same<X, H>::value && !std::is_base_of<X , QObject>::value, std::queue<H>&>::type messages(identifier<H> = identifier<H>{});
+
+    template <typename X>
+    typename std::enable_if<std::is_same<X, H>::value && std::is_base_of<X , QObject>::value, std::queue<H*>&>::type messages(identifier<H> = identifier<H>{});
 
   protected:
 
@@ -78,6 +82,15 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
     
   private:
 
+  //Enqueue by moving
+  template<typename Movable>
+  typename std::enable_if<std::is_same<Movable , H>::value && std::is_move_constructible<Movable>::value>::type enqueue(H& val, identifier<H> = identifier<H>{});
+
+  //Enqueue by copying
+  template<typename NotMovable>
+  typename std::enable_if<std::is_same<NotMovable , H>::value && !std::is_move_constructible<NotMovable>::value>::type enqueue(H& val, identifier<H> = identifier<H>{});
+
+    std::queue<H*> m_qobj_messages;
     std::queue<H> m_messages;
 };
 
