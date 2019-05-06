@@ -24,10 +24,10 @@ for:
      only:
       - image: Visual Studio 2017
      
-     before_build:
+    before_build:
      - set PATH=C:\Qt\5.9.6\bin;C:\Qt\Tools\QtCreator\bin;%PATH%
      
-     build_script:
+    build_script:
      - mkdir build
      - cd build
      - cmake -G "Visual Studio 14 2015 Win64" ..
