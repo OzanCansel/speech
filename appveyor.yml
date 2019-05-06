@@ -2,11 +2,9 @@ image:
 - Ubuntu
 build: off
 
-for:
--
-  matrix:
-    only:
-      - image: Ubuntu
+matrix:
+  only:
+    - image: Ubuntu
 
   build_script:
   - echo Ubuntu build script
