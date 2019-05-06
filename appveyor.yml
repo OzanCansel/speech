@@ -1,6 +1,9 @@
 image:
  - Ubuntu
 
+build_script: 
+ - sh: echo "default script"
+
 for:
  -
     matrix:
