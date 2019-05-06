@@ -9,6 +9,24 @@ target_link_libraries(transmit speech)
 target_link_libraries(receive-with-inheritance speech)
 target_link_libraries(receive-from-queue speech)
 
+set_target_properties(transmit PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
+set_target_properties(receive-with-inheritance PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
+set_target_properties(receive-from-queue PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
+
 install(TARGETS transmit
 		RUNTIME DESTINATION bin/examples/udp)
 
