@@ -1,13 +1,12 @@
 image:
- - ubuntu
-
-build: off 
+- Ubuntu
+build: off
 
 for:
- -
-    matrix:
-      only:
-        - image: ubuntu
+-
+  matrix:
+    only:
+      - image: Ubuntu
 
-    build_script:
-      - sh: echo "build for ubuntu"
+  build_script:
+  - echo Ubuntu build script
