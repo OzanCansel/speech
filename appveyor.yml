@@ -1,0 +1,10 @@
+image:
+ - Ubuntu
+
+for:
+ -
+    matrix:
+            only:
+                    - image: Ubuntu
+            build_script:
+                    echo "build for ubuntu"
