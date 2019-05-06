@@ -31,16 +31,15 @@ typename std::enable_if<!std::is_base_of<QObject, Regular>::value>::type receive
 
     ss >> val;
 
-    on_receive(val);
+    // if(std::is_move_constructible<Regular>::value)
+    //     m_messages.push(std::move(val));
+    // else
+    //     m_messages.push(val);
 
-    m_messages.push(std::move(val));
-}
+    //Enqueue object by moving if it is not possible, copy then
+    enqueue<Regular>(val);
 
-template <size_t N, typename H, typename... T>
-template <typename X>
-typename std::enable_if<std::is_same<X, H>::value, std::queue<H> &>::type receiver_impl<N , H , T...>::messages(identifier<H>)
-{
-    return m_messages;
+    on_receive(m_messages.back());
 }
 
 template <size_t N, typename H, typename... T>
@@ -59,7 +58,39 @@ typename std::enable_if<std::is_base_of<QObject, QObj>::value>::type receiver_im
 
     ss >> *val;
 
+    m_qobj_messages.push(val);
+
     on_receive(*val);
+}
+
+template <size_t N, typename H, typename... T>
+template <typename Movable>
+typename std::enable_if<std::is_same<Movable, H>::value && std::is_move_constructible<Movable>::value>::type
+receiver_impl<N, H, T...>::enqueue(H &val, identifier<H>)
+{
+    m_messages.push(std::move(val));
+}
+
+template <size_t N, typename H, typename... T>
+template <typename NotMovable>
+typename std::enable_if<std::is_same<NotMovable, H>::value && !std::is_move_constructible<NotMovable>::value>::type
+receiver_impl<N, H, T...>::enqueue(H &val, identifier<H>)
+{
+    m_messages.push(val);
+}
+
+template <size_t N, typename H, typename... T>
+template <typename X>
+typename std::enable_if<std::is_same<X, H>::value && !std::is_base_of<X, QObject>::value, std::queue<H> &>::type receiver_impl<N, H, T...>::messages(identifier<H>)
+{
+    return m_messages;
+}
+
+template <size_t N, typename H, typename... T>
+template <typename X>
+typename std::enable_if<std::is_same<X, H>::value && std::is_base_of<X, QObject>::value, std::queue<H *> &>::type receiver_impl<N, H, T...>::messages(identifier<H>)
+{
+    return m_qobj_messages;
 }
 
 template <size_t N, typename H, typename... T>

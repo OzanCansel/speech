@@ -56,7 +56,7 @@ QString identify()
 
         std::regex pat{ R"(^.+\s)" };    
         auto unified_str = std::regex_replace(typeid(T).name() , pat , "");
-        return QString::fromStdString(unified);
+        return QString::fromStdString(unified_str);
 
     #endif
 

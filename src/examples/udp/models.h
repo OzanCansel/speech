@@ -16,6 +16,18 @@ struct roll_dice
     QDateTime timestamp { QDateTime::currentDateTime() };
 };
 
+struct not_movable
+{
+    not_movable() = default;
+    not_movable(const not_movable&) {};
+};
+
+struct not_copyable
+{
+    not_copyable() = default;
+    not_copyable(not_copyable&&) {};
+};
+
 QDataStream& operator<<(QDataStream& out, const greeting& greeting)
 {
     return out << greeting.my_name_is;
@@ -46,5 +58,26 @@ QDebug operator<<(QDebug out, const roll_dice& dice)
     out << "{ chance : " << dice.chance << " , timestamp : " << dice.timestamp.toString(Qt::DateFormat::ISODate);
     return out;
 }
+
+QDataStream& operator<<(QDataStream& out, const not_movable&)
+{
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, const  not_movable&)
+{
+    return in;;
+}
+
+QDataStream& operator<<(QDataStream& out, const not_copyable&)
+{
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, not_copyable&)
+{
+    return in;
+}
+
 
 #endif
