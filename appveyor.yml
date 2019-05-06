@@ -1,13 +1,20 @@
-image:
- - Ubuntu
+version: 1.0.{build}
 
-build: off 
+configuration:
+  - Debug
+  - Test
 
 for:
- -
+  -
     matrix:
       only:
-        - image: Ubuntu
-
+        - configuration: Debug
     build_script:
-      - sh: echo "build for ubuntu"
+      - ps: "Debug build script"
+
+  -
+    matrix:
+      only:
+        - configuration: Test
+    build_script:
+      - echo "Test build script"
