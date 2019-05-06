@@ -8,7 +8,9 @@ for:
     matrix:
      only:
       - image: Ubuntu
-
+    before_script:
+    - sudo apt-get -y install qt5-default
+    
     build_script:
     - echo Compiling with Ubuntu
     - mkdir build
