@@ -7,4 +7,4 @@ for:
             only:
                     - image: Ubuntu
             build_script:
-                    echo "build for ubuntu"
+                    - sh: echo "build for ubuntu"
