@@ -8,7 +8,8 @@ for:
     matrix:
      only:
       - image: Ubuntu
-    before_script:
+      
+    before_build:
     - sudo apt-get -y install qt5-default
     
     build_script:
