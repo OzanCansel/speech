@@ -90,8 +90,8 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
   template<typename NotMovable>
   typename std::enable_if<std::is_same<NotMovable , H>::value && !std::is_move_constructible<NotMovable>::value>::type enqueue(H& val, identifier<H> = identifier<H>{});
 
-    std::queue<H*> m_qobj_messages;
-    std::queue<H> m_messages;
+  std::queue<H*> m_qobj_messages;
+  std::queue<H> m_messagesus;
 };
 
 } // namespace impl
