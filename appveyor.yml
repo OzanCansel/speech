@@ -10,4 +10,8 @@ for:
       - image: Ubuntu
 
     build_script:
-    - echo Ubuntu build script
+    - echo Compiling with Ubuntu
+    - mkdir build
+    - cd build
+    - cmake ..
+    - cmake --build .
