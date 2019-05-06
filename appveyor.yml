@@ -7,7 +7,7 @@ build_script:
 for:
  -
     matrix:
-            only:
-              - image: Ubuntu
+      only:
+        - image: Ubuntu
     build_script:
       - sh: echo "build for ubuntu"
