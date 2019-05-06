@@ -1,7 +1,7 @@
 image:
  - Ubuntu
 
-build: 
+build_script: 
  - sh: echo "default script"
 
 for:
