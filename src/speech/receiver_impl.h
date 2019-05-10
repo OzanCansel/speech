@@ -7,22 +7,22 @@ namespace speech
 namespace impl
 {
 
-template <std::size_t i>
-void receiver_impl<i>::receive(QString, const QByteArray &, specializer<i>)
+template <std::size_t i , bool Enable_Queue>
+void receiver_impl<i , Enable_Queue>::receive(QString, const QByteArray &, specializer<i>)
 {
 }
 
-template <size_t N, typename H, typename... T>
-const QString receiver_impl<N, H, T...>::type_hash = speech::impl::identify<H>();
+template <size_t N, bool Enable_Queue, typename H, typename... T>
+const QString receiver_impl<N, Enable_Queue, H, T...>::type_hash = speech::impl::identify<H>();
 
-template <size_t N, typename H, typename... T>
+template <size_t N, bool Enable_Queue, typename H, typename... T>
 template <typename Regular>
-typename std::enable_if<!std::is_base_of<QObject, Regular>::value>::type receiver_impl<N, H, T...>::receive(QString code, const QByteArray &value, specializer<N> s)
+typename std::enable_if<!std::is_base_of<QObject, Regular>::value>::type receiver_impl<N, Enable_Queue, H, T...>::receive(QString code, const QByteArray &value, specializer<N> s)
 {
     if (code != type_hash)
     {
         specializer<N + 1> s;
-        return receiver_impl<N, Regular, T...>::receive(code, value, s);
+        return receiver_impl<N, Enable_Queue, Regular, T...>::receive(code, value, s);
     }
 
     QDataStream ss(&const_cast<QByteArray &>(value), QIODevice::ReadOnly);
@@ -31,25 +31,20 @@ typename std::enable_if<!std::is_base_of<QObject, Regular>::value>::type receive
 
     ss >> val;
 
-    // if(std::is_move_constructible<Regular>::value)
-    //     m_messages.push(std::move(val));
-    // else
-    //     m_messages.push(val);
-
     //Enqueue object by moving if it is not possible, copy then
     enqueue<Regular>(val);
 
     on_receive(m_messages.back());
 }
 
-template <size_t N, typename H, typename... T>
+template <size_t N, bool Enable_Queue, typename H, typename... T>
 template <typename QObj>
-typename std::enable_if<std::is_base_of<QObject, QObj>::value>::type receiver_impl<N, H, T...>::receive(QString code, const QByteArray &value, specializer<N> s)
+typename std::enable_if<std::is_base_of<QObject, QObj>::value>::type receiver_impl<N, Enable_Queue, H, T...>::receive(QString code, const QByteArray &value, specializer<N> s)
 {
     if (code != type_hash)
     {
         specializer<N + 1> s;
-        return receiver_impl<N, QObj, T...>::receive(code, value, s);
+        return receiver_impl<N, Enable_Queue, QObj, T...>::receive(code, value, s);
     }
 
     QDataStream ss(&const_cast<QByteArray &>(value), QIODevice::ReadOnly);
@@ -63,38 +58,44 @@ typename std::enable_if<std::is_base_of<QObject, QObj>::value>::type receiver_im
     on_receive(*val);
 }
 
-template <size_t N, typename H, typename... T>
+template <size_t N, bool Enable_Queue, typename H, typename... T>
 template <typename Movable>
-typename std::enable_if<std::is_same<Movable, H>::value && std::is_move_constructible<Movable>::value>::type
-receiver_impl<N, H, T...>::enqueue(H &val, identifier<H>)
+typename std::enable_if<Enable_Queue && std::is_same<Movable, H>::value && std::is_move_constructible<Movable>::value>::type
+receiver_impl<N, Enable_Queue, H, T...>::enqueue(H &val, identifier<H>)
 {
     m_messages.push(std::move(val));
 }
 
-template <size_t N, typename H, typename... T>
+template <size_t N, bool Enable_Queue, typename H, typename... T>
 template <typename NotMovable>
-typename std::enable_if<std::is_same<NotMovable, H>::value && !std::is_move_constructible<NotMovable>::value>::type
-receiver_impl<N, H, T...>::enqueue(H &val, identifier<H>)
+typename std::enable_if<Enable_Queue && std::is_same<NotMovable, H>::value && !std::is_move_constructible<NotMovable>::value>::type
+receiver_impl<N, Enable_Queue, H, T...>::enqueue(H &val, identifier<H>)
 {
     m_messages.push(val);
 }
 
-template <size_t N, typename H, typename... T>
+template<size_t N, bool Enable_Queue, typename H, typename... T>
+template<typename Entity>
+typename std::enable_if<!Enable_Queue && std::is_same<Entity , H>::value>::type  
+receiver_impl<N, Enable_Queue, H, T...>::enqueue(H& val, identifier<H>)
+{   }
+
+template <size_t N, bool Enable_Queue, typename H, typename... T>
 template <typename X>
-typename std::enable_if<std::is_same<X, H>::value && !std::is_base_of<X, QObject>::value, std::queue<H> &>::type receiver_impl<N, H, T...>::messages(identifier<H>)
+typename std::enable_if<std::is_same<X, H>::value && !std::is_base_of<X , QObject>::value, std::queue<X>&>::type receiver_impl<N, Enable_Queue, H, T...>::messages(identifier<X>)
 {
     return m_messages;
 }
 
-template <size_t N, typename H, typename... T>
+template <size_t N, bool Enable_Queue, typename H, typename... T>
 template <typename X>
-typename std::enable_if<std::is_same<X, H>::value && std::is_base_of<X, QObject>::value, std::queue<H *> &>::type receiver_impl<N, H, T...>::messages(identifier<H>)
+typename std::enable_if<std::is_same<X, H>::value && std::is_base_of<X , QObject>::value, std::queue<X*>&>::type receiver_impl<N, Enable_Queue, H, T...>::messages(identifier<X>)
 {
     return m_qobj_messages;
 }
 
-template <size_t N, typename H, typename... T>
-size_t receiver_impl<N, H, T...>::parse(const QByteArray &entity_data)
+template <size_t N, bool Enable_Queue, typename H, typename... T>
+size_t receiver_impl<N, Enable_Queue, H , T...>::parse(const QByteArray &entity_data)
 {
     //Check whether data is available
     if (entity_data.isEmpty())
@@ -114,7 +115,7 @@ size_t receiver_impl<N, H, T...>::parse(const QByteArray &entity_data)
     auto total_required_length = static_cast<size_t>(size) + static_cast<size_t>(SizeOfLengthTag);
 
     //If available bytes are not enough to express the entity
-    if (total_required_length < static_cast<size_t>(entity_data.size()))
+    if (total_required_length > static_cast<size_t>(entity_data.size()))
         return 0; //Return without parsing
 
     this->receive(code, actual_data, specializer<0>{});
@@ -122,8 +123,8 @@ size_t receiver_impl<N, H, T...>::parse(const QByteArray &entity_data)
     return total_required_length;
 }
 
-template <size_t N, typename H, typename... T>
-void receiver_impl<N, H, T...>::on_receive(const H &)
+template <size_t N, bool Enable_Queue, typename H, typename... T>
+void receiver_impl<N, Enable_Queue, H, T...>::on_receive(const H &)
 {
 }
 

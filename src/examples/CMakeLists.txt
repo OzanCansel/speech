@@ -1,2 +1,4 @@
-add_subdirectory(udp)
+add_subdirectory(model)
 add_subdirectory(qobject)
+add_subdirectory(tcp)
+add_subdirectory(udp)

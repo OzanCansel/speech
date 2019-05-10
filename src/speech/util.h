@@ -2,6 +2,7 @@
 #define SPEECH_UTIL_H
 
 #include <QString>
+#include <QObject>
 #include <type_traits>
 #include <typeinfo>
 #include <regex>
@@ -81,6 +82,11 @@ public:
     T const& get() const {return m_value; }
 private:
     T m_value;
+};
+
+struct qobject_deleter
+{
+    void operator()(QObject* obj) { obj->deleteLater(); }
 };
 
 } // namespace impl
