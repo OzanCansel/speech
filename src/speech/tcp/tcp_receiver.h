@@ -22,10 +22,13 @@ namespace speech
             using shared_socket_Type = shared_socket<socket_type>;
 
             tcp_receiver(shared_socket<QTcpSocket>&);
+            QTcpSocket& socket();
 
             private:
 
             int on_data_received(const QByteArray&);
+
+            QTcpSocket& m_socket;
 
         };
     }

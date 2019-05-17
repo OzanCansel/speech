@@ -28,6 +28,7 @@ namespace speech
 
                 void new_connection();
                 void disconnected(QTcpSocket* s);
+                void destroyed(QTcpSocket* s);
                 std::tuple<T...> m_factory;
                 std::unordered_map<std::unique_ptr<shared_socket<QTcpSocket>> , handlers_cont>  m_alive_connections;
                 QTcpServer m_server;

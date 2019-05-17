@@ -12,6 +12,8 @@ namespace speech
 
         template<typename... T>
         tcp_transmitter<T...>::tcp_transmitter(QTcpSocket& socket)
+            :
+                m_socket{ socket }
         {   
             if(!m_socket.isOpen())
                 connect_to_host();

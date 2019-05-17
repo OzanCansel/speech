@@ -32,9 +32,10 @@ typename std::enable_if<!std::is_base_of<QObject, Regular>::value>::type receive
     ss >> val;
 
     //Enqueue object by moving if it is not possible, copy then
-    enqueue<Regular>(val);
 
-    on_receive(m_messages.back());
+    on_receive(val);
+
+    enqueue<Regular>(val);
 }
 
 template <size_t N, bool Enable_Queue, typename H, typename... T>

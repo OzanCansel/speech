@@ -51,10 +51,20 @@ namespace speech
             QObject::connect(socket , &QTcpSocket::disconnected , [this, socket]() {
                 disconnected(socket);
             });
+
+            QObject::connect(socket , &QTcpSocket::destroyed , [this, socket]() {
+                destroyed(socket);
+            });
         }
 
         template<typename... T>
         void tcp_server<T...>::disconnected(QTcpSocket* socket)
+        {
+            socket->deleteLater();
+        }
+
+        template<typename... T>
+        void tcp_server<T...>::destroyed(QTcpSocket* socket)
         {
             auto entry = std::find_if(m_alive_connections.begin() , m_alive_connections.end(), [&socket](const auto& shared_socket)
             {

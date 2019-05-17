@@ -1,5 +1,6 @@
 #include <QObject>
 #include <QByteArray>
+#include <QTimer>
 #include <vector>
 
 namespace speech
@@ -9,13 +10,14 @@ namespace speech
     {
         public:
 
-            shared_socket<QTcpSocket>(QTcpSocket& socket) : m_socket { socket } { 
+            shared_socket<QTcpSocket>(QTcpSocket& socket) : m_socket { socket } g
+            {
                 QObject::connect(&m_socket , &QTcpSocket::readyRead , [this] {
                     on_data_received();
                 });
             }
 
-            const QTcpSocket& socket() const
+            QTcpSocket& socket()
             {
                 return m_socket;
             }
@@ -30,7 +32,7 @@ namespace speech
             void on_data_received()
             {
 
-                if(!m_socket.bytesAvailable())
+                if(!m_socket.bytesAvailable() && m_buffer.isEmpty())
                     return;
 
                 //Read bytes
@@ -49,9 +51,15 @@ namespace speech
                         
                 });
 
-                m_buffer.remove(0 , static_cast<int>(number_of_bytes_processed));
+                if(number_of_bytes_processed > 0)
+                    m_buffer.remove(0 , static_cast<int>(number_of_bytes_processed));
 
-                on_data_received();
+                // if(m_socket.bytesAvailable() || !m_buffer.isEmpty())
+                //     on_data_received();
+
+                QTimer::singleShot(0 , [this](){
+                    on_data_received();
+                });
             }
 
             QTcpSocket& m_socket;
