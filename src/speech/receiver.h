@@ -77,7 +77,7 @@ template <std::size_t i , bool EnableQueue>
 class receiver_impl<i , EnableQueue>
 {
   public:
-    void receive(QString code, const QByteArray &data, specializer<i> specializer);
+    bool receive(QString code, const QByteArray &data, specializer<i> specializer);
 
     template<class T>
     typename std::enable_if<EnableQueue , std::queue<T>&>::type messages(identifier<T>);
@@ -111,11 +111,11 @@ class receiver_impl<N, EnableQueue, H, T...> :
 
     //Primary template
     template<typename Regular = H>
-    typename std::enable_if<!std::is_base_of<QObject , Regular>::value>::type receive(QString code, const QByteArray &value, specializer<N> s);
+    typename std::enable_if<!std::is_base_of<QObject , Regular>::value , bool>::type receive(QString code, const QByteArray &value, specializer<N> s);
 
     //Specialization for QObject
     template<typename QObj = H>
-    typename std::enable_if<std::is_base_of<QObject , QObj>::value>::type receive(QString code, const QByteArray &value, specializer<N> s);
+    typename std::enable_if<std::is_base_of<QObject , QObj>::value , bool>::type receive(QString code, const QByteArray &value, specializer<N> s);
 
   protected:
 
