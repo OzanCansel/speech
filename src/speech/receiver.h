@@ -14,7 +14,7 @@ namespace speech
 namespace impl
 {
 
-template <size_t N, typename... T>
+template <size_t N,  bool EnableQueue, typename... T>
 class receiver_impl;
 
 template <size_t N>
@@ -32,19 +32,61 @@ void depack_impl(QDataStream &, Values &, specializer<N>);
 template <typename... T>
 std::tuple<T...> depack(const QByteArray &);
 
+template<bool EnableQueue, typename T , typename = void>
+class message_queue;
+
+template<typename T>
+class message_queue<false , T>
+{ 
+  public:
+      void enqueue(T& val, identifier<T> = identifier<T>{});
+};
+
+//If  it is QObject
+template<typename T>
+class message_queue<true , T , typename std::enable_if<std::is_base_of<QObject , T>::value>::type>
+{ 
+  public:
+    inline std::queue<T*>& messages(identifier<T> = identifier<T>{});
+  protected:
+    std::queue<T*> m_messages;
+};
+
+//If it is regular
+template<typename T>
+class message_queue<true , T , typename std::enable_if<!std::is_base_of<QObject , T>::value>::type>
+{
+  public:
+
+    inline std::queue<T>& messages(identifier<T> = identifier<T>{});
+
+    template<typename Movable = T>
+    typename std::enable_if<std::is_move_constructible<Movable>::value>::type enqueue(Movable& val, identifier<Movable> = identifier<Movable>{});
+
+    //Enqueue by copying
+    template<typename NotMovable = T>
+    typename std::enable_if<!std::is_move_constructible<NotMovable>::value>::type enqueue(NotMovable& val, identifier<NotMovable> = identifier<NotMovable>{});
+
+  protected:
+
+    std::queue<T> m_messages;
+};
+
 // Base case: empty tuple
-template <std::size_t i>
-class receiver_impl<i>
+template <std::size_t i , bool EnableQueue>
+class receiver_impl<i , EnableQueue>
 {
   public:
     void receive(QString code, const QByteArray &data, specializer<i> specializer);
 
     template<class T>
-    std::queue<T>& messages(identifier<T>);
+    typename std::enable_if<EnableQueue , std::queue<T>&>::type messages(identifier<T>);
 };
 
-template <size_t N, typename H, typename... T>
-class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
+template <size_t N,  bool EnableQueue, typename H, typename... T>
+class receiver_impl<N, EnableQueue, H, T...> : 
+          public receiver_impl<N + 1, EnableQueue, T...> ,
+          public message_queue<EnableQueue , H>
 {
   public:
 
@@ -57,8 +99,15 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
 
     virtual ~receiver_impl() {}
 
-    using receiver_impl<N + 1, T...>::receive;
-    using receiver_impl<N + 1, T...>::messages;
+    using receiver_impl<N + 1, EnableQueue, T...>::receive;
+
+    using receiver_impl<N + 1, EnableQueue, T...>::messages;
+
+    template<typename E =  H, bool M = EnableQueue, typename = typename std::enable_if<M && std::is_same<E , H>::value>::type>
+    decltype(std::declval<message_queue<true , H>>().messages()) messages(identifier<H> = identifier<H>{})
+    {
+        return message_queue<EnableQueue , H>::messages(identifier<E>{});
+    }
 
     //Primary template
     template<typename Regular = H>
@@ -68,36 +117,17 @@ class receiver_impl<N, H, T...> : public receiver_impl<N + 1, T...>
     template<typename QObj = H>
     typename std::enable_if<std::is_base_of<QObject , QObj>::value>::type receive(QString code, const QByteArray &value, specializer<N> s);
 
-    // template<typename M>
-    template <typename X>
-    typename std::enable_if<std::is_same<X, H>::value && !std::is_base_of<X , QObject>::value, std::queue<H>&>::type messages(identifier<H> = identifier<H>{});
-
-    template <typename X>
-    typename std::enable_if<std::is_same<X, H>::value && std::is_base_of<X , QObject>::value, std::queue<H*>&>::type messages(identifier<H> = identifier<H>{});
-
   protected:
 
     virtual void on_receive(const H &);
     size_t parse(const QByteArray &);
-    
-  private:
 
-  //Enqueue by moving
-  template<typename Movable>
-  typename std::enable_if<std::is_same<Movable , H>::value && std::is_move_constructible<Movable>::value>::type enqueue(H& val, identifier<H> = identifier<H>{});
-
-  //Enqueue by copying
-  template<typename NotMovable>
-  typename std::enable_if<std::is_same<NotMovable , H>::value && !std::is_move_constructible<NotMovable>::value>::type enqueue(H& val, identifier<H> = identifier<H>{});
-
-  std::queue<H*> m_qobj_messages;
-  std::queue<H> m_messages;
 };
 
 } // namespace impl
 
-template <typename... T>
-using receiver = impl::receiver_impl<0, T...>;
+template <bool EnableQueue , typename... T>
+using receiver = impl::receiver_impl<0, EnableQueue , T...>;
 
 } // namespace speech
 

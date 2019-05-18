@@ -12,22 +12,23 @@ int main(int argc, char **argv)
 
     QCoreApplication app(argc, argv);
 
-    udp_receiver<greeting, roll_dice> receiver{ speech::port(12345) };
+    queued_udp_receiver<greeting, roll_dice> udp{ speech::port(12345) };
 
     QTimer checkMessages;
 
     checkMessages.setInterval(30);
     QObject::connect(&checkMessages, &QTimer::timeout, [&]() {
-        while (!receiver.messages<roll_dice>().empty())
+
+        while (!udp.messages<roll_dice>().empty())
         {
-            qDebug() << "roll_dice => " << receiver.messages<roll_dice>().front();
-            receiver.messages<roll_dice>().pop();
+            qDebug() << "roll_dice => " << udp.messages<roll_dice>().front();
+            udp.messages<roll_dice>().pop();
         }
 
-        while (!receiver.messages<greeting>().empty())
+        while (!udp.messages<greeting>().empty())
         {
-            qDebug() << "greeting => " << receiver.messages<greeting>().front();
-            receiver.messages<greeting>().pop();
+            qDebug() << "greeting => " << udp.messages<greeting>().front();
+            udp.messages<greeting>().pop();
         }
 
     });
