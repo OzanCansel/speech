@@ -39,6 +39,7 @@ template<typename T>
 class message_queue<false , T>
 { 
   public:
+      inline std::queue<T*>& messages(identifier<T> = identifier<T>{}) = delete;
       void enqueue(T& val, identifier<T> = identifier<T>{});
 };
 
@@ -79,8 +80,7 @@ class receiver_impl<i , EnableQueue>
   public:
     bool receive(QString code, const QByteArray &data, specializer<i> specializer);
 
-    template<class T>
-    typename std::enable_if<EnableQueue , std::queue<T>&>::type messages(identifier<T>);
+    void messages() = delete;
 };
 
 template <size_t N,  bool EnableQueue, typename H, typename... T>
