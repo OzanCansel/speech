@@ -56,7 +56,7 @@ namespace speech
             void on_data_received()
             {
                 auto& sck = m_socket->ref();
-
+                int parsed_data_length{};
                 do
                 {
 
@@ -65,7 +65,7 @@ namespace speech
 
                     bool invalid_msg{ false };
                     int could_not_be_parsed_count{};
-                    int parsed_data_length{ };
+                    parsed_data_length = 0;
 
                     //Call listeners
                     for(auto f : m_listeners)
@@ -113,7 +113,7 @@ namespace speech
                         m_buffer.remove(0 , parsed_data_length);
                     }
 
-                } while(!m_buffer.isEmpty() || sck.bytesAvailable());
+                } while((!m_buffer.isEmpty() && parsed_data_length > 0) || sck.bytesAvailable());
             }
 
             std::unique_ptr<speech::handle::handle<QTcpSocket>> m_socket;

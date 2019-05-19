@@ -73,7 +73,7 @@ namespace speech
                 return false;
 
             socket.write(data);
-            socket.waitForBytesWritten();
+            // socket.waitForBytesWritten();
 
             return true;
         }
