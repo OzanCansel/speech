@@ -7,9 +7,17 @@ namespace speech
         
         template<typename... T>
         tcp_receiver<T...>::tcp_receiver(shared_socket<QTcpSocket>& shared_sck)
+            :   
+                m_socket{ shared_sck.socket() }
         {
             using namespace std::placeholders;
             shared_sck.attach(std::bind(&tcp_receiver<T...>::on_data_received , this , _1));
+        }
+
+        template<typename... T>
+        QTcpSocket& tcp_receiver<T...>::device()
+        {
+            return m_socket;
         }
 
         template<typename... T>

@@ -1,0 +1,34 @@
+image:
+- Ubuntu
+- Visual Studio 2017
+build: off
+
+for:
+ - 
+    matrix:
+     only:
+      - image: Ubuntu
+      
+    before_build:
+    - sudo apt-get -y install qt5-default
+    
+    build_script:
+    - echo Compiling with Ubuntu
+    - mkdir build
+    - cd build
+    - cmake ..
+    - cmake --build .
+
+ -
+    matrix:
+     only:
+      - image: Visual Studio 2017
+     
+    before_build:
+     - set PATH=C:\Qt\5.9.7\msvc2015\lib\cmake;%PATH%
+     
+    build_script:
+     - mkdir build
+     - cd build
+     - cmake -G "Visual Studio 14 2015" ..
+     - cmake --build .

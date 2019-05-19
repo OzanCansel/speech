@@ -4,6 +4,7 @@
 #include <QHostAddress>
 #include <QCommandLineParser>
 #include <speech/tcp/tcp_transmitter.h>
+#include <memory>
 #include <greeting.h>
 #include <roll_dice.h>
 
@@ -37,7 +38,11 @@ int main(int argc , char** argv)
 
     auto delay = 1000.0 / fps / 2.0;
 
+    auto shared_sck = std::make_shared<QTcpSocket>();
+    auto unique_sck = std::make_unique<QTcpSocket>();
     tcp_transmitter<greeting , roll_dice> tcp{ QHostAddress(QHostAddress::LocalHost) , speech::port(port) };
+    tcp_transmitter<greeting , roll_dice> tcp_unique{ std::move(unique_sck) , QHostAddress(QHostAddress::LocalHost) , speech::port(port) };
+    tcp_transmitter<greeting , roll_dice> tcp_shared{ shared_sck , QHostAddress(QHostAddress::LocalHost) , speech::port(port) };
 
     for(auto i = 0;;++i)
     {
@@ -45,6 +50,8 @@ int main(int argc , char** argv)
 
         g.my_name_is = QString("Hello %0").arg(i);
         tcp.transmit(g);
+        tcp_unique.transmit(g);
+        tcp_shared.transmit(g);
         qDebug() << "transmit => " << g;
 
         QThread::msleep(delay);
@@ -54,6 +61,8 @@ int main(int argc , char** argv)
 
         dice.chance = rand() % 100;\
         tcp.transmit(dice);
+        tcp_unique.transmit(dice);
+        tcp_shared.transmit(dice);
 
         qDebug() << "transmit => " << dice;
         QCoreApplication::processEvents();

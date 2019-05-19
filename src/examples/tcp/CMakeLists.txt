@@ -9,7 +9,7 @@ target_link_libraries(feed speech::speech model::model)
 target_link_libraries(server speech::speech model::model)
 target_link_libraries(server-with-functors speech::speech model::model)
 
-set_target_properties(server server-with-functors PROPERTIES
+set_target_properties(server server-with-functors feed PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO

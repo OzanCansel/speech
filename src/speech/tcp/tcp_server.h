@@ -41,11 +41,11 @@ namespace speech
         }
 
         template<typename Entity>
-        std::function<std::unique_ptr<speech::handler<Entity , tcp_receiver>>(shared_socket<QTcpSocket>&)> make_handler_2(std::function<void(const Entity&)> f)
+        std::function<std::unique_ptr<speech::handler_f<Entity , tcp_receiver>>(shared_socket<QTcpSocket>&)> make_handler_f(std::function<void(const Entity& , QTcpSocket&)> f)
         {
             using namespace impl;
             return [f](shared_socket<QTcpSocket>& sck){ 
-                return std::make_unique<handler<Entity , tcp_receiver>>(  f , sck ); 
+                return std::make_unique<handler_f<Entity , tcp_receiver>>(  f , sck ); 
             };
         }
 

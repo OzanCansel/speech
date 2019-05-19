@@ -15,7 +15,7 @@ namespace speech
                 });
             }
 
-            const QTcpSocket& socket() const
+            inline  QTcpSocket& socket()
             {
                 return m_socket;
             }

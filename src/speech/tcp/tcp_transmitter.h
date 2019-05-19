@@ -3,6 +3,7 @@
 
 #include <QTcpSocket>
 #include "speech/transmitter.h"
+#include "speech/handle/handle.h"
 
 namespace speech
 {
@@ -13,9 +14,13 @@ namespace speech
         {
             public:
 
-                tcp_transmitter(QHostAddress, speech::port);
                 tcp_transmitter(QTcpSocket&);
-                tcp_transmitter(QTcpSocket&, QHostAddress, speech::port);
+                tcp_transmitter(const QHostAddress&, const speech::port&);
+                tcp_transmitter(QTcpSocket&, const QHostAddress&, const speech::port&);
+                tcp_transmitter(std::unique_ptr<QTcpSocket>);
+                tcp_transmitter(std::unique_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
+                tcp_transmitter(std::shared_ptr<QTcpSocket>);
+                tcp_transmitter(std::shared_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
 
             protected:
 
@@ -23,14 +28,9 @@ namespace speech
 
             private:
 
-                void connect_to_host();
+                void connect_to_host(const QHostAddress& , int);
                 
-                QTcpSocket m_default;
-                QTcpSocket& m_socket;
-
-                QHostAddress m_host;
-                int m_port {};
-
+                std::unique_ptr<speech::handle::handle<QTcpSocket>>  m_socket;
         };
     }
 }

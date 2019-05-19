@@ -14,18 +14,23 @@ namespace speech
     {
 
         template<typename... T>
-        class tcp_receiver : protected receiver<T...>
+        class tcp_receiver : protected receiver<false , T...>
         {
             public:
 
             using socket_type = QTcpSocket;
             using shared_socket_Type = shared_socket<socket_type>;
 
-            tcp_receiver(shared_socket<QTcpSocket>&);
+                tcp_receiver(shared_socket<QTcpSocket>&);
+                
+            protected:
+
+                inline QTcpSocket& device();
 
             private:
 
-            int on_data_received(const QByteArray&);
+                int on_data_received(const QByteArray&);
+                QTcpSocket& m_socket;
 
         };
     }

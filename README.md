@@ -1,5 +1,6 @@
-## develop [![Build Status](https://travis-ci.com/OzanCansel/speech.svg?branch=develop)](https://travis-ci.com/OzanCansel/speech)
-## master [![Build Status](https://travis-ci.com/OzanCansel/speech.svg?branch=master)](https://travis-ci.com/OzanCansel/speech)
+## develop [![Build status](https://ci.appveyor.com/api/projects/status/p2ddxq76pqmboj74/branch/develop?svg=true)](https://ci.appveyor.com/project/OzanCansel/speech/branch/develop)
+## master [![Build status](https://ci.appveyor.com/api/projects/status/p2ddxq76pqmboj74/branch/master?svg=true)](https://ci.appveyor.com/project/OzanCansel/speech/branch/master)
+
 
 # speech
 
