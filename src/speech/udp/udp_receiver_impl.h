@@ -1,23 +1,24 @@
-#include "udp_receiver.h"
-
 namespace speech
 {
 namespace udp
 {
-template <typename... T>
-udp_receiver<T...>::udp_receiver(port p)
-    : udp_receiver<T...>{m_built_in_socket, p}
+
+namespace impl
+{
+template <bool EnableQueue, typename... T>
+udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(port p)
+    : udp_receiver_impl<EnableQueue , T...>{m_built_in_socket, p}
 {
 }
 
-template <typename... T>
-udp_receiver<T...>::udp_receiver(QUdpSocket &socket)
+template <bool EnableQueue, typename... T>
+udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(QUdpSocket &socket)
     : m_socket(socket)
 {
 }
 
-template <typename... T>
-udp_receiver<T...>::udp_receiver(QUdpSocket &socket, port p)
+template <bool EnableQueue, typename... T>
+udp_receiver_impl<EnableQueue ,T...>::udp_receiver_impl(QUdpSocket &socket, port p)
     : m_socket{socket},
       m_port{p.get()}
 {
@@ -31,8 +32,8 @@ udp_receiver<T...>::udp_receiver(QUdpSocket &socket, port p)
     });
 }
 
-template <typename... T>
-void udp_receiver<T...>::on_data_received()
+template <bool EnableQueue, typename... T>
+void udp_receiver_impl<EnableQueue , T...>::on_data_received()
 {
     while (m_socket.hasPendingDatagrams())
     {
@@ -52,6 +53,7 @@ void udp_receiver<T...>::on_data_received()
         //Clear processed bytes from buffer
         m_buffer.remove(0, static_cast<int>(number_of_bytes_processed));
     }
+}
 }
 } // namespace udp
 } // namespace speech

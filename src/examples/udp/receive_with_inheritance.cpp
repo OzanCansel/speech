@@ -1,12 +1,14 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include "models.h"
+#include <QCommandLineParser>
+#include <greeting.h>
+#include <roll_dice.h>
 #include <speech/udp/udp_receiver.h>
 
 struct my_receiver : speech::udp::udp_receiver<greeting , roll_dice>
 {
     
-    my_receiver() : speech::udp::udp_receiver<greeting , roll_dice>{ speech::port(12345) } { }
+    my_receiver(speech::port p) : speech::udp::udp_receiver<greeting , roll_dice>{ p } { }
 
     protected:
         
@@ -25,7 +27,23 @@ int main(int argc, char** argv)
 {
     QCoreApplication app(argc , argv);
 
-    my_receiver receiver;
+    QCommandLineParser parser;
+    parser.addHelpOption();
+
+    parser.addOptions({{ {"p", "port"} , "Specify port number" , "port number" }});
+
+    parser.process(app);
+
+    //Defaults
+    auto port = 24942;
+
+    if (parser.isSet("p"))
+        port = parser.value("p").toInt();
+
+
+    my_receiver receiver{ speech::port{port} };
+
+    qDebug() << "Udp port " << port << " is listening.";
 
     return app.exec();
 }

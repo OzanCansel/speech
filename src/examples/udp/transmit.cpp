@@ -2,31 +2,66 @@
 #include <QCoreApplication>
 #include <QHostAddress>
 #include <QThread>
+#include <QCommandLineParser>
 #include <speech/udp/udp_transmitter.h>
-#include "models.h"
+#include <memory>
+#include <greeting.h>
+#include <roll_dice.h>
 
 int main(int argc, char **argv)
 {
     using namespace speech::udp;
+    using namespace std;
 
     QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName("speech-udp-transmitter");
 
-    udp_transmitter<greeting, roll_dice> transmitter{QHostAddress{QHostAddress::LocalHost}, speech::port(12345)};
+    QCommandLineParser parser;
+    parser.addHelpOption();
+
+    parser.addOptions(
+                {
+                    { {"p", "port"} , "Specify port number" , "port number" } ,
+                    { {"a", "addr"} , "Specify address ip" , "address" }
+                }
+                );
+
+    parser.process(app);
+
+    //Defaults
+    auto port = 24942;
+    QHostAddress host{ QHostAddress::LocalHost };
+
+    if (parser.isSet("p"))
+        port = parser.value("p").toInt();
+
+    if(parser.isSet("a"))
+        host = QHostAddress{ parser.value("a") };
+
+    auto shared_sck = make_shared<QUdpSocket>();
+    auto unique_sck = make_unique<QUdpSocket>();
+    udp_transmitter<greeting, roll_dice> udp{ host, speech::port(port)};
+    udp_transmitter<greeting, roll_dice> udp_shared{ shared_sck , host, speech::port(port) };
+    udp_transmitter<greeting, roll_dice> udp_unique{ std::move(unique_sck) , host, speech::port(port)};
+
     for (int i = 0;; ++i)
     {
         greeting greeting_msg;
         greeting_msg.my_name_is = QString("%0 - %1").arg("Hi ! My name is Ozan -").arg(i);
-        transmitter.transmit(greeting_msg);
-        qDebug() << "transmit => " << greeting_msg;
+        udp.transmit(greeting_msg);
+        udp_shared.transmit(greeting_msg);
+        udp_unique.transmit(greeting_msg);
+
+        qDebug() << "transmitting to " << port << " => " << greeting_msg;
         QCoreApplication::processEvents();
         QThread::msleep(rand() % 1000);
+
         roll_dice dice;
-        transmitter.transmit(dice);
-        qDebug() << "transmit => " << dice;
+        udp.transmit(dice);
+        udp_shared.transmit(dice);
+        udp_unique.transmit(dice);
+
+        qDebug() << "transmitting to " << port << " => " << dice;
         QCoreApplication::processEvents();
         QThread::msleep(rand() % 1000);
     }
-
-    return app.exec();
 }

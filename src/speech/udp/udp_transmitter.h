@@ -1,8 +1,12 @@
 #ifndef SPEECH_UDP_TRANSMITTER_H
 #define SPEECH_UDP_TRANSMITTER_H
 
+#include <memory>
 #include <QHostAddress>
+#include <QUdpSocket>
+#include "speech/util.h"
 #include "speech/transmitter.h"
+#include "speech/handle/handle.h"
 
 namespace speech
 {
@@ -14,7 +18,11 @@ class udp_transmitter : public transmitter<T...>
 
   public:
 
-    udp_transmitter(QHostAddress, speech::port port);
+    udp_transmitter(const QHostAddress&, const speech::port&);
+    udp_transmitter(QUdpSocket&, const QHostAddress&, const speech::port&);
+    udp_transmitter(std::unique_ptr<QUdpSocket> , const QHostAddress&, const speech::port&);
+    udp_transmitter(std::shared_ptr<QUdpSocket> , const QHostAddress&, const speech::port&);
+
     int port() const;
     QHostAddress destination() const;
 
@@ -22,8 +30,10 @@ class udp_transmitter : public transmitter<T...>
     bool write(const QByteArray &) override;
 
   private:
-    QHostAddress m_addr{};
-    int m_port{-1};
+
+    QHostAddress m_addr;
+    int m_port{ -1 };
+    std::unique_ptr<speech::handle::handle<QUdpSocket>> m_socket;
 
 };
 } // namespace udp

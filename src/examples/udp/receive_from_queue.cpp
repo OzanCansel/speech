@@ -1,8 +1,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTimer>
+#include <QCommandLineParser>
 #include <speech/udp/udp_receiver.h>
-#include "models.h"
+#include <greeting.h>
+#include <roll_dice.h>
 
 
 int main(int argc, char **argv)
@@ -12,27 +14,43 @@ int main(int argc, char **argv)
 
     QCoreApplication app(argc, argv);
 
-    udp_receiver<greeting, roll_dice> receiver{ speech::port(12345) };
+    QCommandLineParser parser;
+    parser.addHelpOption();
+
+    parser.addOptions({{ {"p", "port"} , "Specify port number" , "port number" }});
+
+    parser.process(app);
+
+    //Defaults
+    auto port = 24942;
+
+    if (parser.isSet("p"))
+        port = parser.value("p").toInt();
+
+    queued_udp_receiver<greeting, roll_dice> udp{ speech::port(port) };
 
     QTimer checkMessages;
 
     checkMessages.setInterval(30);
     QObject::connect(&checkMessages, &QTimer::timeout, [&]() {
-        while (!receiver.messages<roll_dice>().empty())
+
+        while (!udp.messages<roll_dice>().empty())
         {
-            qDebug() << "roll_dice => " << receiver.messages<roll_dice>().front();
-            receiver.messages<roll_dice>().pop();
+            qDebug() << "roll_dice => " << udp.messages<roll_dice>().front();
+            udp.messages<roll_dice>().pop();
         }
 
-        while (!receiver.messages<greeting>().empty())
+        while (!udp.messages<greeting>().empty())
         {
-            qDebug() << "greeting => " << receiver.messages<greeting>().front();
-            receiver.messages<greeting>().pop();
+            qDebug() << "greeting => " << udp.messages<greeting>().front();
+            udp.messages<greeting>().pop();
         }
 
     });
 
     checkMessages.start();
+
+    qDebug() << "Udp port " << port << " is listening.";
 
     return app.exec();
 }
