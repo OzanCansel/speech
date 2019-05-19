@@ -2,7 +2,6 @@
 #include <QHostAddress>
 #include <QDebug>
 #include <speech/tcp/tcp_server.h>
-#include <speech/receiver.h>
 #include "greeting.h"
 #include "roll_dice.h"
 
@@ -14,7 +13,7 @@ int main(int argc, char** argv)
     using namespace speech::tcp;
     using namespace speech::impl;
 
-    auto server = make_server( QHostAddress(QHostAddress::LocalHost) ,  speech::port(24942) ,
+    auto server = make_server( QHostAddress::Any ,  speech::port(24942) ,
         make_handler_f<greeting>([](const greeting& greeting , QTcpSocket&){
             qDebug() << greeting;
         }) 
