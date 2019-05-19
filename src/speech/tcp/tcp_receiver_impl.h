@@ -1,4 +1,5 @@
 #include "speech/error/connection_error.h"
+#include <functional>
 
 namespace speech
 {

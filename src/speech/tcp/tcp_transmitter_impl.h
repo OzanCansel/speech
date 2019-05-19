@@ -1,8 +1,8 @@
 #include "speech/error/connection_error.h"
 #include "speech/handle/unique_ptr_handle.h"
 #include "speech/handle/shared_ptr_handle.h"
-
 #include <memory>
+#include <utility>
 
 namespace speech
 {

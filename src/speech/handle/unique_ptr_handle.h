@@ -1,5 +1,5 @@
-#ifndef SPEECH_UNIQUE_PTR_H
-#define SPEECH_UNIQUE_PTR_H
+#ifndef SPEECH_UNIQUE_PTR_HANDLE_H
+#define SPEECH_UNIQUE_PTR_HANDLE_H
 
 #include <memory>
 #include "handle.h"

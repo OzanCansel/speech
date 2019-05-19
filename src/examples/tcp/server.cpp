@@ -66,11 +66,6 @@ class handler_2 : public speech::tcp::tcp_receiver<roll_dice>
 
 };
 
-struct streamable
-{
-    virtual QByteArray serialize() = 0;
-};
-
 int main(int argc, char** argv)
 {
     QCoreApplication app(argc , argv);

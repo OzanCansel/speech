@@ -1,5 +1,5 @@
-#ifndef SPEECH_SOCKET_H
-#define SPEECH_SOCKET_H
+#ifndef SPEECH_HANDLE_H
+#define SPEECH_HANDLE_H
 
 namespace speech
 {

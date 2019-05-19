@@ -1,5 +1,5 @@
-#ifndef SPEECH_SHARED_PTR_SCK_H
-#define SPEECH_SHARED_PTR_SCK_H
+#ifndef SPEECH_SHARED_PTR_HANDLE_H
+#define SPEECH_SHARED_PTR_HANDLE_H
 
 #include <memory>
 #include "handle.h"

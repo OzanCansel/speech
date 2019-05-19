@@ -3,9 +3,11 @@
 
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QHostAddress>
 #include <unordered_map>
 #include <tuple>
 #include <functional>
+#include <memory>
 #include "speech/util.h"
 #include "speech/shared_socket.h"
 #include "speech/handler_f.h"

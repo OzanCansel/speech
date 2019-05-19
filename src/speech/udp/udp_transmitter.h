@@ -2,6 +2,7 @@
 #define SPEECH_UDP_TRANSMITTER_H
 
 #include <QHostAddress>
+#include "speech/util.h"
 #include "speech/transmitter.h"
 
 namespace speech
