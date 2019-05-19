@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 #include <QCoreApplication>
 #include <QHostAddress>
 #include <QDebug>
-#include <speech/tcp/tcp_server.h>
+#include <speech/tcp/tcp_transmitter.h>
 #include "models.h"
 
 int main(int argc, char** argv)
@@ -126,10 +126,10 @@ int main(int argc, char** argv)
 
     using namespace speech;
     using namespace speech::tcp;
-	
-    tcp_transmitter<greeting , roll_dice, me> tcp{ QHostAddress::LocalHost , speech::port(24942) };
-	tcp.transmit(greeting{ "my name is speech-lib" });
-	tcp.transmit(roll_dice{});
+
+    tcp_transmitter<greeting , roll_dice> tcp{ QHostAddress::LocalHost , speech::port(24942) };
+    tcp.transmit(greeting{ "my name is speech-lib" });
+    tcp.transmit(roll_dice{});
     app.exec();
 }
 ```
@@ -137,18 +137,25 @@ int main(int argc, char** argv)
 ## udp transmit
 ```c++
 //a main .cpp file
-//We defined our models
+#include <QCoreApplication>
+#include <speech/udp/udp_transmitter.h>
+#include "models.h"
+
 //Now, we can transmit our models on desired protocol
 int main(int argc, char** argv)
 {
-	QCoreApplication app(argc, argv);
-	udp_transmitter<greeting, roll_dice> udp{QHostAddress{QHostAddress::Broadcast}, speech::port(12345)};
-	
-	//Those models will be broadcasted
-	udp.transmit(greeting{ "my name is speech-lib" });
-	udp.transmit(roll_dice{ });
-	
-	app.exec();
+    QCoreApplication app(argc, argv);
+
+    using namespace speech;
+    using namespace speech::udp;
+
+    udp_transmitter<greeting, roll_dice> udp{QHostAddress{QHostAddress::Broadcast}, speech::port(12345)};
+
+    //Those models will be broadcasted
+    udp.transmit(greeting{ "my name is speech-lib" });
+    udp.transmit(roll_dice{ });
+
+    app.exec();
 }
 ```
 ## udp receive with inheritance
