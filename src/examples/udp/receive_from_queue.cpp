@@ -1,8 +1,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTimer>
+#include <QCommandLineParser>
 #include <speech/udp/udp_receiver.h>
-#include "models.h"
+#include <greeting.h>
+#include <roll_dice.h>
 
 
 int main(int argc, char **argv)
@@ -12,7 +14,20 @@ int main(int argc, char **argv)
 
     QCoreApplication app(argc, argv);
 
-    queued_udp_receiver<greeting, roll_dice> udp{ speech::port(12345) };
+    QCommandLineParser parser;
+    parser.addHelpOption();
+
+    parser.addOptions({{ {"p", "port"} , "Specify port number" , "port number" }});
+
+    parser.process(app);
+
+    //Defaults
+    auto port = 24942;
+
+    if (parser.isSet("p"))
+        port = parser.value("p").toInt();
+
+    queued_udp_receiver<greeting, roll_dice> udp{ speech::port(port) };
 
     QTimer checkMessages;
 
@@ -34,6 +49,8 @@ int main(int argc, char **argv)
     });
 
     checkMessages.start();
+
+    qDebug() << "Udp port " << port << " is listening.";
 
     return app.exec();
 }

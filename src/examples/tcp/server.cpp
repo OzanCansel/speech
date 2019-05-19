@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QUuid>
 #include <QCommandLineParser>
+#include <QDebug>
 #include <speech/tcp/tcp_server.h>
 #include <speech/tcp/tcp_receiver.h>
 #include <greeting.h>
@@ -90,6 +91,8 @@ int main(int argc, char** argv)
     auto sw = make_server(QHostAddress::Any , speech::port{ port } , 
         make_handler<handler_1>() , 
         make_handler<handler_2>());
+
+    qDebug() << "Tcp Server running at " << port << " port";
 
     return app.exec();
 }

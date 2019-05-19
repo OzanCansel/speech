@@ -15,5 +15,5 @@ set_target_properties(server server-with-functors feed PROPERTIES
     CXX_EXTENSIONS NO
 )
 
-install(TARGETS server feed
+install(TARGETS server server-with-functors feed
         RUNTIME DESTINATION bin/examples/tcp)

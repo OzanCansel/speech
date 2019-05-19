@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     parser.process(app);
 
     //Defaults
-    auto port = 12345;
+    auto port = 24942;
 
     if (parser.isSet("p"))
         port = parser.value("p").toInt();
