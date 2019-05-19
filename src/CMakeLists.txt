@@ -9,6 +9,10 @@ add_library(speech::speech ALIAS speech)
 
 target_link_libraries(speech INTERFACE Qt5::Core Qt5::Network)
 
+set_target_properties( speech PROPERTIES
+    INTERFACE_COMPILE_FEATURES cxx_std_14
+)
+
 target_include_directories(speech INTERFACE  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  
     $<INSTALL_INTERFACE:include>  # <prefix>/include/mylib
