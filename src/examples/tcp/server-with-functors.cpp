@@ -17,7 +17,8 @@ int main(int argc, char** argv)
     auto server = make_server( QHostAddress(QHostAddress::LocalHost) ,  speech::port(24942) ,
         make_handler_f<greeting>([](const greeting& greeting , QTcpSocket&){
             qDebug() << greeting;
-        }) ,
+        }) 
+        ,
         make_handler_f<roll_dice>([](const roll_dice& dice , QTcpSocket&){
             qDebug() << dice;
         })

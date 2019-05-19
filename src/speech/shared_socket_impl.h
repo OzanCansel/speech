@@ -1,6 +1,8 @@
 #include <QObject>
 #include <QByteArray>
+#include <QDataStream>
 #include <vector>
+#include <QDebug>
 
 namespace speech
 {
@@ -29,29 +31,63 @@ namespace speech
 
             void on_data_received()
             {
+                do
+                {
 
-                if(!m_socket.bytesAvailable())
-                    return;
+                    //Read bytes
+                    m_buffer.append(m_socket.readAll());
 
-                //Read bytes
-                m_buffer.append(m_socket.readAll());
+                    bool invalid_msg{ false };
+                    int could_not_be_parsed_count{};
+                    int parsed_data_length{ };
 
-                int number_of_bytes_processed = 0;
+                    //Call listeners
+                    for(auto f : m_listeners)
+                    {
+                        auto processed_bytes = f(m_buffer);
 
-                //Notify listeners
-                std::for_each(m_listeners.begin() , m_listeners.end() , [this , &number_of_bytes_processed](
-                    std::function<int(const QByteArray&)> f){
+                        if(processed_bytes == -1)
+                        {
+                            could_not_be_parsed_count++;
+                        }
+                        else if(processed_bytes == -2)
+                        {
+                            invalid_msg = true;
+                            break;
+                        }
+                        else if(processed_bytes > parsed_data_length)
+                        {
+                            parsed_data_length = processed_bytes;
+                        }
+                    }
 
-                   auto bytes = f(m_buffer);
+                    auto could_not_be_parsed = could_not_be_parsed_count == m_listeners.size();
 
-                   if(number_of_bytes_processed < bytes)
-                        number_of_bytes_processed = bytes;
-                        
-                });
+                    const static QByteArray start_token = [](){
+                        QByteArray arr;
+                        QDataStream ss(&arr , QIODevice::WriteOnly);
+                        ss.setVersion(QDataStream::Qt_5_0);
+                        ss << 241994 << 1511999 << 991973;
+                        return arr;
+                    }();
 
-                m_buffer.remove(0 , static_cast<int>(number_of_bytes_processed));
+                    if(invalid_msg || could_not_be_parsed)
+                    {
 
-                on_data_received();
+                        if(could_not_be_parsed)
+                            m_buffer.remove(0 , start_token.size());
+
+                        //discard current message and jump to next message
+                        auto start_of_msg_idx = m_buffer.indexOf(start_token);
+                        auto invalid_data_len = start_of_msg_idx == -1 ? m_buffer.size() : start_of_msg_idx;
+                        m_buffer.remove(0 , invalid_data_len);
+                    }
+                    else
+                    {
+                        m_buffer.remove(0 , parsed_data_length);
+                    }
+
+                } while(!m_buffer.isEmpty() || m_socket.bytesAvailable());
             }
 
             QTcpSocket& m_socket;

@@ -21,7 +21,7 @@ QDataStream& operator>>(QDataStream& in, roll_dice& dice)
 
 QDebug operator<<(QDebug out, const roll_dice& dice)
 {
-    out << "{ chance : " << dice.chance << " , timestamp : " << dice.timestamp.toString(Qt::DateFormat::ISODate);
+    out << "{ chance : " << dice.chance << " , timestamp : " << dice.timestamp.toString(Qt::DateFormat::ISODate) << " }";
     return out;
 }
 
