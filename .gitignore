@@ -36,3 +36,6 @@
 
 #build
 build
+
+#for qt-creator
+CMakeLists.txt.user
