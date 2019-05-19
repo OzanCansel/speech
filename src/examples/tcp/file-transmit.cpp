@@ -3,6 +3,9 @@
 #include <QThread>
 #include <QHostAddress>
 #include <QCommandLineParser>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileInfoList>
 #include <speech/tcp/file_transmitter.h>
 
 int main(int argc , char** argv)
@@ -38,13 +41,30 @@ int main(int argc , char** argv)
     if(parser.isSet("f"))
         file = parser.value("f");
     else
-        throw "File did not specified, (--file some-file.txt)";
+        throw std::runtime_error("File did not specified, (--file some-file.txt)");
 
-    QTcpSocket sck;
-    shared_socket<QTcpSocket> shared{ sck };
-    file_transmitter t { shared, QHostAddress(host) , speech::port(port) };
+    std::vector<std::unique_ptr<file_transmitter>> file_senders;
 
-    t.send(file);
+    QFileInfo f_info{ file };
+    QFileInfoList files;
+
+    if(f_info.isDir())
+    {
+        QDir folder{f_info.filePath()};
+        folder.setFilter(QDir::Files);
+        files = folder.entryInfoList();
+    }
+    else
+    {
+        files.push_back(QFileInfo(file));
+    }
+
+    for(auto file : files)
+    {
+        auto sender = std::make_unique<file_transmitter>( std::make_unique<shared_socket<QTcpSocket>>(std::make_unique<QTcpSocket>()), QHostAddress(host) , speech::port(port) );
+        sender->send(file.filePath());
+        file_senders.push_back(std::move(sender));
+    }
 
     return app.exec();
 }

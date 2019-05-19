@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QThread>
+#include <QLocale>
 #include "speech/tcp/tcp_transmitter.h"
 #include "speech/tcp/tcp_receiver.h"
 
@@ -85,10 +86,11 @@ namespace speech
     {
         public:
 
-            file_transmitter(shared_socket<QTcpSocket>& socket , QHostAddress host , speech::port p)
+            file_transmitter(std::unique_ptr<shared_socket<QTcpSocket>> socket , QHostAddress host , speech::port p)
                 :
-                speech::tcp::tcp_transmitter<impl::f_start , impl::f_data , impl::f_finish>{ socket.socket(), host , p } ,
-                speech::tcp::tcp_receiver<impl::f_ok> { socket }
+                speech::tcp::tcp_transmitter<impl::f_start , impl::f_data , impl::f_finish>{ socket->socket(), host , p } ,
+                speech::tcp::tcp_receiver<impl::f_ok> { *socket } ,
+                m_socket{ std::move(socket) }
             {   }
 
             bool send(QString file)
@@ -133,7 +135,7 @@ namespace speech
                     m_sent += d.data.size();
                     transmit(d);
 
-                    qDebug() << "Sent " << m_sent << "/" << m_total_size;
+                    qDebug() << "Sent " << QLocale(QLocale::Turkish).toString(m_sent) << "/" << QLocale(QLocale::Turkish).toString(m_total_size);
                 }
                 else
                 {
@@ -145,11 +147,13 @@ namespace speech
                 // QThread::msleep(5);
             }
 
-            int m_packet_size { 55000 };
+            int m_packet_size { 100000 };
             int m_sent{};
             int m_total_size{};
             QFile m_file;
             impl::f_start m_start;
+
+            std::unique_ptr<shared_socket<QTcpSocket>> m_socket;
     };
 }
 
