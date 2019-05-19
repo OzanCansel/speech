@@ -2,6 +2,9 @@
 #define SPEECH_TCP_TRANSMITTER_H
 
 #include <QTcpSocket>
+#include <QHostAddress>
+#include <memory>
+#include "speech/util.h"
 #include "speech/transmitter.h"
 #include "speech/handle/handle.h"
 
