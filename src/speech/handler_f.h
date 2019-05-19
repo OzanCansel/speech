@@ -9,14 +9,14 @@ namespace speech
 {
 
         template<typename Entity, template<typename...> class Receiver>
-        class handler : public Receiver<Entity>
+        class handler_f : public Receiver<Entity>
         {
             public:
 
-                using callback_t = std::function<void(const Entity&)>;
+                using callback_t = std::function<void(const Entity& , typename Receiver<Entity>::socket_type&)>;
 
                 template<typename... Params>
-                handler(callback_t , Params&...);
+                handler_f(callback_t , Params&...);
 
             protected:
 
@@ -29,6 +29,6 @@ namespace speech
         };
 };
 
-#include "handler_impl.h"
+#include "handler_f_impl.h"
 
 #endif

@@ -15,10 +15,11 @@ int main(int argc, char** argv)
     using namespace speech::impl;
 
     auto server = make_server( QHostAddress(QHostAddress::LocalHost) ,  speech::port(24942) ,
-        make_handler_2<greeting>([](const greeting& greeting){
+        make_handler_f<greeting>([](const greeting& greeting , QTcpSocket&){
             qDebug() << greeting;
-        }) ,
-        make_handler_2<roll_dice>([](const roll_dice& dice){
+        }) 
+        ,
+        make_handler_f<roll_dice>([](const roll_dice& dice , QTcpSocket&){
             qDebug() << dice;
         })
     );

@@ -7,8 +7,14 @@ add_executable(qobject_receive qobject_receive.cpp entity.h entity.cpp car_info.
 set_target_properties(auto_serialize PROPERTIES AUTOMOC TRUE)
 set_target_properties(qobject_receive PROPERTIES AUTOMOC TRUE)
 
-target_link_libraries(auto_serialize speech)
-target_link_libraries(qobject_receive speech)
+target_link_libraries(auto_serialize speech::speech model::model)
+target_link_libraries(qobject_receive speech::speech model::model)
+
+set_target_properties(auto_serialize qobject_receive PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
 
 install(TARGETS auto_serialize
 		RUNTIME DESTINATION bin/examples/qobject)

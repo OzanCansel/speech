@@ -43,7 +43,7 @@ bool transmitter_impl<N, H, T...>::transmit(const H &value)
 
     auto data = pack(value);
     auto id_tagged = pack(type_hash, data);
-    auto sized_pack = pack(id_tagged.size(), id_tagged);
+    auto sized_pack = pack(241994, 1511999, 991973, id_tagged.size(), id_tagged);
 
     return write(sized_pack);
 }

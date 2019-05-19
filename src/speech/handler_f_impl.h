@@ -3,7 +3,7 @@ namespace speech
 
         template<typename Entity, template<typename...> class Receiver>
         template<typename... Params>
-        handler<Entity , Receiver>::handler(callback_t f ,
+        handler_f<Entity , Receiver>::handler_f(callback_t f ,
                                     Params&... params)
                                     :
             Receiver<Entity>{ params... } ,
@@ -11,11 +11,8 @@ namespace speech
         {   }
 
         template<typename Entity, template<typename...> class Receiver>
-        void handler<Entity , Receiver>::on_receive(const Entity& e)
+        void handler_f<Entity , Receiver>::on_receive(const Entity& e)
         {
-            m_callback(e);
-
-            using base = Receiver<Entity>;
-            base::messages(speech::impl::identifier<Entity >{});
+            m_callback(e , Receiver<Entity>::device());
         }
 }

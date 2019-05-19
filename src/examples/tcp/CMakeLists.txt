@@ -13,8 +13,7 @@ target_link_libraries(server-with-functors speech::speech model::model)
 target_link_libraries(file-transmit speech::speech)
 target_link_libraries(file-receive speech::speech)
 
-
-set_target_properties(server server-with-functors file-transmit file-receive PROPERTIES
+set_target_properties(server server-with-functors feed file-receive file-transmit PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO

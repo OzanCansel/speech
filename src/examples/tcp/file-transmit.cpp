@@ -12,35 +12,39 @@ int main(int argc , char** argv)
 
     QCoreApplication app(argc , argv);
 
-
     QCommandLineParser parser;
     parser.addHelpOption();
 
     parser.addOptions(
-        { {{"p", "port"} , "Specify host port number" , "port number" } , 
-          {{"f", "file"} , "Specify a file which will be transmitted" , "file path"   }
+        { 
+            {{"a", "addr"} , "Specify host ip" , "address" } ,
+            {{"p", "port"} , "Specify host port number" , "port number" } , 
+            {{"f", "file"} , "Specify a file which will be transmitted" , "file path"   }
         });
 
     parser.process(app);
 
     //Defaults
     auto port = 24942;
-    auto fps = 2;
+    QString file;
+    QString host;
 
     if (parser.isSet("p"))
         port = parser.value("p").toInt();
 
-    if(parser.isSet("f"))
-        fps = parser.value("f").toInt();
+    if (parser.isSet("a"))
+        host = parser.value("a");
 
-    auto delay = 1000.0 / fps / 2.0;
+    if(parser.isSet("f"))
+        file = parser.value("f");
+    else
+        throw "File did not specified, (--file some-file.txt)";
 
     QTcpSocket sck;
-    shared_socket<QTcpSocket> shared{sck};
-    file_transmitter t { shared, QHostAddress("10.230.1.96") , speech::port(24942) };
-    // file_transmitter t { shared, QHostAddress::LocalHost , speech::port(24942) };
+    shared_socket<QTcpSocket> shared{ sck };
+    file_transmitter t { shared, QHostAddress(host) , speech::port(port) };
 
-    t.send("/home/ozanc/dummy-data/file.txt");
+    t.send(file);
 
     return app.exec();
 }

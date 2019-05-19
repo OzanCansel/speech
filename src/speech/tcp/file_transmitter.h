@@ -145,7 +145,7 @@ namespace speech
                 // QThread::msleep(5);
             }
 
-            int m_packet_size { 5500000 };
+            int m_packet_size { 55000 };
             int m_sent{};
             int m_total_size{};
             QFile m_file;

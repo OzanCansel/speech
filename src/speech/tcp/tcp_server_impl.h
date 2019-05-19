@@ -1,7 +1,7 @@
 #include "speech/error/connection_error.h"
 #include "speech/error/port_in_use_error.h"
 #include "speech/util.h"
-#include <memory>
+#include <QObject>
 #include <utility>
 
 namespace speech

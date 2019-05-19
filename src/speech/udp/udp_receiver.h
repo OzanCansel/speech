@@ -10,14 +10,17 @@ namespace speech
 namespace udp
 {
 
-template <typename... T>
-class udp_receiver : public receiver<T...>
+namespace impl
+{
+
+template <bool EnableQueue, typename... T>
+class udp_receiver_impl : public receiver<EnableQueue , T...>
 {
   public:
 
-    udp_receiver(port);
-    udp_receiver(QUdpSocket &);
-    udp_receiver(QUdpSocket &, port);
+    udp_receiver_impl(port);
+    udp_receiver_impl(QUdpSocket &);
+    udp_receiver_impl(QUdpSocket &, port);
 
   private:
     void on_data_received();
@@ -27,6 +30,15 @@ class udp_receiver : public receiver<T...>
     int m_port{};
     QByteArray m_buffer;
 };
+
+}
+
+template<typename... T>
+using  udp_receiver = impl::udp_receiver_impl<false,  T...>;
+
+template<typename... T>
+using queued_udp_receiver = impl::udp_receiver_impl<true, T...>;
+
 } // namespace udp
 } // namespace speech
 

@@ -1,4 +1,5 @@
 #include "speech/error/connection_error.h"
+#include <functional>
 
 namespace speech
 {
@@ -7,7 +8,7 @@ namespace speech
         
         template<typename... T>
         tcp_receiver<T...>::tcp_receiver(shared_socket<QTcpSocket>& shared_sck)
-            :
+            :   
                 m_socket{ shared_sck.socket() }
         {
             using namespace std::placeholders;
@@ -15,7 +16,7 @@ namespace speech
         }
 
         template<typename... T>
-        QTcpSocket& tcp_receiver<T...>::socket()
+        QTcpSocket& tcp_receiver<T...>::device()
         {
             return m_socket;
         }
