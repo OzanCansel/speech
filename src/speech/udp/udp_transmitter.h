@@ -36,6 +36,13 @@ class udp_transmitter : public transmitter<T...>
     std::unique_ptr<speech::handle::handle<QUdpSocket>> m_socket;
 
 };
+
+template<typename T, typename Socket>
+void udp_transmit(const T&, const QHostAddress&, const speech::port&, Socket);
+
+template<typename T>
+void udp_transmit(const T&, const QHostAddress&, const speech::port&);
+
 } // namespace udp
 } // namespace speech
 

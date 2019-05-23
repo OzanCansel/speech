@@ -35,6 +35,15 @@ namespace speech
                 
                 std::unique_ptr<speech::handle::handle<QTcpSocket>>  m_socket;
         };
+
+        template<typename T, typename Socket>
+        void tcp_transmit(const T& , const QHostAddress&, const speech::port& , Socket);
+
+        template<typename T, typename Socket>
+        void tcp_transmit(const T&, Socket);
+        
+        template<typename T>
+        void tcp_transmit(const T&, const QHostAddress&, const speech::port&);
     }
 }
 

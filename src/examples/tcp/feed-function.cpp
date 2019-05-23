@@ -42,38 +42,39 @@ int main(int argc , char** argv)
     if(parser.isSet("a"))
         host = QHostAddress(parser.value("a"));
 
-    auto delay = 1000.0 / fps / 2.0;
+    auto delay = 1000.0 / fps;
 
     auto shared_sck = std::make_shared<QTcpSocket>();
-    auto unique_sck = std::make_unique<QTcpSocket>();
-
-    tcp_transmitter<greeting , roll_dice, me> tcp{ host , speech::port(port) };
-    tcp_transmitter<greeting , roll_dice, me> tcp_unique{ std::move(unique_sck) , host , speech::port(port) };
-    tcp_transmitter<greeting , roll_dice, me> tcp_shared{ shared_sck , host , speech::port(port) };
     
+    QTcpSocket socket;
+    QTcpSocket already_opened_sck;
+    already_opened_sck.connectToHost(host , port);
+
+    if(!already_opened_sck.waitForConnected())
+    {
+        throw std::runtime_error("Could not connect to host");
+    }
+
     for(auto i = 0;;++i)
     {
         greeting g;
 
         g.my_name_is = QString("Hello %0").arg(i);
-        tcp.transmit(g);
-        tcp_unique.transmit(g);
-        tcp_shared.transmit(g);
+
+        //Create a socket, connect to host, transmit data
+        tcp_transmit(g , host , speech::port(port));
+
+        //Use shared_sck, connect to host, transmit data
+        tcp_transmit(g , host , speech::port(port), shared_sck);
+        
+        //Use 'socket', connect to host and transmit
+        tcp_transmit(g , host , speech::port(port), std::ref(socket));
+
+        //transmit over already connected socket
+        tcp_transmit(g , std::ref(already_opened_sck));
+        tcp_transmit(g , shared_sck);
+
         qDebug() << "transmit => " << g;
-
-        QThread::msleep(delay);
-        QCoreApplication::processEvents();
-
-        roll_dice dice;
-
-        dice.chance = rand() % 100;\
-        tcp.transmit(dice);
-        tcp_unique.transmit(dice);
-        tcp_shared.transmit(dice);
-
-        qDebug() << "transmit => " << dice;
-
-        tcp.transmit(me{});
 
         QCoreApplication::processEvents();
         QThread::msleep(delay);

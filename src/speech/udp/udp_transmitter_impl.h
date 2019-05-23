@@ -58,5 +58,28 @@ bool udp_transmitter<T...>::write(const QByteArray &data)
 
     return true;
 }
+
+template<typename T, typename Socket>
+void udp_transmit(const T& entity , const QHostAddress& host, const speech::port& p, Socket socket)
+{
+
+
+        static_assert(std::is_same<Socket , std::reference_wrapper<QUdpSocket>>::value ||
+                            std::is_same<Socket, std::shared_ptr<QUdpSocket>>::value ,
+                            "Socket must be one of these type of sockets : [ QUdpSocket, std::shared_ptr<QUdpSocket> ]");
+
+
+    udp_transmitter<T> udp{ socket , host , p };
+
+    udp.transmit(entity);
+}
+
+template<typename T>
+void udp_transmit(const T& entity, const QHostAddress& host, const speech::port& p)
+{
+    QUdpSocket socket;
+    udp_transmit(entity, host , p , std::ref(socket));
+}
+
 } // namespace udp
 } // namespace speech

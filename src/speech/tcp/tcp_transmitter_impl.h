@@ -31,7 +31,7 @@ namespace speech
                 m_socket{ new speech::handle::handle<QTcpSocket>{socket} }
         {   
             if(!m_socket->ref().isOpen())
-                connect_to_host();
+                connect_to_host(host , p.get());
         }
 
         template<typename... T>
@@ -86,6 +86,32 @@ namespace speech
 
             if(!socket.waitForConnected())
                 throw speech::error::connection_error{ "could not be connected." };
+        }
+
+        template<typename T, typename Socket>
+        void tcp_transmit(const T& entity, const QHostAddress& host, const speech::port& p, Socket s)
+        {
+
+            static_assert(std::is_same<Socket , std::reference_wrapper<QTcpSocket>>::value ||
+                                std::is_same<Socket, std::shared_ptr<QTcpSocket>>::value ,
+                                "Socket must be one of these type of sockets : [ QTcpSocket, std::shared_ptr<QTcpSocket> ]");
+
+            tcp_transmitter<T> tcp{ s , host , p };
+            tcp.transmit(entity);
+        }
+
+        template<typename T, typename Socket>
+        void tcp_transmit(const T& entity, Socket socket)
+        {
+            tcp_transmitter<T> tcp{ socket };
+            tcp.transmit(entity);
+        }
+
+        template<typename T>
+        void tcp_transmit(const T& entity, const QHostAddress& host, const speech::port& p)
+        {
+            QTcpSocket socket;
+            tcp_transmit(entity, host, p, std::ref(socket));
         }
     }
 }
