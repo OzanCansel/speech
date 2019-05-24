@@ -3,28 +3,30 @@
 
 namespace speech
 {
-    namespace tcp
-    {
-        
-        template<typename... T>
-        tcp_receiver<T...>::tcp_receiver(shared_socket<QTcpSocket>& shared_sck)
-            :   
-                m_socket{ shared_sck.socket() }
-        {
-            using namespace std::placeholders;
-            shared_sck.attach(std::bind(&tcp_receiver<T...>::on_data_received , this , _1));
-        }
+namespace tcp
+{
 
-        template<typename... T>
-        QTcpSocket& tcp_receiver<T...>::device()
-        {
-            return m_socket;
-        }
-
-        template<typename... T>
-        int tcp_receiver<T...>::on_data_received(const QByteArray& buffer)
-        {
-            return this->parse(buffer);
-        }
-    }
+namespace impl
+{
+template <bool EnableQueue, typename... T>
+tcp_receiver_impl<EnableQueue, T...>::tcp_receiver_impl(shared_socket<QTcpSocket> &shared_sck)
+    : m_socket{shared_sck.socket()}
+{
+    using namespace std::placeholders;
+    shared_sck.attach(std::bind(&tcp_receiver<T...>::on_data_received, this, _1));
 }
+
+template <bool EnableQueue, typename... T>
+QTcpSocket &tcp_receiver_impl<EnableQueue, T...>::device()
+{
+    return m_socket;
+}
+
+template <bool EnableQueue, typename... T>
+int tcp_receiver_impl<EnableQueue, T...>::on_data_received(const QByteArray &buffer)
+{
+    return this->parse(buffer);
+}
+} // namespace impl
+} // namespace tcp
+} // namespace speech
