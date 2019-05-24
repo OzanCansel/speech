@@ -13,7 +13,7 @@ tcp_receiver_impl<EnableQueue, T...>::tcp_receiver_impl(shared_socket<QTcpSocket
     : m_socket{shared_sck.socket()}
 {
     using namespace std::placeholders;
-    shared_sck.attach(std::bind(&tcp_receiver<T...>::on_data_received, this, _1));
+    shared_sck.attach(std::bind(&tcp_receiver_impl<EnableQueue, T...>::on_data_received, this, _1));
 }
 
 template <bool EnableQueue, typename... T>

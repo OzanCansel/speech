@@ -16,7 +16,7 @@ namespace impl
 {
 
 template <bool EnableQueue, typename... T>
-class tcp_receiver_impl : protected receiver<EnableQueue, T...>
+class tcp_receiver_impl : public receiver<EnableQueue, T...>
 {
 public:
     using socket_type = QTcpSocket;
@@ -25,6 +25,7 @@ public:
     tcp_receiver_impl(shared_socket<QTcpSocket> &);
 
 protected:
+
     inline QTcpSocket &device();
 
 private:
