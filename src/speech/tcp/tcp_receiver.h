@@ -10,31 +10,37 @@
 
 namespace speech
 {
-    namespace tcp
-    {
+namespace tcp
+{
+namespace impl
+{
 
-        template<typename... T>
-        class tcp_receiver : protected receiver<false , T...>
-        {
-            public:
+template <bool EnableQueue, typename... T>
+class tcp_receiver_impl : protected receiver<EnableQueue, T...>
+{
+public:
+    using socket_type = QTcpSocket;
+    using shared_socket_Type = shared_socket<socket_type>;
 
-            using socket_type = QTcpSocket;
-            using shared_socket_Type = shared_socket<socket_type>;
+    tcp_receiver_impl(shared_socket<QTcpSocket> &);
 
-                tcp_receiver(shared_socket<QTcpSocket>&);
-                
-            protected:
+protected:
+    inline QTcpSocket &device();
 
-                inline QTcpSocket& device();
+private:
+    int on_data_received(const QByteArray &);
+    QTcpSocket &m_socket;
+};
+} // namespace impl
 
-            private:
+template<typename... T>
+using tcp_receiver = impl::tcp_receiver_impl<false, T...>;
 
-                int on_data_received(const QByteArray&);
-                QTcpSocket& m_socket;
+template<typename... T>
+using queued_tcp_receiver = impl::tcp_receiver_impl<true, T...>;
 
-        };
-    }
-}
+} // namespace tcp
+} // namespace speech
 
 #include "tcp_receiver_impl.h"
 
