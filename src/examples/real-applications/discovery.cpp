@@ -6,6 +6,7 @@
 #include <QHostInfo>
 #include <QTimer>
 #include <QDebug>
+#include <QThread>
 #include <QNetworkInterface>
 #include <speech/udp/udp_transmitter.h>
 #include <speech/udp/udp_receiver.h>
@@ -25,11 +26,12 @@ QString retrieve_mac_addr()
     return QString();
 }
 
-class discovery : speech::udp::udp_receiver<device_info>
+class discovery : speech::udp::udp_receiver<device_info> , speech::udp::udp_transmitter<device_info>
 {
     public:
 
-        discovery(speech::port p) : speech::udp::udp_receiver<device_info>{ p }
+        discovery(speech::port p) : speech::udp::udp_receiver<device_info>{ p } , 
+            speech::udp::udp_transmitter<device_info>{ QHostAddress(QHostAddress::Broadcast), p }
         {   
             m_broadcast_tick.setInterval(1000);
 
@@ -38,9 +40,7 @@ class discovery : speech::udp::udp_receiver<device_info>
                 using namespace speech;
                 using namespace speech::udp;
 
-                udp_transmit
-                (
-                    device_info 
+                transmit(device_info 
                     {
                         QHostInfo::localHostName() ,
                         retrieve_mac_addr() ,
@@ -49,9 +49,8 @@ class discovery : speech::udp::udp_receiver<device_info>
                         QSysInfo::currentCpuArchitecture() ,
                         QSysInfo::kernelType() ,
                         QSysInfo::kernelVersion()
-                    } , 
-                    QHostAddress(QHostAddress::Broadcast), p
-                );   
+                    }
+                );
             });
 
             m_broadcast_tick.start();
