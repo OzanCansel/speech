@@ -20,7 +20,7 @@ class udp_receiver_impl : public receiver<EnableQueue , T...>
 {
   public:
 
-    udp_receiver_impl(port);
+    udp_receiver_impl(port , QUdpSocket::BindFlag = QUdpSocket::DefaultForPlatform);
     udp_receiver_impl(shared_socket<QUdpSocket>&);
 
   private:
