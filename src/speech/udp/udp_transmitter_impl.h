@@ -53,10 +53,27 @@ bool udp_transmitter<T...>::write(const QByteArray &data)
 {
     auto& socket = m_socket->ref();
 
-    socket.writeDatagram(data, m_addr, m_port);
-    socket.waitForBytesWritten();
+    //Split into 512 bytes
+    //Here is why 512 bytes : https://doc.qt.io/qt-5/qudpsocket.html#writeDatagram
+    if(data.length() < 512)
+    {
+        auto res = socket.writeDatagram(data, m_addr, m_port);
+        return res == data.length();
+    }
+    else
+    {
+        for(auto i = 0; i < data.length(); i += 512)
+        {
+            auto curr_data = data.mid(i , 512);
+            auto res = socket.writeDatagram(curr_data, m_addr, m_port);
 
-    return true;
+            if(res != curr_data.length())
+                return false;
+
+        }
+    }
+
+    return false;
 }
 
 template<typename T, typename Socket>
