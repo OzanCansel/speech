@@ -10,6 +10,7 @@ for:
       - image: Ubuntu
       
     before_build:
+    - sudo apt-get update
     - sudo apt-get -y install qt5-default
     
     build_script:
