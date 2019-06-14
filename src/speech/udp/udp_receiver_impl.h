@@ -1,3 +1,5 @@
+#include <functional>
+
 namespace speech
 {
 namespace udp
@@ -7,52 +9,24 @@ namespace impl
 {
 template <bool EnableQueue, typename... T>
 udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(port p)
-    : udp_receiver_impl<EnableQueue , T...>{m_built_in_socket, p}
+    : m_socket{ new shared_socket<QUdpSocket>( std::make_unique<QUdpSocket>() ) }
 {
-}
-
-template <bool EnableQueue, typename... T>
-udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(QUdpSocket &socket)
-    : m_socket(socket)
-{
-}
-
-template <bool EnableQueue, typename... T>
-udp_receiver_impl<EnableQueue ,T...>::udp_receiver_impl(QUdpSocket &socket, port p)
-    : m_socket{socket},
-      m_port{p.get()}
-{
-    if (!m_socket.bind(m_port))
-    {
+    if(!m_socket->socket().bind(p.get()))
         throw std::runtime_error("Socket could not bind");
-    }
 
-    QObject::connect(&m_socket, &QUdpSocket::readyRead, [this]() {
-        on_data_received();
-    });
+    m_socket->attach(std::bind(&udp_receiver_impl<EnableQueue , T...>::on_data_received, this, std::placeholders::_1));
 }
 
 template <bool EnableQueue, typename... T>
-void udp_receiver_impl<EnableQueue , T...>::on_data_received()
+udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(shared_socket<QUdpSocket>& socket)
 {
-    while (m_socket.hasPendingDatagrams())
-    {
-        QByteArray datagram;
+    socket.attach(std::bind(&udp_receiver_impl<EnableQueue , T...>::on_data_received, this, std::placeholders::_1));
+}
 
-        datagram.resize(m_socket.pendingDatagramSize());
-
-        //Read datagram
-        QHostAddress client_address;
-        quint16 client_port;
-        m_socket.readDatagram(datagram.data(), datagram.size(), &client_address, &client_port);
-
-        m_buffer.append(datagram);
-
-        auto number_of_bytes_processed = this->parse(m_buffer);
-
-        //Clear processed bytes from buffer
-        m_buffer.remove(0, static_cast<int>(number_of_bytes_processed));
-    }
+template <bool EnableQueue, typename... T>
+int udp_receiver_impl<EnableQueue , T...>::on_data_received(const QByteArray& buffer)
+{
+    return this->parse(buffer);
 }
 }
 } // namespace udp

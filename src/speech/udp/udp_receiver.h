@@ -4,6 +4,8 @@
 #include "speech/receiver.h"
 #include "speech/util.h"
 #include <QUdpSocket>
+#include <memory>
+#include "speech/shared_socket.h"
 
 namespace speech
 {
@@ -19,16 +21,13 @@ class udp_receiver_impl : public receiver<EnableQueue , T...>
   public:
 
     udp_receiver_impl(port);
-    udp_receiver_impl(QUdpSocket &);
-    udp_receiver_impl(QUdpSocket &, port);
+    udp_receiver_impl(shared_socket<QUdpSocket>&);
 
   private:
-    void on_data_received();
 
-    QUdpSocket &m_socket;
-    QUdpSocket m_built_in_socket;
-    int m_port{};
-    QByteArray m_buffer;
+    int on_data_received(const QByteArray&);
+    std::unique_ptr<shared_socket<QUdpSocket>> m_socket;
+    
 };
 
 }
