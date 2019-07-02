@@ -7,7 +7,7 @@ namespace handle
 {
 template<typename T>
 struct handle {
-     handle ( T& sck )  :   m_sck{ sck }
+     explicit handle ( T& sck )  :   m_sck{ sck }
      {   }
 
      inline T& ref()

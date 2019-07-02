@@ -29,7 +29,7 @@ class discovery : speech::udp::udp_receiver<device_info>
 {
 public:
 
-     discovery ( speech::port p ) : speech::udp::udp_receiver<device_info>
+     explicit discovery ( speech::port p ) : speech::udp::udp_receiver<device_info>
      {
           p
      }

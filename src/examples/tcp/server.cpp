@@ -12,7 +12,7 @@ class handler_1 : public speech::tcp::tcp_receiver<greeting, roll_dice>
 
 public:
 
-     handler_1 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<greeting, roll_dice>
+     explicit handler_1 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<greeting, roll_dice>
      {
           sck
      }
@@ -49,7 +49,7 @@ class handler_2 : public speech::tcp::tcp_receiver<roll_dice>
 
 public:
 
-     handler_2 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<roll_dice>
+     explicit handler_2 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<roll_dice>
      {
           sck
      }

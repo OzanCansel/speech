@@ -22,7 +22,7 @@ public:
      using socket_type = QTcpSocket;
      using shared_socket_Type = shared_socket<socket_type>;
 
-     tcp_receiver_impl ( shared_socket<QTcpSocket> & );
+     explicit tcp_receiver_impl ( shared_socket<QTcpSocket> & );
 
 protected:
      inline QTcpSocket &device();

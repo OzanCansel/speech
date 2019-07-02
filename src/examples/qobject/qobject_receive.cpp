@@ -9,7 +9,7 @@
 
 struct qobject_receiver : speech::udp::udp_receiver<entity, car_info> {
 
-     qobject_receiver ( int port ) : speech::udp::udp_receiver<entity, car_info>
+     explicit qobject_receiver ( int port ) : speech::udp::udp_receiver<entity, car_info>
      {
           speech::port ( port )
      } { }

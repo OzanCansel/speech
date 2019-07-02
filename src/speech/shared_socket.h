@@ -21,9 +21,9 @@ template <typename Socket>
 class shared_socket
 {
 public:
-     shared_socket ( Socket & );
-     shared_socket ( std::shared_ptr<Socket> );
-     shared_socket ( std::unique_ptr<Socket> );
+     explicit shared_socket ( Socket & );
+     explicit shared_socket ( std::shared_ptr<Socket> );
+     explicit shared_socket ( std::unique_ptr<Socket> );
 
      inline Socket &socket();
      void attach ( std::function<int ( const QByteArray & ) > );

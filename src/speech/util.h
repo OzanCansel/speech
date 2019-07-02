@@ -91,7 +91,7 @@ private:
 };
 
 struct qobject_deleter {
-     void operator() ( QObject* obj )
+     void operator() ( QObject* obj ) const
      {
           obj->deleteLater();
      }

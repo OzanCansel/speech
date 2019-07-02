@@ -7,7 +7,7 @@
 
 struct my_receiver : speech::udp::udp_receiver<greeting, roll_dice> {
 
-     my_receiver ( speech::port p ) : speech::udp::udp_receiver<greeting, roll_dice>
+     explicit my_receiver ( speech::port p ) : speech::udp::udp_receiver<greeting, roll_dice>
      {
           p
      } { }

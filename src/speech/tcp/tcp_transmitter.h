@@ -17,12 +17,12 @@ class tcp_transmitter : public transmitter<T...>
 {
 public:
 
-     tcp_transmitter ( QTcpSocket& );
+     explicit tcp_transmitter ( QTcpSocket& );
      tcp_transmitter ( const QHostAddress&, const speech::port& );
      tcp_transmitter ( QTcpSocket&, const QHostAddress&, const speech::port& );
-     tcp_transmitter ( std::unique_ptr<QTcpSocket> );
+     explicit tcp_transmitter ( std::unique_ptr<QTcpSocket> );
      tcp_transmitter ( std::unique_ptr<QTcpSocket>, const QHostAddress&, const speech::port& );
-     tcp_transmitter ( std::shared_ptr<QTcpSocket> );
+     explicit tcp_transmitter ( std::shared_ptr<QTcpSocket> );
      tcp_transmitter ( std::shared_ptr<QTcpSocket>, const QHostAddress&, const speech::port& );
 
 protected:

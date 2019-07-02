@@ -19,7 +19,7 @@ public:
 private:
 
      QString m_name;
-     int m_identity;
+     int m_identity{ };
 };
 
 #endif
