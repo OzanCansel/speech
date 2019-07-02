@@ -16,32 +16,32 @@ template <typename... T>
 class udp_transmitter : public transmitter<T...>
 {
 
-  public:
+public:
 
-    udp_transmitter(const QHostAddress&, const speech::port&);
-    udp_transmitter(QUdpSocket&, const QHostAddress&, const speech::port&);
-    udp_transmitter(std::unique_ptr<QUdpSocket> , const QHostAddress&, const speech::port&);
-    udp_transmitter(std::shared_ptr<QUdpSocket> , const QHostAddress&, const speech::port&);
+     udp_transmitter ( const QHostAddress&, const speech::port& );
+     udp_transmitter ( QUdpSocket&, const QHostAddress&, const speech::port& );
+     udp_transmitter ( std::unique_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
+     udp_transmitter ( std::shared_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
 
-    int port() const;
-    QHostAddress destination() const;
+     int port() const;
+     QHostAddress destination() const;
 
-  protected:
-    bool write(const QByteArray &) override;
+protected:
+     bool write ( const QByteArray & ) override;
 
-  private:
+private:
 
-    QHostAddress m_addr;
-    int m_port{ -1 };
-    std::unique_ptr<speech::handle::handle<QUdpSocket>> m_socket;
+     QHostAddress m_addr;
+     int m_port{ -1 };
+     std::unique_ptr<speech::handle::handle<QUdpSocket>> m_socket;
 
 };
 
 template<typename T, typename Socket>
-void udp_transmit(const T&, const QHostAddress&, const speech::port&, Socket);
+void udp_transmit ( const T&, const QHostAddress&, const speech::port&, Socket );
 
 template<typename T>
-void udp_transmit(const T&, const QHostAddress&, const speech::port&);
+void udp_transmit ( const T&, const QHostAddress&, const speech::port& );
 
 } // namespace udp
 } // namespace speech

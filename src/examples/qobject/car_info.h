@@ -5,18 +5,18 @@
 
 class car_info : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(QString name READ name WRITE set_name)
+     Q_OBJECT
+     Q_PROPERTY ( QString name READ name WRITE set_name )
 
-    public:
+public:
 
-        QString name();
-        void set_name(QString);
+     QString name();
+     void set_name ( QString );
 
-    private:
+private:
 
-        QString m_name;
-        
+     QString m_name;
+
 };
 
 #endif

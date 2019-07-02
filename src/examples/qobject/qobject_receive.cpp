@@ -7,55 +7,58 @@
 #include "entity.h"
 #include "car_info.h"
 
-struct qobject_receiver : speech::udp::udp_receiver<entity , car_info>
-{
-    
-    qobject_receiver(int port) : speech::udp::udp_receiver<entity , car_info> { speech::port(port) } { }
+struct qobject_receiver : speech::udp::udp_receiver<entity, car_info> {
 
-    protected:
-        
-        void on_receive(const entity& greeting) override
-        {
-            using namespace speech;
-            
-            qDebug() << "receive => " << greeting;
-        }
+     qobject_receiver ( int port ) : speech::udp::udp_receiver<entity, car_info>
+     {
+          speech::port ( port )
+     } { }
 
-        void on_receive(const car_info& car) override
-        {
-            using namespace speech;
+protected:
 
-            qDebug() << "receive => " << car;
-        }
+     void on_receive ( const entity& greeting ) override
+     {
+          using namespace speech;
+
+          qDebug() << "receive => " << greeting;
+     }
+
+     void on_receive ( const car_info& car ) override
+     {
+          using namespace speech;
+
+          qDebug() << "receive => " << car;
+     }
 };
 
-int main(int argc, char **argv)
+int main ( int argc, char **argv )
 {
 
-    using namespace speech;
-    using namespace speech::udp;
+     using namespace speech;
+     using namespace speech::udp;
 
-    QCoreApplication app(argc, argv);
+     QCoreApplication app ( argc, argv );
 
-    
-    QCommandLineParser parser;
-    parser.addHelpOption();
 
-    parser.addOptions(
-        {{ {"p", "port"} , "Specify listening port" , "port number" }
-         });
+     QCommandLineParser parser;
+     parser.addHelpOption();
 
-    parser.process(app);
+     parser.addOptions ( {
+          { {"p", "port"}, "Specify listening port", "port number" }
+     } );
 
-    //Defaults
-    auto port = 24942;
+     parser.process ( app );
 
-    if (parser.isSet("p"))
-        port = parser.value("p").toInt();
+     //Defaults
+     auto port = 24942;
 
-    qDebug() << "Starting to listen udp port " << port;
+     if ( parser.isSet ( "p" ) ) {
+          port = parser.value ( "p" ).toInt();
+     }
 
-    qobject_receiver receiver { port };
+     qDebug() << "Starting to listen udp port " << port;
 
-    return app.exec();
+     qobject_receiver receiver { port };
+
+     return app.exec();
 }

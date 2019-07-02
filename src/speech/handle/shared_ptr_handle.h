@@ -6,17 +6,16 @@
 
 namespace speech
 {
-    namespace handle
-    {
-        template<typename  T>
-        struct shared_ptr_handle : handle<T>
-        {
-            shared_ptr_handle(std::shared_ptr<T> sck) : handle<T>(*sck.get()) , m_sck{  sck }
-            {   }
-            private:
-                std::shared_ptr<T> m_sck;
-        };
-    }
+namespace handle
+{
+template<typename  T>
+struct shared_ptr_handle : handle<T> {
+     shared_ptr_handle ( std::shared_ptr<T> sck ) : handle<T> ( *sck.get() ), m_sck{  sck }
+     {   }
+private:
+     std::shared_ptr<T> m_sck;
+};
+}
 }
 
 #endif

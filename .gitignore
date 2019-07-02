@@ -39,3 +39,7 @@ build
 
 #for qt-creator
 CMakeLists.txt.user
+
+#for kdevelop
+.kdev*
+speech.kdev*

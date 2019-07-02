@@ -8,25 +8,25 @@
 namespace speech
 {
 
-        template<typename Entity, template<typename...> class Receiver>
-        class handler_f : public Receiver<Entity>
-        {
-            public:
+template<typename Entity, template<typename...> class Receiver>
+class handler_f : public Receiver<Entity>
+{
+public:
 
-                using callback_t = std::function<void(const Entity& , typename Receiver<Entity>::socket_type&)>;
+     using callback_t = std::function<void ( const Entity&, typename Receiver<Entity>::socket_type& ) >;
 
-                template<typename... Params>
-                handler_f(callback_t , Params&...);
+     template<typename... Params>
+     handler_f ( callback_t, Params&... );
 
-            protected:
+protected:
 
-                void on_receive(const Entity&) override;
+     void on_receive ( const Entity& ) override;
 
-            private:
+private:
 
-                callback_t m_callback;
+     callback_t m_callback;
 
-        };
+};
 };
 
 #include "handler_f_impl.h"

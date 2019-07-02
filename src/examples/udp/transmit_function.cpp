@@ -8,59 +8,58 @@
 #include <greeting.h>
 #include <roll_dice.h>
 
-int main(int argc, char **argv)
+int main ( int argc, char **argv )
 {
-    using namespace speech::udp;
-    using namespace std;
+     using namespace speech::udp;
+     using namespace std;
 
-    QCoreApplication app(argc, argv);
+     QCoreApplication app ( argc, argv );
 
-    QCommandLineParser parser;
-    parser.addHelpOption();
+     QCommandLineParser parser;
+     parser.addHelpOption();
 
-    parser.addOptions(
-                {
-                    { {"p", "port"} , "Specify port number" , "port number" } ,
-                    { {"a", "addr"} , "Specify address ip" , "address" }
-                }
-                );
+     parser.addOptions ( {
+          { {"p", "port"}, "Specify port number", "port number" },
+          { {"a", "addr"}, "Specify address ip", "address" }
+     }
+                       );
 
-    parser.process(app);
+     parser.process ( app );
 
-    //Defaults
-    auto port = 24942;
-    QHostAddress host{ QHostAddress::LocalHost };
+     //Defaults
+     auto port = 24942;
+     QHostAddress host{ QHostAddress::LocalHost };
 
-    if (parser.isSet("p"))
-        port = parser.value("p").toInt();
+     if ( parser.isSet ( "p" ) ) {
+          port = parser.value ( "p" ).toInt();
+     }
 
-    if(parser.isSet("a"))
-        host = QHostAddress{ parser.value("a") };
+     if ( parser.isSet ( "a" ) )
+          host = QHostAddress{ parser.value ( "a" ) };
 
-    auto shared_sck = make_shared<QUdpSocket>();
+     auto shared_sck = make_shared<QUdpSocket>();
 
-    QUdpSocket socket;
+     QUdpSocket socket;
 
-    for (int i = 0;; ++i)
-    {
-        greeting greeting_msg;
-        greeting_msg.my_name_is = QString("%0 - %1").arg("Hi ! My name is Ozan -").arg(i);
+     for ( int i = 0;; ++i ) {
+          greeting greeting_msg;
+          greeting_msg.my_name_is = QString ( "%0 - %1" ).arg ( "Hi ! My name is Ozan -" ).arg ( i );
 
-        udp_transmit(greeting_msg , host, speech::port(port));
-        udp_transmit(greeting_msg , host, speech::port(port) , std::ref(socket));
-        udp_transmit(greeting_msg , host, speech::port(port) , shared_sck);
+          udp_transmit ( greeting_msg, host, speech::port ( port ) );
+          udp_transmit ( greeting_msg, host, speech::port ( port ), std::ref ( socket ) );
+          udp_transmit ( greeting_msg, host, speech::port ( port ), shared_sck );
 
-        qDebug() << "transmitting to " << port << " => " << greeting_msg;
-        QCoreApplication::processEvents();
-        QThread::msleep(rand() % 1000);
+          qDebug() << "transmitting to " << port << " => " << greeting_msg;
+          QCoreApplication::processEvents();
+          QThread::msleep ( rand() % 1000 );
 
-        roll_dice dice;
-        udp_transmit(dice , host, speech::port(port));
-        udp_transmit(dice , host, speech::port(port) , std::ref(socket));
-        udp_transmit(dice , host, speech::port(port) , shared_sck);
+          roll_dice dice;
+          udp_transmit ( dice, host, speech::port ( port ) );
+          udp_transmit ( dice, host, speech::port ( port ), std::ref ( socket ) );
+          udp_transmit ( dice, host, speech::port ( port ), shared_sck );
 
-        qDebug() << "transmitting to " << port << " => " << dice;
-        QCoreApplication::processEvents();
-        QThread::msleep(rand() % 1000);
-    }
+          qDebug() << "transmitting to " << port << " => " << dice;
+          QCoreApplication::processEvents();
+          QThread::msleep ( rand() % 1000 );
+     }
 }

@@ -18,118 +18,118 @@ template <size_t N,  bool EnableQueue, typename... T>
 class receiver_impl;
 
 template <size_t N>
-struct specializer{};
+struct specializer {};
 
 template<class I>
-struct identifier{};
+struct identifier {};
 
 template <size_t N, typename Values>
-void depack_impl(QDataStream &, Values &, specializer<N>);
+void depack_impl ( QDataStream &, Values &, specializer<N> );
 
 template <size_t N, typename Values, typename H, typename... T>
-void depack_impl(QDataStream &, Values &, specializer<N>);
+void depack_impl ( QDataStream &, Values &, specializer<N> );
 
 template <typename... T>
-std::tuple<T...> depack(const QByteArray &);
+std::tuple<T...> depack ( const QByteArray & );
 
-template<bool EnableQueue, typename T , typename = void>
+template<bool EnableQueue, typename T, typename = void>
 class message_queue;
 
 template<typename T>
-class message_queue<false , T>
-{ 
-  public:
-      inline std::queue<T*>& messages(identifier<T> = identifier<T>{}) = delete;
-      void enqueue(T& val, identifier<T> = identifier<T>{});
+class message_queue<false, T>
+{
+public:
+     inline std::queue<T*>& messages ( identifier<T> = identifier<T> {} ) = delete;
+     void enqueue ( T& val, identifier<T> = identifier<T> {} );
 };
 
 //If  it is QObject
 template<typename T>
-class message_queue<true , T , typename std::enable_if<std::is_base_of<QObject , T>::value>::type>
-{ 
-  public:
-    inline std::queue<T*>& messages(identifier<T> = identifier<T>{});
-  protected:
-    std::queue<T*> m_messages;
+class message_queue<true, T, typename std::enable_if<std::is_base_of<QObject, T>::value>::type>
+{
+public:
+     inline std::queue<T*>& messages ( identifier<T> = identifier<T> {} );
+protected:
+     std::queue<T*> m_messages;
 };
 
 //If it is regular
 template<typename T>
-class message_queue<true , T , typename std::enable_if<!std::is_base_of<QObject , T>::value>::type>
+class message_queue<true, T, typename std::enable_if<!std::is_base_of<QObject, T>::value>::type>
 {
-  public:
+public:
 
-    inline std::queue<T>& messages(identifier<T> = identifier<T>{});
+     inline std::queue<T>& messages ( identifier<T> = identifier<T> {} );
 
-    template<typename Movable = T>
-    typename std::enable_if<std::is_move_constructible<Movable>::value>::type enqueue(Movable& val, identifier<Movable> = identifier<Movable>{});
+     template<typename Movable = T>
+     typename std::enable_if<std::is_move_constructible<Movable>::value>::type enqueue ( Movable& val, identifier<Movable> = identifier<Movable> {} );
 
-    //Enqueue by copying
-    template<typename NotMovable = T>
-    typename std::enable_if<!std::is_move_constructible<NotMovable>::value>::type enqueue(NotMovable& val, identifier<NotMovable> = identifier<NotMovable>{});
+     //Enqueue by copying
+     template<typename NotMovable = T>
+     typename std::enable_if<!std::is_move_constructible<NotMovable>::value>::type enqueue ( NotMovable& val, identifier<NotMovable> = identifier<NotMovable> {} );
 
-  protected:
+protected:
 
-    std::queue<T> m_messages;
+     std::queue<T> m_messages;
 };
 
 // Base case: empty tuple
-template <std::size_t i , bool EnableQueue>
-class receiver_impl<i , EnableQueue>
+template <std::size_t i, bool EnableQueue>
+class receiver_impl<i, EnableQueue>
 {
-  public:
-    bool receive(QString code, const QByteArray &data, specializer<i> specializer);
+public:
+     bool receive ( QString code, const QByteArray &data, specializer<i> specializer );
 
-    void messages() = delete;
+     void messages() = delete;
 };
 
 template <size_t N,  bool EnableQueue, typename H, typename... T>
-class receiver_impl<N, EnableQueue, H, T...> : 
-          public receiver_impl<N + 1, EnableQueue, T...> ,
-          public message_queue<EnableQueue , H>
+class receiver_impl<N, EnableQueue, H, T...> :
+     public receiver_impl<N + 1, EnableQueue, T...>,
+     public message_queue<EnableQueue, H>
 {
-  public:
+public:
 
-    static_assert(implements_right_stream<QDataStream, H>::value, "T must be deserialized from QDataStream, so must implement QDataStream& operator>>");
-    static_assert(std::is_constructible<H>::value, "T must have default constructor.");
-    static_assert(std::is_base_of<QObject , H>::value || (std::is_copy_constructible<H>::value || std::is_move_constructible<H>::value) , "T type must be either copy constructible or move constructible.");
+     static_assert ( implements_right_stream<QDataStream, H>::value, "T must be deserialized from QDataStream, so must implement QDataStream& operator>>" );
+     static_assert ( std::is_constructible<H>::value, "T must have default constructor." );
+     static_assert ( std::is_base_of<QObject, H>::value || ( std::is_copy_constructible<H>::value || std::is_move_constructible<H>::value ), "T type must be either copy constructible or move constructible." );
 
-    constexpr static size_t SizeOfLengthTag = 8;
-    static const QString type_hash;
+     constexpr static size_t SizeOfLengthTag = 8;
+     static const QString type_hash;
 
-    virtual ~receiver_impl() {}
+     virtual ~receiver_impl() {}
 
-    using receiver_impl<N + 1, EnableQueue, T...>::receive;
+     using receiver_impl<N + 1, EnableQueue, T...>::receive;
 
-    using receiver_impl<N + 1, EnableQueue, T...>::messages;
+     using receiver_impl<N + 1, EnableQueue, T...>::messages;
 
-    template<typename E =  H, bool M = EnableQueue, typename = typename std::enable_if<M && std::is_same<E , H>::value>::type>
-    decltype(std::declval<message_queue<true , H>>().messages()) messages(identifier<H> = identifier<H>{})
-    {
-        return message_queue<EnableQueue , H>::messages(identifier<E>{});
-    }
+     template<typename E =  H, bool M = EnableQueue, typename = typename std::enable_if<M && std::is_same<E, H>::value>::type>
+     decltype ( std::declval<message_queue<true, H>>().messages() ) messages ( identifier<H> = identifier<H> {} )
+     {
+          return message_queue<EnableQueue, H>::messages ( identifier<E> {} );
+     }
 
-    //Primary template
-    template<typename Regular = H>
-    typename std::enable_if<!std::is_base_of<QObject , Regular>::value , bool>::type 
-    receive(QString code, const QByteArray &value, specializer<N> s);
+     //Primary template
+     template<typename Regular = H>
+     typename std::enable_if<!std::is_base_of<QObject, Regular>::value, bool>::type
+     receive ( QString code, const QByteArray &value, specializer<N> s );
 
-    //Specialization for QObject
-    template<typename QObj = H>
-    typename std::enable_if<std::is_base_of<QObject , QObj>::value , bool>::type 
-    receive(QString code, const QByteArray &value, specializer<N> s);
+     //Specialization for QObject
+     template<typename QObj = H>
+     typename std::enable_if<std::is_base_of<QObject, QObj>::value, bool>::type
+     receive ( QString code, const QByteArray &value, specializer<N> s );
 
-  protected:
+protected:
 
-    virtual void on_receive(const H &);
-    size_t parse(const QByteArray &);
+     virtual void on_receive ( const H & );
+     size_t parse ( const QByteArray & );
 
 };
 
 } // namespace impl
 
-template <bool EnableQueue , typename... T>
-using receiver = impl::receiver_impl<0, EnableQueue , T...>;
+template <bool EnableQueue, typename... T>
+using receiver = impl::receiver_impl<0, EnableQueue, T...>;
 
 } // namespace speech
 

@@ -6,63 +6,64 @@
 #include "entity.h"
 #include "car_info.h"
 
-int main(int argc, char **argv)
+int main ( int argc, char **argv )
 {
-    using namespace speech::udp;
-    using namespace speech;
+     using namespace speech::udp;
+     using namespace speech;
 
-    QCoreApplication app(argc, argv);
+     QCoreApplication app ( argc, argv );
 
-    QCommandLineParser parser;
-    parser.addHelpOption();
+     QCommandLineParser parser;
+     parser.addHelpOption();
 
-    parser.addOptions(
-        {{ {"p", "port"} , "Specify port number" , "port number" },
-         { {"f", "fps"} , "Fps indicates the transmitting speed" , "fps"}
-         });
+     parser.addOptions ( {
+          { {"p", "port"}, "Specify port number", "port number" },
+          { {"f", "fps"}, "Fps indicates the transmitting speed", "fps"}
+     } );
 
-    parser.process(app);
+     parser.process ( app );
 
-    //Defaults
-    auto port = 24942;
-    auto fps = 2;
+     //Defaults
+     auto port = 24942;
+     auto fps = 2;
 
-    if (parser.isSet("p"))
-        port = parser.value("p").toInt();
+     if ( parser.isSet ( "p" ) ) {
+          port = parser.value ( "p" ).toInt();
+     }
 
-    if (parser.isSet("f"))
-        fps = parser.value("f").toInt();
+     if ( parser.isSet ( "f" ) ) {
+          fps = parser.value ( "f" ).toInt();
+     }
 
-    //twice in a second
-    auto delay = 500.0 / fps;
+     //twice in a second
+     auto delay = 500.0 / fps;
 
-    udp_transmitter<entity, car_info> transmitter{QHostAddress{QHostAddress::LocalHost}, speech::port(port)};
+     udp_transmitter<entity, car_info> transmitter{QHostAddress{QHostAddress::LocalHost}, speech::port ( port ) };
 
-    qDebug() << "Starting to transmit on port " << port << " with " << fps << " fps";
+     qDebug() << "Starting to transmit on port " << port << " with " << fps << " fps";
 
-    for (int i = 0;; ++i)
-    {
-        entity e;
-        e.set_name(QString("mehmet - %0").arg(i));
-        e.set_identity(i * rand() % 100);
-        transmitter.transmit(e);
+     for ( int i = 0;; ++i ) {
+          entity e;
+          e.set_name ( QString ( "mehmet - %0" ).arg ( i ) );
+          e.set_identity ( i * rand() % 100 );
+          transmitter.transmit ( e );
 
-        qDebug() << "transmitting to" << port << " => " << e;
+          qDebug() << "transmitting to" << port << " => " << e;
 
-        QCoreApplication::processEvents();
+          QCoreApplication::processEvents();
 
-        QThread::msleep(delay);
+          QThread::msleep ( delay );
 
-        car_info info;
-        info.set_name(QString("mazda - %0").arg(i));
-        transmitter.transmit(info);
+          car_info info;
+          info.set_name ( QString ( "mazda - %0" ).arg ( i ) );
+          transmitter.transmit ( info );
 
-        qDebug() << "transmitting to" << port << " => " << info;
+          qDebug() << "transmitting to" << port << " => " << info;
 
-        QCoreApplication::processEvents();
+          QCoreApplication::processEvents();
 
-        QThread::msleep(delay);
-    }
+          QThread::msleep ( delay );
+     }
 
-    return app.exec();
+     return app.exec();
 }

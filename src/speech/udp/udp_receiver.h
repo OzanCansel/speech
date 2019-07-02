@@ -16,18 +16,18 @@ namespace impl
 {
 
 template <bool EnableQueue, typename... T>
-class udp_receiver_impl : public receiver<EnableQueue , T...>
+class udp_receiver_impl : public receiver<EnableQueue, T...>
 {
-  public:
+public:
 
-    udp_receiver_impl(port , QUdpSocket::BindFlag = QUdpSocket::DefaultForPlatform);
-    udp_receiver_impl(shared_socket<QUdpSocket>&);
+     udp_receiver_impl ( port, QUdpSocket::BindFlag = QUdpSocket::DefaultForPlatform );
+     udp_receiver_impl ( shared_socket<QUdpSocket>& );
 
-  private:
+private:
 
-    int on_data_received(const QByteArray&);
-    std::unique_ptr<shared_socket<QUdpSocket>> m_socket;
-    
+     int on_data_received ( const QByteArray& );
+     std::unique_ptr<shared_socket<QUdpSocket>> m_socket;
+
 };
 
 }

@@ -19,17 +19,17 @@ template <bool EnableQueue, typename... T>
 class tcp_receiver_impl : protected receiver<EnableQueue, T...>
 {
 public:
-    using socket_type = QTcpSocket;
-    using shared_socket_Type = shared_socket<socket_type>;
+     using socket_type = QTcpSocket;
+     using shared_socket_Type = shared_socket<socket_type>;
 
-    tcp_receiver_impl(shared_socket<QTcpSocket> &);
+     tcp_receiver_impl ( shared_socket<QTcpSocket> & );
 
 protected:
-    inline QTcpSocket &device();
+     inline QTcpSocket &device();
 
 private:
-    int on_data_received(const QByteArray &);
-    QTcpSocket &m_socket;
+     int on_data_received ( const QByteArray & );
+     QTcpSocket &m_socket;
 };
 } // namespace impl
 

@@ -13,27 +13,27 @@ namespace speech
 
 namespace impl
 {
-    QByteArray read_all(QTcpSocket&);
-    QByteArray read_all(QUdpSocket&);
+QByteArray read_all ( QTcpSocket& );
+QByteArray read_all ( QUdpSocket& );
 }
 
 template <typename Socket>
 class shared_socket
 {
 public:
-    shared_socket(Socket &);
-    shared_socket(std::shared_ptr<Socket>);
-    shared_socket(std::unique_ptr<Socket>);
+     shared_socket ( Socket & );
+     shared_socket ( std::shared_ptr<Socket> );
+     shared_socket ( std::unique_ptr<Socket> );
 
-    inline Socket &socket();
-    void attach(std::function<int(const QByteArray &)>);
-    void listen();
-    void on_data_received();
+     inline Socket &socket();
+     void attach ( std::function<int ( const QByteArray & ) > );
+     void listen();
+     void on_data_received();
 
 private:
-    std::unique_ptr<speech::handle::handle<Socket>> m_socket;
-    QByteArray m_buffer;
-    std::vector<std::function<int(const QByteArray &)>> m_listeners;
+     std::unique_ptr<speech::handle::handle<Socket>> m_socket;
+     QByteArray m_buffer;
+     std::vector<std::function<int ( const QByteArray & ) >> m_listeners;
 };
 
 } // namespace speech
