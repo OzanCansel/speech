@@ -18,7 +18,6 @@ namespace speech
         template<typename... T>
         tcp_transmitter<T...>::tcp_transmitter(const QHostAddress& host , const speech::port& p)
             :
-                // tcp_transmitter<T...>{ m_default , host , p }
                 m_socket{ new speech::handle::unique_ptr_handle<QTcpSocket>{  std::make_unique<QTcpSocket>() } }
         {   
             if(!m_socket->ref().isOpen())

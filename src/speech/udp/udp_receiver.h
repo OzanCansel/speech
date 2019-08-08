@@ -3,6 +3,9 @@
 
 #include "speech/receiver.h"
 #include "speech/util.h"
+#include "speech/handle/unique_ptr_handle.h"
+#include "speech/handle/shared_ptr_handle.h"
+#include <memory>
 #include <QUdpSocket>
 
 namespace speech
@@ -18,17 +21,21 @@ class udp_receiver_impl : public receiver<EnableQueue , T...>
 {
   public:
 
-    udp_receiver_impl(port);
+    udp_receiver_impl(port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform);
     udp_receiver_impl(QUdpSocket &);
-    udp_receiver_impl(QUdpSocket &, port);
+    udp_receiver_impl(QUdpSocket &, port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform);
+    upd_receiver_impl(const udp_receiver_impl<EnableQueue , T...>&) = delete;
+    udp_receiver_impl<EnableQueue, T...>& operator=(const udp_receiver_impl<EnableQueue , T...>&) = delete;
+    udp_receiver_impl(udp_receiver_impl&&);
+    udp_receiver_impl<EnableQueue, T...>& operator=(udp_receiver_impl<EnableQueue , T...>&&);
 
   private:
     void on_data_received();
 
-    QUdpSocket &m_socket;
-    QUdpSocket m_built_in_socket;
-    int m_port{};
     QByteArray m_buffer;
+
+    std::unique_ptr<speech::handle::handle<QUdpSocket>>  m_socket;
+    QMetaObject::Connection m_signal_slot_conn;
 };
 
 }
