@@ -23,6 +23,7 @@ namespace speech
             public:
 
                 tcp_server(const QHostAddress &address = QHostAddress::Any, speech::port = speech::port(0) , T...);
+                int port() const { return m_server.serverPort(); }
 
             private:
 

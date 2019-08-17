@@ -74,10 +74,9 @@ void udp_receiver_impl<EnableQueue , T...>::on_data_received()
 
         datagram.resize(socket.pendingDatagramSize());
 
-        //Read datagram
-        QHostAddress client_address;
-        quint16 client_port;
-        socket.readDatagram(datagram.data(), datagram.size(), &client_address, &client_port);
+
+
+        socket.readDatagram(datagram.data(), datagram.size(), &m_client_address, &m_client_port);
 
         m_buffer.append(datagram);
 
