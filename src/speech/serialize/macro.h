@@ -13,31 +13,29 @@ namespace impl
 {
 
 template<typename T>
-QDataStream& serialize_out( QDataStream& out , const T& head )
+void serialize_out( QDataStream& out , const T& head )
 {
-    return out << head;
+    out << head;
 }
 
 template<typename H , typename... T>
-QDataStream& serialize_out( QDataStream& out ,  const H& head , T... tail)
+void serialize_out( QDataStream& out ,  const H& head , T... tail)
 {
     out << head;
     serialize_out( out , tail... );
-    return out;
 }
 
 template<typename T>
-QDataStream& serialize_in( QDataStream& in , T& head )
+void serialize_in( QDataStream& in , T& head )
 {
-    return in >> head;
+    in >> head;
 }
 
 template<typename H , typename... T>
-QDataStream& serialize_in( QDataStream& in ,  H& head , T... tail)
+void serialize_in( QDataStream& in ,  H& head , T... tail)
 {
     in >> head;
     serialize_in( in , tail... );
-    return in;
 }
 
 template<int Idx , typename T>
