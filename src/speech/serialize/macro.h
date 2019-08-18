@@ -19,7 +19,7 @@ void serialize_out( QDataStream& out , const T& head )
 }
 
 template<typename H , typename... T>
-void serialize_out( QDataStream& out ,  const H& head , T... tail)
+void serialize_out( QDataStream& out ,  const H& head , const T&... tail)
 {
     out << head;
     serialize_out( out , tail... );
@@ -32,7 +32,7 @@ void serialize_in( QDataStream& in , T& head )
 }
 
 template<typename H , typename... T>
-void serialize_in( QDataStream& in ,  H& head , T... tail)
+void serialize_in( QDataStream& in ,  H& head , T&... tail)
 {
     in >> head;
     serialize_in( in , tail... );
@@ -45,7 +45,7 @@ void std_out( const QStringList& field_names , QDebug& out , const T& head )
 }
 
 template<int Idx, typename H , typename... T>
-void std_out( const QStringList& field_names , QDebug& out ,  const H& head , T... tail)
+void std_out( const QStringList& field_names , QDebug& out ,  const H& head , const T&... tail)
 {
     out << field_names.at(Idx) << ":" << head << ",";
     std_out< Idx + 1 , T...>( field_names , out , tail... );
