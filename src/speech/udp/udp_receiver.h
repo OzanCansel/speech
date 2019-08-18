@@ -26,7 +26,6 @@ public:
     udp_receiver_impl(port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform);
     udp_receiver_impl(QUdpSocket &);
     udp_receiver_impl(QUdpSocket &, port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform);
-    upd_receiver_impl(const udp_receiver_impl<EnableQueue , T...>&) = delete;
     udp_receiver_impl<EnableQueue, T...>& operator=(const udp_receiver_impl<EnableQueue , T...>&) = delete;
     udp_receiver_impl(udp_receiver_impl&&);
     udp_receiver_impl<EnableQueue, T...>& operator=(udp_receiver_impl<EnableQueue , T...>&&);
