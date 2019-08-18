@@ -5,6 +5,8 @@
 #include <QByteArray>
 #include <QString>
 #include "util.h"
+#include "traits/implements_left_stream.h"
+#include "traits/implements_right_stream.h"
 
 namespace speech
 {

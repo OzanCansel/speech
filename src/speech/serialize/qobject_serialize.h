@@ -11,6 +11,13 @@
 
 namespace speech
 {
+
+namespace serialization
+{
+
+namespace qobject
+{
+
     template<class T>
     typename std::enable_if<std::is_base_of<QObject , T>::value , QDataStream&>::type operator<<(QDataStream& out , const T& obj)
     {
@@ -96,6 +103,9 @@ namespace speech
 
         return out;
     }
+
+}
+}
 }
 
 #endif
