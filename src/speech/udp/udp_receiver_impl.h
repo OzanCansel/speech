@@ -67,7 +67,7 @@ udp_receiver_impl<EnableQueue , T...>& udp_receiver_impl<EnableQueue , T...>::op
 }
 
 template <bool EnableQueue, typename... T>
-int udp_receiver_impl<EnableQueue, T...>::on_data_received ( const QByteArray& buffer )
+int udp_receiver_impl<EnableQueue, T...>::on_data_received  ()
 {
     auto& socket = m_socket->ref();
     while (socket.hasPendingDatagrams())
@@ -75,8 +75,6 @@ int udp_receiver_impl<EnableQueue, T...>::on_data_received ( const QByteArray& b
         QByteArray datagram;
 
         datagram.resize(socket.pendingDatagramSize());
-
-
 
         socket.readDatagram(datagram.data(), datagram.size(), &m_client_address, &m_client_port);
 

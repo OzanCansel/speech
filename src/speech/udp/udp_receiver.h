@@ -35,8 +35,7 @@ public:
 
 private:
 
-     int on_data_received ( const QByteArray& );
-     std::unique_ptr<shared_socket<QUdpSocket>> m_socket;
+     int on_data_received();
 
     QByteArray m_buffer;
     //Read datagram
