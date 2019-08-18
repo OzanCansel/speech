@@ -44,7 +44,11 @@ int main ( int argc, char** argv )
      }
 
 
-     my_receiver receiver{ speech::port{port} };
+    my_receiver receiver{ speech::port{ port } };
+    qDebug() << "Moving";
+    auto moved_received = std::move(receiver);
+    qDebug() << "Moved";
+//    my_receiver receiver{ speech::port{port} };
 
      qDebug() << "Udp port " << port << " is listening.";
 

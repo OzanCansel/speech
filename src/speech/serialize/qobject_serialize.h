@@ -11,10 +11,17 @@
 
 namespace speech
 {
-template<class T>
-typename std::enable_if<std::is_base_of<QObject, T>::value, QDataStream&>::type operator<< ( QDataStream& out, const T& obj )
+
+namespace serialization
 {
-     auto meta_info = obj.metaObject();
+
+namespace qobject
+{
+
+    template<class T>
+    typename std::enable_if<std::is_base_of<QObject , T>::value , QDataStream&>::type operator<<(QDataStream& out , const T& obj)
+    {
+        auto meta_info = obj.metaObject();
 
      std::vector<int> writable_property_indexes;
 
@@ -94,7 +101,10 @@ typename std::enable_if<std::is_base_of<QObject, T>::value, QDebug>::type operat
           out << prop_name << " : " << prop_value << " , ";
      }
 
-     return out;
+        return out;
+    }
+
+}
 }
 }
 

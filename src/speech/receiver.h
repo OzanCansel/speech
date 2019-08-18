@@ -7,6 +7,7 @@
 #include <tuple>
 #include <queue>
 #include "util.h"
+#include "speech/traits/implements_right_stream.h"
 
 namespace speech
 {

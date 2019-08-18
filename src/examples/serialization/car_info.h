@@ -1,7 +1,14 @@
+/*
+ * QObject serialization example of class
+ */
+
 #ifndef SPEECH_CAR_INFO_H
 #define SPEECH_CAR_INFO_H
 
 #include <QObject>
+#include <speech/serialize/qobject_serialize.h>
+
+using namespace speech::serialization::qobject;
 
 class car_info : public QObject
 {

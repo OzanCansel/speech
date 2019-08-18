@@ -2,9 +2,9 @@
 #include <QCommandLineParser>
 #include <QThread>
 #include <speech/udp/udp_transmitter.h>
-#include <speech/qobject_serialization.h>
-#include "entity.h"
+#include <speech/serialize/qobject_serialize.h>
 #include "car_info.h"
+#include "rolls.h"
 
 int main ( int argc, char **argv )
 {
@@ -38,15 +38,18 @@ int main ( int argc, char **argv )
      //twice in a second
      auto delay = 500.0 / fps;
 
-     udp_transmitter<entity, car_info> transmitter{QHostAddress{QHostAddress::LocalHost}, speech::port ( port ) };
+    udp_transmitter<rolls , car_info> transmitter{QHostAddress{QHostAddress::LocalHost}, speech::port(port)};
 
      qDebug() << "Starting to transmit on port " << port << " with " << fps << " fps";
 
-     for ( int i = 0;; ++i ) {
-          entity e;
-          e.set_name ( QString ( "mehmet - %0" ).arg ( i ) );
-          e.set_identity ( i * rand() % 100 );
-          transmitter.transmit ( e );
+    for (int i = 0;; ++i)
+    {
+        rolls e;
+
+        for( auto i = 0; i < 10; i++ )
+            e.numbers.push_back(qrand() % 100);
+
+        transmitter.transmit(e);
 
           qDebug() << "transmitting to" << port << " => " << e;
 

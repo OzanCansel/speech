@@ -6,7 +6,7 @@
 
 This project aims to develop a qt-based generic serialization/deserialization mechanism and strongly-typed messaging over network.
 
-The library is composed from only headers. We aim to follow modern c++ approach.
+The library is composed of only headers. We aim to follow modern c++ approach.
 
 It is under GNU General Public License.
 

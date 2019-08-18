@@ -3,32 +3,29 @@
 #include <QDebug>
 #include <QTimer>
 #include <speech/udp/udp_receiver.h>
-#include <speech/qobject_serialization.h>
-#include "entity.h"
+#include "rolls.h"
 #include "car_info.h"
 
-struct qobject_receiver : speech::udp::udp_receiver<entity, car_info> {
+struct qobject_receiver : speech::udp::udp_receiver<rolls , car_info>
+{
+    
+    qobject_receiver(int port) : speech::udp::udp_receiver<rolls , car_info> { speech::port(port) } { }
 
-     explicit qobject_receiver ( int port ) : speech::udp::udp_receiver<entity, car_info>
-     {
-          speech::port ( port )
-     } { }
+    protected:
+        
+        void on_receive(const rolls& r) override
+        {
+            using namespace speech;
+            
+            qDebug() << "receive => " << r;
+        }
 
-protected:
+        void on_receive(const car_info& car) override
+        {
+            using namespace speech;
 
-     void on_receive ( const entity& greeting ) override
-     {
-          using namespace speech;
-
-          qDebug() << "receive => " << greeting;
-     }
-
-     void on_receive ( const car_info& car ) override
-     {
-          using namespace speech;
-
-          qDebug() << "receive => " << car;
-     }
+            qDebug() << "receive => " << car;
+        }
 };
 
 int main ( int argc, char **argv )

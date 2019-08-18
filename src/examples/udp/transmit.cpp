@@ -3,10 +3,10 @@
 #include <QHostAddress>
 #include <QThread>
 #include <QCommandLineParser>
-#include <speech/udp/udp_transmitter.h>
 #include <memory>
 #include <greeting.h>
 #include <roll_dice.h>
+#include <speech/speech.h>
 
 int main ( int argc, char **argv )
 {
@@ -43,12 +43,17 @@ int main ( int argc, char **argv )
      udp_transmitter<greeting, roll_dice> udp_shared{ shared_sck, host, speech::port ( port ) };
      udp_transmitter<greeting, roll_dice> udp_unique{ std::move ( unique_sck ), host, speech::port ( port ) };
 
-     for ( int i = 0;; ++i ) {
-          greeting greeting_msg;
-          greeting_msg.my_name_is = QString ( "%0 - %1" ).arg ( "Hi ! My name is Ozan -" ).arg ( i );
-          udp.transmit ( greeting_msg );
-          udp_shared.transmit ( greeting_msg );
-          udp_unique.transmit ( greeting_msg );
+    for (int i = 0;; ++i)
+    {
+        greeting greeting_msg;
+        greeting_msg.my_name_is = QString("%0 - %1").arg("Hi ! My name is Ozan -").arg(i);
+        greeting_msg.numbers.push_back(1);
+        greeting_msg.numbers.push_back(2);
+        greeting_msg.numbers.push_back(3);
+
+        udp.transmit(greeting_msg);
+        udp_shared.transmit(greeting_msg);
+        udp_unique.transmit(greeting_msg);
 
           qDebug() << "transmitting to " << port << " => " << greeting_msg;
           QCoreApplication::processEvents();
