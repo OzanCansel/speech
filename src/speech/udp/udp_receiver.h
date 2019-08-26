@@ -34,7 +34,7 @@ public:
 
 private:
 
-     int on_data_received();
+    void on_data_received();
 
     QByteArray m_buffer;
     //Read datagram

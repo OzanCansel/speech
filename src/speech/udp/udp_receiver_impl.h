@@ -67,7 +67,7 @@ udp_receiver_impl<EnableQueue , T...>& udp_receiver_impl<EnableQueue , T...>::op
 }
 
 template <bool EnableQueue, typename... T>
-int udp_receiver_impl<EnableQueue, T...>::on_data_received  ()
+void udp_receiver_impl<EnableQueue, T...>::on_data_received  ()
 {
     auto& socket = m_socket->ref();
     while (socket.hasPendingDatagrams())
