@@ -9,10 +9,9 @@ namespace speech
 namespace error
 {
 
-struct port_in_use_error : std::runtime_error
-{
-    port_in_use_error(std::string msg) : std::runtime_error{msg}
-    {   }
+struct port_in_use_error : std::runtime_error {
+     explicit port_in_use_error ( std::string msg ) : std::runtime_error{msg}
+     {   }
 };
 
 }

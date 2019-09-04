@@ -15,90 +15,92 @@
 
 QString retrieve_mac_addr()
 {
-    for(QNetworkInterface netInterface : QNetworkInterface::allInterfaces())
-    {
-        // Return only the first non-loopback MAC Address
-        if (!(netInterface.flags() & QNetworkInterface::IsLoopBack))
-            return netInterface.hardwareAddress();
-    }
+     for ( QNetworkInterface netInterface : QNetworkInterface::allInterfaces() ) {
+          // Return only the first non-loopback MAC Address
+          if ( ! ( netInterface.flags() & QNetworkInterface::IsLoopBack ) ) {
+               return netInterface.hardwareAddress();
+          }
+     }
 
-    return QString();
+     return QString();
 }
 
 class discovery : speech::udp::udp_receiver<device_info>
 {
-    public:
+public:
 
-        discovery(speech::port p) : speech::udp::udp_receiver<device_info>{ p }
-        {   
-            m_broadcast_tick.setInterval(1000);
+     explicit discovery ( speech::port p ) : speech::udp::udp_receiver<device_info>
+     {
+          p
+     }
+     {
+          m_broadcast_tick.setInterval ( 1000 );
 
-            QObject::connect(&m_broadcast_tick , &QTimer::timeout , [&]()
-            {
-                using namespace speech;
-                using namespace speech::udp;
+          QObject::connect ( &m_broadcast_tick, &QTimer::timeout, [&]() {
+               using namespace speech;
+               using namespace speech::udp;
 
-                udp_transmit
-                (
-                    device_info 
-                    {
-                        QHostInfo::localHostName() ,
-                        retrieve_mac_addr() ,
-                        QSysInfo::prettyProductName() ,
-                        QSysInfo::buildAbi() ,
-                        QSysInfo::currentCpuArchitecture() ,
-                        QSysInfo::kernelType() ,
-                        QSysInfo::kernelVersion()
-                    } , 
-                    QHostAddress(QHostAddress::Broadcast), p
-                );   
-            });
+               udp_transmit
+               (
+               device_info {
+                    QHostInfo::localHostName(),
+                    retrieve_mac_addr(),
+                    QSysInfo::prettyProductName(),
+                    QSysInfo::buildAbi(),
+                    QSysInfo::currentCpuArchitecture(),
+                    QSysInfo::kernelType(),
+                    QSysInfo::kernelVersion()
+               },
+               QHostAddress ( QHostAddress::Broadcast ), p
+               );
+          } );
 
-            m_broadcast_tick.start();
-        }
+          m_broadcast_tick.start();
+     }
 
-        void on_receive(const device_info& device)
-        {
-            bool exist = std::any_of(m_devices.begin() , m_devices.end() , [&device](const auto& d) { return d.mac_addr == device.mac_addr; });
-            if(!exist)
-            {
-                qDebug() << "++ new device" << device;
-                m_devices.push_back(device);
-            }
-        }
+     void on_receive ( const device_info& device )
+     {
+          bool exist = std::any_of ( m_devices.begin(), m_devices.end(), [&device] ( const auto& d ) {
+               return d.mac_addr == device.mac_addr;
+          } );
+          if ( !exist ) {
+               qDebug() << "++ new device" << device;
+               m_devices.push_back ( device );
+          }
+     }
 
-    private:
+private:
 
-        QTimer m_broadcast_tick;
-        std::vector<device_info> m_devices;
+     QTimer m_broadcast_tick;
+     std::vector<device_info> m_devices;
 
 };
 
-int main(int argc, char **argv)
+int main ( int argc, char **argv )
 {
-    using namespace speech::udp;
-    using namespace std;
+     using namespace speech::udp;
+     using namespace std;
 
-    QCoreApplication app(argc, argv);
+     QCoreApplication app ( argc, argv );
 
-    QCommandLineParser parser;
-    parser.addHelpOption();
+     QCommandLineParser parser;
+     parser.addHelpOption();
 
-    parser.addOptions(
-        {
-            { {"p", "port"} , "Specify port number" , "port number" }
-        }
-    );
+     parser.addOptions ( {
+          { {"p", "port"}, "Specify port number", "port number" }
+     }
+                       );
 
-    parser.process(app);
+     parser.process ( app );
 
-    //Defaults
-    auto port = 24942;
+     //Defaults
+     auto port = 24942;
 
-    if (parser.isSet("p"))
-        port = parser.value("p").toInt();
+     if ( parser.isSet ( "p" ) ) {
+          port = parser.value ( "p" ).toInt();
+     }
 
-    discovery d { speech::port(port) };
+     discovery d { speech::port ( port ) };
 
-    app.exec();
+     app.exec();
 }

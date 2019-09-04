@@ -3,9 +3,6 @@
 #include <QDataStream>
 #include <vector>
 #include <memory>
-#include "speech/handle/handle.h"
-#include "speech/handle/shared_ptr_handle.h"
-#include "speech/handle/unique_ptr_handle.h"
 
 namespace speech
 {

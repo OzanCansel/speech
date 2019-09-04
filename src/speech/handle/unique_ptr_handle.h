@@ -6,20 +6,19 @@
 
 namespace speech
 {
-    namespace handle
-    {
-        template<typename T>
-        struct unique_ptr_handle : handle<T>
-        {
-            
-            unique_ptr_handle(std::unique_ptr<T> sck) : handle<T>{ *sck.get() } , m_sck{ std::move(sck) }
-            {   }
+namespace handle
+{
+template<typename T>
+struct unique_ptr_handle : handle<T> {
 
-            private:
+     explicit unique_ptr_handle ( std::unique_ptr<T> sck ) : handle<T>{ *sck.get() }, m_sck{ std::move ( sck ) }
+     {   }
 
-                std::unique_ptr<T> m_sck;
-        };
-    }
+private:
+
+     std::unique_ptr<T> m_sck;
+};
+}
 }
 
 #endif

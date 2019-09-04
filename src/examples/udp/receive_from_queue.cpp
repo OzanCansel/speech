@@ -7,50 +7,49 @@
 #include <roll_dice.h>
 
 
-int main(int argc, char **argv)
+int main ( int argc, char **argv )
 {
 
-    using namespace speech::udp;
+     using namespace speech::udp;
 
-    QCoreApplication app(argc, argv);
+     QCoreApplication app ( argc, argv );
 
-    QCommandLineParser parser;
-    parser.addHelpOption();
+     QCommandLineParser parser;
+     parser.addHelpOption();
 
-    parser.addOptions({{ {"p", "port"} , "Specify port number" , "port number" }});
+     parser.addOptions ( {{ {"p", "port"}, "Specify port number", "port number" }} );
 
-    parser.process(app);
+     parser.process ( app );
 
-    //Defaults
-    auto port = 24942;
+     //Defaults
+     auto port = 24942;
 
-    if (parser.isSet("p"))
-        port = parser.value("p").toInt();
+     if ( parser.isSet ( "p" ) ) {
+          port = parser.value ( "p" ).toInt();
+     }
 
-    queued_udp_receiver<greeting, roll_dice> udp{ speech::port(port) };
+     queued_udp_receiver<greeting, roll_dice> udp{ speech::port ( port ) };
 
-    QTimer checkMessages;
+     QTimer checkMessages;
 
-    checkMessages.setInterval(30);
-    QObject::connect(&checkMessages, &QTimer::timeout, [&]() {
+     checkMessages.setInterval ( 30 );
+     QObject::connect ( &checkMessages, &QTimer::timeout, [&]() {
 
-        while (!udp.messages<roll_dice>().empty())
-        {
-            qDebug() << "roll_dice => " << udp.messages<roll_dice>().front();
-            udp.messages<roll_dice>().pop();
-        }
+          while ( !udp.messages<roll_dice>().empty() ) {
+               qDebug() << "roll_dice => " << udp.messages<roll_dice>().front();
+               udp.messages<roll_dice>().pop();
+          }
 
-        while (!udp.messages<greeting>().empty())
-        {
-            qDebug() << "greeting => " << udp.messages<greeting>().front();
-            udp.messages<greeting>().pop();
-        }
+          while ( !udp.messages<greeting>().empty() ) {
+               qDebug() << "greeting => " << udp.messages<greeting>().front();
+               udp.messages<greeting>().pop();
+          }
 
-    });
+     } );
 
-    checkMessages.start();
+     checkMessages.start();
 
-    qDebug() << "Udp port " << port << " is listening.";
+     qDebug() << "Udp port " << port << " is listening.";
 
-    return app.exec();
+     return app.exec();
 }

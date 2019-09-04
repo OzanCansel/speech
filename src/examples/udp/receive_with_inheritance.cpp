@@ -5,40 +5,43 @@
 #include <roll_dice.h>
 #include <speech/udp/udp_receiver.h>
 
-struct my_receiver : speech::udp::udp_receiver<greeting , roll_dice>
-{
-    
-    my_receiver(speech::port p) : speech::udp::udp_receiver<greeting , roll_dice>{ p } { }
+struct my_receiver : speech::udp::udp_receiver<greeting, roll_dice> {
 
-    protected:
-        
-        void on_receive(const greeting& greeting) override
-        {
-            qDebug() << "receive => " << greeting;
-        }
+     explicit my_receiver ( speech::port p ) : speech::udp::udp_receiver<greeting, roll_dice>
+     {
+          p
+     } { }
 
-        void on_receive(const roll_dice& dice) override
-        {
-            qDebug() << "receive => " << dice;
-        }
+protected:
+
+     void on_receive ( const greeting& greeting ) override
+     {
+          qDebug() << "receive => " << greeting;
+     }
+
+     void on_receive ( const roll_dice& dice ) override
+     {
+          qDebug() << "receive => " << dice;
+     }
 };
 
-int main(int argc, char** argv)
+int main ( int argc, char** argv )
 {
-    QCoreApplication app(argc , argv);
+     QCoreApplication app ( argc, argv );
 
-    QCommandLineParser parser;
-    parser.addHelpOption();
+     QCommandLineParser parser;
+     parser.addHelpOption();
 
-    parser.addOptions({{ {"p", "port"} , "Specify port number" , "port number" }});
+     parser.addOptions ( {{ {"p", "port"}, "Specify port number", "port number" }} );
 
-    parser.process(app);
+     parser.process ( app );
 
-    //Defaults
-    auto port = 24942;
+     //Defaults
+     auto port = 24942;
 
-    if (parser.isSet("p"))
-        port = parser.value("p").toInt();
+     if ( parser.isSet ( "p" ) ) {
+          port = parser.value ( "p" ).toInt();
+     }
 
 
     my_receiver receiver{ speech::port{ port } };
@@ -47,7 +50,7 @@ int main(int argc, char** argv)
     qDebug() << "Moved";
 //    my_receiver receiver{ speech::port{port} };
 
-    qDebug() << "Udp port " << port << " is listening.";
+     qDebug() << "Udp port " << port << " is listening.";
 
-    return app.exec();
+     return app.exec();
 }

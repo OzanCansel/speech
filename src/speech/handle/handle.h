@@ -3,28 +3,27 @@
 
 namespace speech
 {
-    namespace handle
-    {
-        template<typename T>
-        struct handle
-        {
-                handle(T& sck)  :   m_sck{ sck }
-                {   }
+namespace handle
+{
+template<typename T>
+struct handle {
+     explicit handle ( T& sck )  :   m_sck{ sck }
+     {   }
 
-                inline T& ref()
-                {
-                    return m_sck;
-                }
-                
-                inline operator T&()
-                {
-                    return m_sck;
-                }
+     inline T& ref()
+     {
+          return m_sck;
+     }
 
-            private:
-                T& m_sck;
-        };
-    }
+     inline operator T&()
+     {
+          return m_sck;
+     }
+
+private:
+     T& m_sck;
+};
+}
 }
 
 #endif
