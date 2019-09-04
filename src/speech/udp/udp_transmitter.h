@@ -22,6 +22,11 @@ public:
      udp_transmitter ( QUdpSocket&, const QHostAddress&, const speech::port& );
      udp_transmitter ( std::unique_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
      udp_transmitter ( std::shared_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
+     ~udp_transmitter() noexcept;
+     udp_transmitter ( const udp_transmitter<T...>& ) = delete;
+     udp_transmitter<T...>& operator = ( const udp_transmitter<T...>& ) = delete;
+     udp_transmitter ( udp_transmitter<T...>&& ) = default;
+     udp_transmitter& operator = ( udp_transmitter<T...>&& ) = default;
 
      int port() const;
      QHostAddress destination() const;

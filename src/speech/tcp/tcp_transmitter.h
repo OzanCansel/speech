@@ -24,8 +24,11 @@ namespace speech
                 tcp_transmitter(std::unique_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
                 tcp_transmitter(std::shared_ptr<QTcpSocket>);
                 tcp_transmitter(std::shared_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
+                ~tcp_transmitter() noexcept;
                 tcp_transmitter(const tcp_transmitter<T...>&) = delete;
                 tcp_transmitter<T...>& operator=(const tcp_transmitter<T...>&) = delete;
+                tcp_transmitter<T...>& operator=( tcp_transmitter<T...>&& ) = default;
+                tcp_transmitter<T...>( tcp_transmitter<T...>&& ) = default;
 
             protected:
 

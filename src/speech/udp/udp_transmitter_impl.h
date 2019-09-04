@@ -1,5 +1,6 @@
 #include "speech/handle/unique_ptr_handle.h"
 #include "speech/handle/shared_ptr_handle.h"
+#include "udp_transmitter.h"
 
 namespace speech
 {
@@ -35,6 +36,12 @@ udp_transmitter<T...>::udp_transmitter ( std::shared_ptr<QUdpSocket> socket, con
      m_port{ p.get() },
      m_socket{ new speech::handle::shared_ptr_handle<QUdpSocket>{ socket } }
 {   }
+
+template<typename... T>
+udp_transmitter<T...>::~udp_transmitter<T...>() noexcept
+{
+    m_socket->ref().waitForBytesWritten();
+}
 
 template <typename... T>
 int udp_transmitter<T...>::port() const

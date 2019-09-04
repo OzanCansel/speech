@@ -1,6 +1,7 @@
 #include "speech/error/connection_error.h"
 #include "speech/handle/unique_ptr_handle.h"
 #include "speech/handle/shared_ptr_handle.h"
+#include "tcp_transmitter.h"
 #include <memory>
 #include <utility>
 
@@ -61,6 +62,12 @@ namespace speech
         {   
             if(!m_socket->ref().isOpen())
                 connect_to_host(host , p.get());
+        }
+
+        template<typename... T>
+        tcp_transmitter<T...>::~tcp_transmitter<T...>() noexcept
+        {
+            m_socket->ref().waitForBytesWritten();
         }
 
         template<typename... T>
