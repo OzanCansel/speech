@@ -7,74 +7,6 @@
 #include <greeting.h>
 #include <roll_dice.h>
 
-class handler_1 : public speech::tcp::tcp_receiver<greeting, roll_dice>
-{
-
-public:
-
-     explicit handler_1 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<greeting, roll_dice>
-     {
-          sck
-     }
-     {
-          qDebug() << "Handler_1 constructed. " << id.toString();
-     }
-
-     ~handler_1() override
-     {
-          qDebug() << "Handler_1 destroyed. " << id.toString();
-     }
-
-protected:
-
-     void on_receive ( const greeting& greeting ) override
-     {
-          qDebug() << greeting;
-     }
-
-     void on_receive ( const roll_dice& dice ) override
-     {
-          qDebug() << dice;
-     }
-
-private:
-
-     QUuid id { QUuid::createUuid() };
-
-};
-
-
-class handler_2 : public speech::tcp::tcp_receiver<roll_dice>
-{
-
-public:
-
-     explicit handler_2 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<roll_dice>
-     {
-          sck
-     }
-     {
-          qDebug() << "Handler_2 constructed. " << id.toString();
-     }
-
-     ~handler_2() override
-     {
-          qDebug() << "Handler_2 destroyed. " << id.toString();
-     }
-
-protected:
-
-     void on_receive ( const roll_dice& dice ) override
-     {
-          qDebug() << dice;
-     }
-
-private:
-
-     QUuid id { QUuid::createUuid() };
-
-};
-
 int main ( int argc, char** argv )
 {
      QCoreApplication app ( argc, argv );
@@ -97,9 +29,18 @@ int main ( int argc, char** argv )
           port = parser.value ( "p" ).toInt();
      }
 
-     auto sw = make_server ( QHostAddress::Any, speech::port{ port },
-                             make_handler<handler_1>(),
-                             make_handler<handler_2>() );
+     tcp_server server { QHostAddress::Any , speech::port { port } };
+
+     auto res = listen<roll_dice>( []( const roll_dice& e , QTcpSocket& ) {
+         qDebug() << "Received : " << e;
+     }) |
+             listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+        qDebug() << "Received : " << g;
+     }) |    listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+         qDebug() << "Received : " << g;
+      }) |   listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+        qDebug() << "Received : " << g;
+     });
 
      qDebug() << "Tcp Server running at " << port << " port";
 

@@ -3,6 +3,7 @@
 #include <QDataStream>
 #include <vector>
 #include <memory>
+#include "shared_socket.h"
 
 namespace speech
 {
@@ -32,14 +33,19 @@ namespace speech
                 listen();
             }
 
+            ~shared_socket() noexcept
+            {
+                QObject::disconnect( m_socket_listening_conn );
+            }
+
             QTcpSocket& socket()
             {
                 return m_socket->ref();
             }
 
-            void attach(std::function<int(const QByteArray&)> observer)
+            void attach(std::function<int(const QByteArray& , QTcpSocket&)> observer)
             {
-                m_listeners.push_back(observer);
+                m_listeners.push_back( observer );
             }
 
             shared_socket<QTcpSocket>(const shared_socket<QTcpSocket>&) = delete;
@@ -79,14 +85,14 @@ namespace speech
                     //Read bytes
                     m_buffer.append(sck.readAll());
 
-                    bool invalid_msg{ false };
-                    int could_not_be_parsed_count{};
+                    bool invalid_msg { false };
+                    int could_not_be_parsed_count {};
                     parsed_data_length = 0;
 
                     //Call listeners
                     for(auto f : m_listeners)
                     {
-                        auto processed_bytes = f(m_buffer);
+                        auto processed_bytes = f ( m_buffer , m_socket->ref() );
 
                         if(processed_bytes == -1)
                         {
@@ -134,7 +140,7 @@ namespace speech
 
             std::unique_ptr<speech::handle::handle<QTcpSocket>> m_socket;
             QByteArray m_buffer;
-            std::vector<std::function<int(const QByteArray&)>> m_listeners;
+            std::vector<std::function<int(const QByteArray& , QTcpSocket& )>> m_listeners;
             QMetaObject::Connection m_socket_listening_conn;
     };
 }

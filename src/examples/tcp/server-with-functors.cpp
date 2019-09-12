@@ -29,16 +29,6 @@ int main ( int argc, char** argv )
           port = parser.value ( "p" ).toInt();
      }
 
-     auto server = make_server ( QHostAddress::Any,  speech::port ( 24942 ),
-     make_handler_f<greeting> ( [] ( const greeting& greeting, QTcpSocket& ) {
-          qDebug() << greeting;
-     } )
-     ,
-     make_handler_f<roll_dice> ( [] ( const roll_dice& dice, QTcpSocket& ) {
-          qDebug() << dice;
-     } )
-                               );
-
      qDebug() << "Tcp Server running at " << port << " port";
 
      app.exec();

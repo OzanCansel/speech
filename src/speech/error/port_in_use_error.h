@@ -2,6 +2,7 @@
 #define SPEECH_PORT_IN_USE_ERROR_H
 
 #include <exception>
+#include <string>
 
 namespace speech
 {

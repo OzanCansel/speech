@@ -11,56 +11,131 @@
 #include "speech/util.h"
 #include "speech/shared_socket.h"
 #include "speech/handler_f.h"
+#include "speech/tcp/tcp_receiver.h"
 
 namespace speech
 {
 namespace tcp
 {
 
-template<typename... T>
+namespace impl
+{
+
+struct lifetime
+{
+
+    using cb_type = std::function<int(const QByteArray& , QTcpSocket&)>;
+
+    cb_type cb;
+};
+}
+
+template<typename T>
+class handler : public tcp_receiver<T>
+{
+
+public:
+
+    using client_cb = std::function<void( const T& , QTcpSocket& )>;
+
+    handler( client_cb cb , std::shared_ptr<impl::lifetime> c )
+        : m_conn { c }
+        , m_cb { cb }
+    {
+        using namespace std::placeholders;
+        c->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
+    }
+
+    handler( const handler& ) = delete;
+    handler& operator = ( const handler& ) = delete;
+    handler( handler&& other ) noexcept
+    {
+        using namespace std::placeholders;
+
+        m_conn = other.m_conn;
+        m_cb = other.m_cb;
+        m_conn->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
+    }
+
+    handler& operator = ( handler&& other )
+    {
+        using namespace std::placeholders;
+
+        m_conn = other.m_conn;
+        m_cb = other.m_cb;
+        m_conn->cb = std::bind( tcp_receiver<T>::on_data_received , this , _1 , _2 );
+    }
+
+protected:
+
+    void on_receive( const T& e )
+    {
+        m_cb( e , tcp_receiver<T>::socket() );
+    }
+
+private:
+
+    friend class tcp_server;
+
+    std::shared_ptr<impl::lifetime> m_conn;
+    client_cb m_cb;
+
+};
+
 class tcp_server
 {
 public:
 
-                tcp_server(const QHostAddress &address = QHostAddress::Any, speech::port = speech::port(0) , T...);
-                int port() const { return m_server.serverPort(); }
+    tcp_server(const QHostAddress &address = QHostAddress::Any, speech::port = speech::port(0));
+    int port() const { return m_server.serverPort(); }
+
+    template<typename T>
+    handler<T> listen( typename handler<T>::client_cb );
+
+    template<typename T>
+    handler<T> operator | ( handler<T>&& handler )
+    {
+        m_lifetimes.push_back( handler.m_conn );
+
+        return std::move( handler );
+    }
+
+    template<typename T>
+    handler<T>& operator | ( handler<T>& handler )
+    {
+        m_lifetimes.push_back( handler.m_conn );
+
+        return handler;
+    }
 
 private:
 
-     using handlers_cont = std::tuple<typename T::result_type...>;
-
-     void new_connection();
-     void disconnected ( QTcpSocket* s );
-     std::tuple<T...> m_factory;
-     std::unordered_map<std::unique_ptr<shared_socket<QTcpSocket>>, handlers_cont>  m_alive_connections;
-     QTcpServer m_server;
+    int ready_read_callback( const QByteArray& , QTcpSocket& );
+    void new_connection();
+    void disconnected ( QTcpSocket* s );
+    std::vector<shared_socket<QTcpSocket>>  m_alive_connections;
+    std::vector<std::shared_ptr<impl::lifetime>> m_lifetimes;
+    QTcpServer m_server;
 };
 
-template<typename T, typename... Ps>
-std::function<std::unique_ptr<T> ( shared_socket<QTcpSocket>& ) > make_handler ( Ps... values )
+template<typename T>
+handler<T> listen( typename handler<T>::client_cb cb )
 {
-     std::function<std::unique_ptr<T> ( shared_socket<QTcpSocket>& ) > f = [values...] ( shared_socket<QTcpSocket>& sck ) {
-          return std::unique_ptr<T> { new T{ sck, values... } };
-     };
-     return f;
+    return handler<T> {  cb , std::make_shared<impl::lifetime>() };
 }
 
-template<typename Entity>
-std::function<std::unique_ptr<speech::handler_f<Entity, tcp_receiver>> ( shared_socket<QTcpSocket>& ) > make_handler_f ( std::function<void ( const Entity&, QTcpSocket& ) > f )
+template< typename L , typename R >
+std::tuple< handler<L> , handler<R> > operator | ( handler<L>&& lhs , handler<R>&& rhs)
 {
-     using namespace impl;
-     return [f] ( shared_socket<QTcpSocket>& sck ) {
-          return std::make_unique<handler_f<Entity, tcp_receiver>> ( f, sck );
-     };
+    return std::make_tuple( std::move( lhs ) , std::move( rhs ) );
 }
 
-
-template<typename... T>
-auto make_server ( const QHostAddress &address = QHostAddress::Any, speech::port p = speech::port ( 0 ), T... generators ) -> std::unique_ptr<tcp_server<decltype ( generators )...>>
+template< typename... L , typename R >
+auto operator | ( std::tuple<L...> lhs , handler<R>&& rhs )
 {
-     using server_type = tcp_server<decltype ( generators )...>;
-     return std::unique_ptr<server_type> ( new server_type ( address, p, generators... ) );
+    return std::make_tuple( std::move( lhs ) , std::move( rhs ) );
 }
+
 }
 }
 
