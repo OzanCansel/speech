@@ -9,7 +9,7 @@ namespace impl
 {
 template <bool EnableQueue, typename... T>
 udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(port p , QAbstractSocket::BindMode mode)
-    :   m_socket{ new speech::handle::unique_ptr_handle<QUdpSocket>{  std::make_unique<QUdpSocket>() } }
+    :   m_socket{ new speech::handle::unique_ptr_handle{  std::make_unique<QUdpSocket>() } }
 {
     if (!m_socket->ref().bind(p.get() , mode))
     {

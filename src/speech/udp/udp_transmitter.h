@@ -20,7 +20,8 @@ public:
 
      udp_transmitter ( const QHostAddress&, const speech::port& );
      udp_transmitter ( QUdpSocket&, const QHostAddress&, const speech::port& );
-     udp_transmitter ( std::unique_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
+     template<typename Deleter>
+     udp_transmitter ( std::unique_ptr<QUdpSocket , Deleter>, const QHostAddress&, const speech::port& );
      udp_transmitter ( std::shared_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
      ~udp_transmitter() noexcept;
      udp_transmitter ( const udp_transmitter<T...>& ) = delete;

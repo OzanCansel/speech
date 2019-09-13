@@ -10,7 +10,7 @@ template <typename... T>
 udp_transmitter<T...>::udp_transmitter ( const QHostAddress& addr, const speech::port& p )
      : m_addr{ addr },
        m_port{ p.get() },
-       m_socket{ new speech::handle::unique_ptr_handle<QUdpSocket>{ std::make_unique<QUdpSocket>() } }
+       m_socket{ new speech::handle::unique_ptr_handle{ std::make_unique<QUdpSocket>() } }
 {   }
 
 template<typename... T>
@@ -22,11 +22,12 @@ udp_transmitter<T...>::udp_transmitter ( QUdpSocket& socket, const QHostAddress&
 {   }
 
 template<typename... T>
-udp_transmitter<T...>::udp_transmitter ( std::unique_ptr<QUdpSocket>  socket, const QHostAddress& addr, const speech::port& p )
+template<typename Deleter>
+udp_transmitter<T...>::udp_transmitter ( std::unique_ptr<QUdpSocket , Deleter>  socket, const QHostAddress& addr, const speech::port& p )
      :
      m_addr{  addr },
      m_port{  p.get() },
-     m_socket{  new speech::handle::unique_ptr_handle<QUdpSocket>{  std::move ( socket ) } }
+     m_socket{  new speech::handle::unique_ptr_handle{  std::move ( socket ) } }
 {   }
 
 template<typename... T>

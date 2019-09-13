@@ -20,8 +20,11 @@ namespace speech
                 tcp_transmitter(QTcpSocket&);
                 tcp_transmitter(const QHostAddress&, const speech::port&);
                 tcp_transmitter(QTcpSocket&, const QHostAddress&, const speech::port&);
-                tcp_transmitter(std::unique_ptr<QTcpSocket>);
-                tcp_transmitter(std::unique_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
+
+                template<typename Deleter>
+                tcp_transmitter(std::unique_ptr<QTcpSocket , Deleter>);
+                template<typename Deleter>
+                tcp_transmitter(std::unique_ptr<QTcpSocket , Deleter> , const QHostAddress&, const speech::port&);
                 tcp_transmitter(std::shared_ptr<QTcpSocket>);
                 tcp_transmitter(std::shared_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
                 ~tcp_transmitter() noexcept;

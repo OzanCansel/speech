@@ -19,7 +19,7 @@ namespace speech
         template<typename... T>
         tcp_transmitter<T...>::tcp_transmitter(const QHostAddress& host , const speech::port& p)
             :
-                m_socket{ new speech::handle::unique_ptr_handle<QTcpSocket>{  std::make_unique<QTcpSocket>() } }
+                m_socket{ new speech::handle::unique_ptr_handle{  std::make_unique<QTcpSocket>() } }
         {   
             if(!m_socket->ref().isOpen())
                 connect_to_host(host , p.get() );
@@ -35,15 +35,17 @@ namespace speech
         }
 
         template<typename... T>
-        tcp_transmitter<T...>::tcp_transmitter(std::unique_ptr<QTcpSocket> sck)
+        template<typename Deleter>
+        tcp_transmitter<T...>::tcp_transmitter(std::unique_ptr<QTcpSocket , Deleter> sck)
             :
-                m_socket{ new speech::handle::unique_ptr_handle<QTcpSocket>{ sck } }
+                m_socket{ new speech::handle::unique_ptr_handle{ sck } }
         {   }
 
         template<typename... T>
-        tcp_transmitter<T...>::tcp_transmitter(std::unique_ptr<QTcpSocket>  sck , const QHostAddress& host , const speech::port&  p)
+        template<typename Deleter>
+        tcp_transmitter<T...>::tcp_transmitter(std::unique_ptr<QTcpSocket , Deleter>  sck , const QHostAddress& host , const speech::port&  p)
             :
-                m_socket{ new speech::handle::unique_ptr_handle<QTcpSocket>{ std::move(sck) } }
+                m_socket{ new speech::handle::unique_ptr_handle{ std::move(sck) } }
         {   
             if(!m_socket->ref().isOpen())
                 connect_to_host(host , p.get());

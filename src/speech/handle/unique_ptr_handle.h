@@ -8,15 +8,15 @@ namespace speech
 {
 namespace handle
 {
-template<typename T>
+template<typename T , typename Deleter>
 struct unique_ptr_handle : handle<T> {
 
-     explicit unique_ptr_handle ( std::unique_ptr<T> sck ) : handle<T>{ *sck.get() }, m_sck{ std::move ( sck ) }
+     explicit unique_ptr_handle ( std::unique_ptr< T , Deleter > sck ) : handle<T>{ *sck.get() }, m_sck{ std::move ( sck ) }
      {   }
 
 private:
 
-     std::unique_ptr<T> m_sck;
+     std::unique_ptr<T , Deleter> m_sck;
 };
 }
 }
