@@ -14,7 +14,7 @@ target_link_libraries(serialize-transmit speech::speech model::model)
 target_link_libraries(serialize-receive speech::speech model::model)
 
 set_target_properties(serialize-transmit serialize-receive PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )

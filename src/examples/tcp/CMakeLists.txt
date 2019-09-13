@@ -12,7 +12,7 @@ target_link_libraries(server-with-functors speech::speech model::model)
 target_link_libraries(feed-function speech::speech model::model)
 
 set_target_properties(server server-with-functors feed feed-function PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
