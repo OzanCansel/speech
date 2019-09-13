@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QString>
 #include "speech/util.h"
+#include "speech/traits/implements_left_stream.h"
 
 namespace speech
 {
@@ -39,15 +40,28 @@ void serialize_in( QDataStream& in ,  H& head , T&... tail)
 }
 
 template<int Idx , typename T>
-void std_out( const QStringList& field_names , QDebug& out , const T& head )
+void qdbg_out( const QStringList& field_names , QDebug& out , const T& head )
 {
     out << field_names.at(Idx) << ":" << head << "}";
 }
 
 template<int Idx, typename H , typename... T>
-void std_out( const QStringList& field_names , QDebug& out ,  const H& head , const T&... tail)
+void qdbg_out( const QStringList& field_names , QDebug& out ,  const H& head , const T&... tail)
 {
     out << field_names.at(Idx) << ":" << head << ",";
+    qdbg_out< Idx + 1 , T...>( field_names , out , tail... );
+}
+
+template<int Idx , typename T>
+void std_out( const QStringList& field_names , std::ostream& out , const T& head )
+{
+    out << field_names.at(Idx).toStdString() << ":" << head << "}";
+}
+
+template<int Idx, typename H , typename... T>
+void std_out( const QStringList& field_names , std::ostream& out ,  const H& head , const T&... tail)
+{
+    out << field_names.at(Idx).toStdString() << ":" << head << ",";
     std_out< Idx + 1 , T...>( field_names , out , tail... );
 }
 
@@ -57,26 +71,9 @@ struct tag_speech_qdebug_out{};
 }
 }
 
-
-
 #define SPEECH_SERIALIZE(...) \
     SPEECH_JUST_SERIALIZE( __VA_ARGS__ ) \
-    SPEECH_JUST_OUT( __VA_ARGS__ )
-//    public : \
-//    using __serialize_tag = speech::impl::tag_speech_serialize; \
-//    void operator <<( QDataStream& out ) const \
-//    { \
-//        speech::impl::serialize_out( out , __VA_ARGS__ ) ;\
-//    } \
-//    void operator >>( QDataStream& in ) \
-//    { \
-//        speech::impl::serialize_in( in , __VA_ARGS__ ) ;\
-//    } \
-//    void operator <<( QDebug& out ) const \
-//    { \
-//        static const QStringList args_names = QString( #__VA_ARGS__ ).split( "," );\
-//        speech::impl::std_out<0>( args_names , out , __VA_ARGS__ );\
-//    } \
+    SPEECH_QDEBUG_OUT( __VA_ARGS__ )
 
 #define SPEECH_JUST_SERIALIZE(...)\
     public : \
@@ -90,13 +87,13 @@ struct tag_speech_qdebug_out{};
         speech::impl::serialize_in( in , __VA_ARGS__ ) ;\
     } \
 
-#define SPEECH_JUST_OUT(...) \
+#define SPEECH_QDEBUG_OUT(...) \
     public : \
     using __qdebug_tag = speech::impl::tag_speech_qdebug_out; \
     void operator <<( QDebug& out ) const \
     { \
         static const QStringList args_names = QString( #__VA_ARGS__ ).split( "," );\
-        speech::impl::std_out<0>( args_names , out , __VA_ARGS__ );\
+        speech::impl::qdbg_out<0>( args_names , out , __VA_ARGS__ );\
     } \
 
 template<typename Serializable , typename = typename std::is_same< typename Serializable::__serialize_tag , speech::impl::tag_speech_serialize>::type >
@@ -119,6 +116,33 @@ QDebug operator <<( QDebug out , const Serializable& e)
     out.noquote() << speech::impl::identify<Serializable>() << "{";
     e.operator <<( out );
     return out;
+}
+
+template< typename Enum>
+typename std::enable_if_t<std::is_enum<Enum>::value , QDataStream&>
+operator <<( QDataStream& out , const Enum& e )
+{
+    int val = static_cast<int>(e);
+    return out << val;
+}
+
+template< typename Enum>
+typename std::enable_if_t<std::is_enum<Enum>::value , QDataStream&>
+operator >>( QDataStream& in , Enum& e)
+{
+    int val = 0;
+    in >> val;
+    e = static_cast<Enum>( val );
+
+    return in;
+}
+
+template < typename Enum>
+typename std::enable_if_t<std::is_enum<Enum>::value, QDebug>
+operator <<( QDebug out , const Enum& e )
+{
+    int val = static_cast<int>( e );
+    return out << val;
 }
 
 #endif // MACRO_H
