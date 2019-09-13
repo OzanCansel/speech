@@ -9,40 +9,39 @@
 
 int main ( int argc, char** argv )
 {
-     QCoreApplication app ( argc, argv );
+    QCoreApplication app ( argc, argv );
 
-     using namespace speech;
-     using namespace speech::tcp;
+    using namespace speech;
+    using namespace speech::tcp;
 
-     QCommandLineParser parser;
-     parser.addHelpOption();
+    QCommandLineParser parser;
+    parser.addHelpOption();
 
-     parser.addOptions (
-     {{ {"p", "port"}, "Specify listening port number", "port number" }} );
+    parser.addOptions (
+    {{ {"p", "port"}, "Specify listening port number", "port number" }} );
 
-     parser.process ( app );
+    parser.process ( app );
 
-     //Defaults
-     auto port = 24942;
+    //Defaults
+    auto port = 24942;
 
-     if ( parser.isSet ( "p" ) ) {
-          port = parser.value ( "p" ).toInt();
-     }
+    if ( parser.isSet ( "p" ) ) {
+        port = parser.value ( "p" ).toInt();
+    }
 
-     tcp_server server { QHostAddress::Any , speech::port { port } };
+    tcp_server server { QHostAddress::Any , speech::port { port } };
 
-     auto res = listen<roll_dice>( []( const roll_dice& e , QTcpSocket& ) {
-         qDebug() << "Received : " << e;
-     }) |
-             listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+    auto listeners =
+            listen<roll_dice>( []( const roll_dice& e , QTcpSocket& ) {
+        qDebug() << "Received : " << e;
+    }) |
+            listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
         qDebug() << "Received : " << g;
-     }) |    listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
-         qDebug() << "Received : " << g;
-      }) |   listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
-        qDebug() << "Received : " << g;
-     });
+    });
 
-     qDebug() << "Tcp Server running at " << port << " port";
+    server.listen( listeners );
 
-     return app.exec();
+    qDebug() << "Tcp Server running at " << port << " port";
+
+    return app.exec();
 }
