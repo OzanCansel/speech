@@ -55,10 +55,26 @@ void tcp_server::disconnected ( QTcpSocket* socket )
 int tcp_server::ready_read_callback( const QByteArray& data , QTcpSocket& sck )
 {
 
-    auto max_res = -9999;
+    using namespace std;
 
-    for ( auto f : m_lifetimes )
+    auto max_res = -9999;
+    vector<shared_ptr<impl::lifetime>> ended_lifetimes;
+
+    for ( auto& f : m_lifetimes )
     {
+
+        if ( !f )
+        {
+            ended_lifetimes.push_back( f );
+            continue;
+        }
+
+        if ( f.use_count() == 1 )
+        {
+            ended_lifetimes.push_back( f );
+            continue;
+        }
+
         auto res = f->cb( data , sck );
 
         // Bad should be refactored
@@ -69,19 +85,11 @@ int tcp_server::ready_read_callback( const QByteArray& data , QTcpSocket& sck )
             max_res = res;
     }
 
+    // Remove ended lifetimes
+    for ( auto& life : ended_lifetimes  )
+        m_lifetimes.erase( std::remove( m_lifetimes.begin() , m_lifetimes.end() ,  life ) );
+
     return max_res;
 }
-
-template<typename T>
-handler<T> tcp_server::listen( typename handler<T>::client_cb cb )
-{
-    auto conn = std::make_shared<impl::lifetime>();
-    handler<T> handler {  cb , conn };
-
-    m_lifetimes.push_back( conn );
-
-    return handler;
-}
-
 }
 }

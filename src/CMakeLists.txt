@@ -10,7 +10,7 @@ add_library(speech::speech ALIAS speech)
 target_link_libraries(speech INTERFACE Qt5::Core Qt5::Network)
 
 set_target_properties( speech PROPERTIES
-    INTERFACE_COMPILE_FEATURES cxx_std_14
+    INTERFACE_COMPILE_FEATURES cxx_std_17
 )
 
 target_include_directories(speech INTERFACE  
