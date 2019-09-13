@@ -21,7 +21,6 @@ class tcp_receiver_impl : protected receiver<EnableQueue, T...>
 public:
 
      using socket_type = QTcpSocket;
-     using shared_socket_Type = shared_socket<socket_type>;
      int on_data_received ( const QByteArray & , QTcpSocket& );
 
      QTcpSocket& socket() { return *m_sck; }
