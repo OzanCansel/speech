@@ -52,19 +52,6 @@ void qdbg_out( const QStringList& field_names , QDebug& out ,  const H& head , c
     qdbg_out< Idx + 1 , T...>( field_names , out , tail... );
 }
 
-template<int Idx , typename T>
-void std_out( const QStringList& field_names , std::ostream& out , const T& head )
-{
-    out << field_names.at(Idx).toStdString() << ":" << head << "}";
-}
-
-template<int Idx, typename H , typename... T>
-void std_out( const QStringList& field_names , std::ostream& out ,  const H& head , const T&... tail)
-{
-    out << field_names.at(Idx).toStdString() << ":" << head << ",";
-    std_out< Idx + 1 , T...>( field_names , out , tail... );
-}
-
 struct tag_speech_serialize{}; //It specifies that it is speech class and implements right and left stream operator
 struct tag_speech_qdebug_out{};
 
