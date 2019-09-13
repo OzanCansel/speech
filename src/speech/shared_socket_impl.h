@@ -28,7 +28,7 @@ namespace speech
 
             shared_socket<QTcpSocket>(std::unique_ptr<QTcpSocket> socket)
                 :
-                m_socket{ new speech::handle::unique_ptr_handle<QTcpSocket>{ std::move(socket) }}
+                m_socket{ new speech::handle::unique_ptr_handle{ std::move(socket) }}
             {   
                 listen();
             }
