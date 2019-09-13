@@ -65,7 +65,7 @@ namespace speech
         }
 
         template<typename... T>
-        tcp_transmitter<T...>::~tcp_transmitter<T...>() noexcept
+        tcp_transmitter<T...>::~tcp_transmitter() noexcept
         {
             m_socket->ref().waitForBytesWritten();
         }

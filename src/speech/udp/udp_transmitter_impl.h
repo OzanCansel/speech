@@ -38,7 +38,7 @@ udp_transmitter<T...>::udp_transmitter ( std::shared_ptr<QUdpSocket> socket, con
 {   }
 
 template<typename... T>
-udp_transmitter<T...>::~udp_transmitter<T...>() noexcept
+udp_transmitter<T...>::~udp_transmitter() noexcept
 {
     m_socket->ref().waitForBytesWritten();
 }
