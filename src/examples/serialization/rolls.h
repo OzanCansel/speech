@@ -1,7 +1,7 @@
 #ifndef ROLLS_H
 #define ROLLS_H
 
-#include <speech/serialize/macro.h>
+#include <speech/serialize/serialize.h>
 #include <speech/serialize/container_serialize.h>
 
 using namespace speech::serialization::container;

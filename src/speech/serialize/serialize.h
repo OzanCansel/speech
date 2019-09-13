@@ -1,5 +1,5 @@
-#ifndef MACRO_H
-#define MACRO_H
+#ifndef SERIALIZE_H
+#define SERIALIZE_H
 
 #include <QDataStream>
 #include <QDebug>
@@ -145,4 +145,4 @@ operator <<( QDebug out , const Enum& e )
     return out << val;
 }
 
-#endif // MACRO_H
+#endif // SERIALIZE_H

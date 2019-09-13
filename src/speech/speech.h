@@ -8,7 +8,7 @@
 #include "tcp/tcp_transmitter.h"
 #include "serialize/container_serialize.h"
 #include "serialize/qobject_serialize.h"
-#include "serialize/macro.h"
+#include "serialize/serialize.h"
 #include "error/connection_error.h"
 #include "error/port_in_use_error.h"
 
