@@ -64,6 +64,8 @@ namespace speech
                 m_buffer = std::move(rhs.m_buffer);
                 m_listeners = std::move(rhs.m_listeners);
                 listen();
+
+                return *this;
             }
 
         private:
