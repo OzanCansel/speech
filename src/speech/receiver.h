@@ -82,6 +82,8 @@ public:
 
     void messages() = delete;
 
+protected:
+
     virtual void on_checksum_error( const QByteArray& ) { }
     virtual void on_token_error( const QByteArray& ) { }
     virtual void on_error( const QByteArray& ) { }
