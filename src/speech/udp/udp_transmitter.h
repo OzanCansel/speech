@@ -44,10 +44,10 @@ private:
 };
 
 template<typename T, typename Socket>
-void udp_transmit ( const T&, const QHostAddress&, const speech::port&, Socket );
+void transmit ( const T&, const QHostAddress&, const speech::port&, Socket );
 
 template<typename T>
-void udp_transmit ( const T&, const QHostAddress&, const speech::port& );
+void transmit ( const T&, const QHostAddress&, const speech::port& );
 
 } // namespace udp
 } // namespace speech

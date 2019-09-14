@@ -82,7 +82,7 @@ bool udp_transmitter<T...>::write ( const QByteArray &data )
 }
 
 template<typename T, typename Socket>
-void udp_transmit ( const T& entity, const QHostAddress& host, const speech::port& p, Socket socket )
+void transmit ( const T& entity, const QHostAddress& host, const speech::port& p, Socket socket )
 {
 
 
@@ -97,10 +97,10 @@ void udp_transmit ( const T& entity, const QHostAddress& host, const speech::por
 }
 
 template<typename T>
-void udp_transmit ( const T& entity, const QHostAddress& host, const speech::port& p )
+void transmit ( const T& entity, const QHostAddress& host, const speech::port& p )
 {
      QUdpSocket socket;
-     udp_transmit ( entity, host, p, std::ref ( socket ) );
+     transmit ( entity, host, p, std::ref ( socket ) );
 }
 
 } // namespace udp

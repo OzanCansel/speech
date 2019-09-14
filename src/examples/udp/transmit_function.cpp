@@ -45,18 +45,18 @@ int main ( int argc, char **argv )
           greeting greeting_msg;
           greeting_msg.my_name_is = QString ( "%0 - %1" ).arg ( "Hi ! My name is Ozan -" ).arg ( i );
 
-          udp_transmit ( greeting_msg, host, speech::port ( port ) );
-          udp_transmit ( greeting_msg, host, speech::port ( port ), std::ref ( socket ) );
-          udp_transmit ( greeting_msg, host, speech::port ( port ), shared_sck );
+          transmit ( greeting_msg, host, speech::port ( port ) );
+          transmit ( greeting_msg, host, speech::port ( port ), std::ref ( socket ) );
+          transmit ( greeting_msg, host, speech::port ( port ), shared_sck );
 
           qDebug() << "transmitting to " << port << " => " << greeting_msg;
           QCoreApplication::processEvents();
           QThread::msleep ( rand() % 1000 );
 
           roll_dice dice;
-          udp_transmit ( dice, host, speech::port ( port ) );
-          udp_transmit ( dice, host, speech::port ( port ), std::ref ( socket ) );
-          udp_transmit ( dice, host, speech::port ( port ), shared_sck );
+          transmit ( dice, host, speech::port ( port ) );
+          transmit ( dice, host, speech::port ( port ), std::ref ( socket ) );
+          transmit ( dice, host, speech::port ( port ), shared_sck );
 
           qDebug() << "transmitting to " << port << " => " << dice;
           QCoreApplication::processEvents();

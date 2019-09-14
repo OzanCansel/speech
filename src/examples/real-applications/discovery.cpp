@@ -40,7 +40,7 @@ public:
                using namespace speech;
                using namespace speech::udp;
 
-               udp_transmit
+               transmit
                (
                device_info {
                     QHostInfo::localHostName(),

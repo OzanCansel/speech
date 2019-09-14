@@ -81,7 +81,6 @@ namespace speech
                 return false;
 
             socket.write(data);
-            // socket.waitForBytesWritten();
 
             return true;
         }
@@ -97,7 +96,7 @@ namespace speech
         }
 
         template<typename T, typename Socket>
-        void tcp_transmit(const T& entity, const QHostAddress& host, const speech::port& p, Socket s)
+        void transmit(const T& entity, const QHostAddress& host, const speech::port& p, Socket s)
         {
 
             static_assert(std::is_same<Socket , std::reference_wrapper<QTcpSocket>>::value ||
@@ -109,17 +108,17 @@ namespace speech
         }
 
         template<typename T, typename Socket>
-        void tcp_transmit(const T& entity, Socket socket)
+        void transmit(const T& entity, Socket socket)
         {
             tcp_transmitter<T> tcp{ socket };
             tcp.transmit(entity);
         }
 
         template<typename T>
-        void tcp_transmit(const T& entity, const QHostAddress& host, const speech::port& p)
+        void transmit(const T& entity, const QHostAddress& host, const speech::port& p)
         {
             QTcpSocket socket;
-            tcp_transmit(entity, host, p, std::ref(socket));
+            transmit(entity, host, p, std::ref(socket));
         }
     }
 }
