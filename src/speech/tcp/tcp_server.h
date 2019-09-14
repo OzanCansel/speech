@@ -10,7 +10,6 @@
 #include <memory>
 #include "speech/util.h"
 #include "speech/shared_socket.h"
-#include "speech/handler_f.h"
 #include "speech/tcp/tcp_receiver.h"
 
 namespace speech
