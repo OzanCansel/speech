@@ -70,7 +70,7 @@ int main ( int argc, char** argv )
         transmit ( g, host, speech::port ( port ), shared_sck );
 
         //Use 'socket', connect to host and transmit
-        transmit ( g, host, speech::port ( port ), std::ref ( socket ) );
+        transmit ( g, host, speech::port ( port ), socket );
 
         //transmit over already connected socket
         transmit ( g, std::ref ( already_opened_sck ) );

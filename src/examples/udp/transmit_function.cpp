@@ -46,7 +46,7 @@ int main ( int argc, char **argv )
           greeting_msg.my_name_is = QString ( "%0 - %1" ).arg ( "Hi ! My name is Ozan -" ).arg ( i );
 
           transmit ( greeting_msg, host, speech::port ( port ) );
-          transmit ( greeting_msg, host, speech::port ( port ), std::ref ( socket ) );
+          transmit ( greeting_msg, host, speech::port ( port ), socket );
           transmit ( greeting_msg, host, speech::port ( port ), shared_sck );
 
           qDebug() << "transmitting to " << port << " => " << greeting_msg;
@@ -55,8 +55,8 @@ int main ( int argc, char **argv )
 
           roll_dice dice;
           transmit ( dice, host, speech::port ( port ) );
-          transmit ( dice, host, speech::port ( port ), std::ref ( socket ) );
-          transmit ( dice, host, speech::port ( port ), shared_sck );
+          transmit ( dice, host, speech::port ( port ), socket );
+          transmit ( dice, host, speech::port ( port ), make_unique<QUdpSocket>());
 
           qDebug() << "transmitting to " << port << " => " << dice;
           QCoreApplication::processEvents();

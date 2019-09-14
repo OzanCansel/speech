@@ -1,5 +1,7 @@
 #include "speech/handle/unique_ptr_handle.h"
 #include "speech/handle/shared_ptr_handle.h"
+#include "speech/traits/is_shared_ptr.h"
+#include "speech/traits/is_unique_ptr.h"
 #include "udp_transmitter.h"
 
 namespace speech
@@ -82,16 +84,17 @@ bool udp_transmitter<T...>::write ( const QByteArray &data )
 }
 
 template<typename T, typename Socket>
-void transmit ( const T& entity, const QHostAddress& host, const speech::port& p, Socket socket )
+void transmit ( const T& entity, const QHostAddress& host, const speech::port& p, Socket&& socket )
 {
 
 
-     static_assert ( std::is_same<Socket, std::reference_wrapper<QUdpSocket>>::value ||
-                     std::is_same<Socket, std::shared_ptr<QUdpSocket>>::value,
-                     "Socket must be one of these type of sockets : [ QUdpSocket, std::shared_ptr<QUdpSocket> ]" );
+     static_assert ( std::is_same_v<Socket, QUdpSocket&> ||
+                     is_shared_ptr_with_v<std::decay_t<Socket> , QUdpSocket> ||
+                     is_unique_ptr_with_v<std::decay_t<Socket> , QUdpSocket> ,
+                     "speech::udp::transmit(const T& , const QHostAddress&, port& , Socket&& ) => Socket parameter must be one of these type : [ QUdpSocket& , std::unique_ptr<QUdpSocket , AnyDeleter> , std::shared_ptr<QUdpSocket> ]" );
 
 
-     udp_transmitter<T> udp{ socket, host, p };
+     udp_transmitter<T> udp { std::forward<Socket>( socket ), host, p };
 
      udp.transmit ( entity );
 }
@@ -100,7 +103,7 @@ template<typename T>
 void transmit ( const T& entity, const QHostAddress& host, const speech::port& p )
 {
      QUdpSocket socket;
-     transmit ( entity, host, p, std::ref ( socket ) );
+     transmit ( entity , host , p , socket );
 }
 
 } // namespace udp

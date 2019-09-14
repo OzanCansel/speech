@@ -29,10 +29,8 @@ class discovery : speech::udp::udp_receiver<device_info>
 {
 public:
 
-     explicit discovery ( speech::port p ) : speech::udp::udp_receiver<device_info>
-     {
-          p
-     }
+     explicit discovery ( speech::port p )
+        : speech::udp::udp_receiver<device_info> { p }
      {
           m_broadcast_tick.setInterval ( 1000 );
 
@@ -58,7 +56,7 @@ public:
           m_broadcast_tick.start();
      }
 
-     void on_receive ( const device_info& device )
+     void on_receive ( const device_info& device ) override
      {
           bool exist = std::any_of ( m_devices.begin(), m_devices.end(), [&device] ( const auto& d ) {
                return d.mac_addr == device.mac_addr;

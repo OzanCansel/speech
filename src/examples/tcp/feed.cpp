@@ -52,9 +52,9 @@ int main ( int argc, char** argv )
      auto shared_sck = std::make_shared<QTcpSocket>();
      auto unique_sck = std::make_unique<QTcpSocket>();
 
-     tcp_transmitter<greeting, roll_dice, me> tcp{ host, speech::port ( port ) };
-     tcp_transmitter<greeting, roll_dice, me> tcp_unique{ std::move ( unique_sck ), host, speech::port ( port ) };
-     tcp_transmitter<greeting, roll_dice, me> tcp_shared{ shared_sck, host, speech::port ( port ) };
+     tcp_transmitter<greeting, roll_dice, me> tcp { host, speech::port ( port ) };
+     tcp_transmitter<greeting, roll_dice, me> tcp_unique { std::move ( unique_sck ) , host, speech::port ( port ) };
+     tcp_transmitter<greeting, roll_dice, me> tcp_shared { shared_sck , host , speech::port ( port ) };
 
      for ( auto i = 0;; ++i ) {
           greeting g;
