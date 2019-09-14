@@ -92,12 +92,18 @@ void udp_receiver_impl<EnableQueue, T...>::on_data_received  ()
         }();
 
         auto invalid_msg = number_of_bytes_processed == -2;
-        auto could_not_be_parsed = number_of_bytes_processed == -2;
+        auto could_not_be_parsed = number_of_bytes_processed == -1;
 
         if ( invalid_msg || could_not_be_parsed )
         {
-            if ( could_not_be_parsed )
+            int idx = -1;
+            idx = m_buffer.indexOf( start_token );
+
+            if ( idx == 0 )
+            {
                 m_buffer.remove( 0 , start_token.size() );
+                idx = m_buffer.indexOf( start_token );
+            }
 
             auto start_of_msg_idx = m_buffer.indexOf(start_token);
             auto invalid_data_len = start_of_msg_idx == -1 ? m_buffer.size() : start_of_msg_idx;
