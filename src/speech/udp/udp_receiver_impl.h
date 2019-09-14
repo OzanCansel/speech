@@ -1,4 +1,5 @@
 #include <functional>
+#include "udp_receiver.h"
 
 namespace speech
 {
@@ -82,8 +83,29 @@ void udp_receiver_impl<EnableQueue, T...>::on_data_received  ()
 
         auto number_of_bytes_processed = this->parse(m_buffer);
 
-        //Clear processed bytes from buffer
-        m_buffer.remove(0, static_cast<int>(number_of_bytes_processed));
+        const static QByteArray start_token = [](){
+            QByteArray arr;
+            QDataStream ss(&arr , QIODevice::WriteOnly);
+            ss.setVersion(QDataStream::Qt_5_0);
+            ss << 241994 << 1511999 << 991973;
+            return arr;
+        }();
+
+        auto invalid_msg = number_of_bytes_processed == -2;
+        auto could_not_be_parsed = number_of_bytes_processed == -2;
+
+        if ( invalid_msg || could_not_be_parsed )
+        {
+            if ( could_not_be_parsed )
+                m_buffer.remove( 0 , start_token.size() );
+
+            auto start_of_msg_idx = m_buffer.indexOf(start_token);
+            auto invalid_data_len = start_of_msg_idx == -1 ? m_buffer.size() : start_of_msg_idx;
+            m_buffer.remove(0 , invalid_data_len);
+        }
+        else
+            //Clear processed bytes from buffer
+            m_buffer.remove(0, static_cast<int>(number_of_bytes_processed));
     }
 }
 }
