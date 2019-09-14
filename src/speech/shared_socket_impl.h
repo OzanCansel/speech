@@ -124,8 +124,14 @@ namespace speech
                     if(invalid_msg || could_not_be_parsed)
                     {
 
-                        if(could_not_be_parsed)
-                            m_buffer.remove(0 , start_token.size());
+                        int idx = -1;
+                        idx = m_buffer.indexOf( start_token );
+
+                        if ( idx == 0 )
+                        {
+                            m_buffer.remove( 0 , start_token.size() );
+                            idx = m_buffer.indexOf( start_token );
+                        }
 
                         //discard current message and jump to next message
                         auto start_of_msg_idx = m_buffer.indexOf(start_token);
