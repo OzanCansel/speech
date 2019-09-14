@@ -114,10 +114,11 @@ parse ( const QByteArray &entity_data )
      QByteArray id_tagged_array;
      int token1{}, token2{}, token3{};
      int size{};
+     quint16 crc{};
      QString code;
      QByteArray actual_data;
 
-     std::tie ( token1, token2, token3, size, id_tagged_array ) = depack<int, int, int, int, QByteArray> ( entity_data );
+     std::tie ( token1, token2, token3, crc , size, id_tagged_array ) = depack<int, int, int, quint16 , int, QByteArray> ( entity_data );
 
      //They are just constant, hard-coded, mystified numbers
      if ( token1 != 241994 ||
@@ -126,13 +127,19 @@ parse ( const QByteArray &entity_data )
           return -2;
      }
 
+     // Do checksum for data
+     if ( qChecksum( id_tagged_array.data() , id_tagged_array.size() ) != crc )
+     {
+         return -2;
+     }
+
      std::tie ( code, actual_data ) = depack<QString, QByteArray> ( id_tagged_array );
 
      //                            sizeof tokens
-     auto total_required_length = 3 * sizeof ( int ) + size + SizeOfLengthTag;
+     auto total_required_length = 3 * sizeof ( int ) + sizeof( quint16 ) + SizeOfLengthTag + size;
 
      //If available bytes are not enough to express the entity
-     if ( total_required_length > static_cast<size_t> ( entity_data.size() ) ) {
+     if ( total_required_length >= static_cast<size_t> ( entity_data.size() ) ) {
           return 0;     //There are remaining parts
      }
 
