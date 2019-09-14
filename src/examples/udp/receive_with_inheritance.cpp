@@ -7,10 +7,9 @@
 
 struct my_receiver : speech::udp::udp_receiver<greeting, roll_dice> {
 
-     explicit my_receiver ( speech::port p ) : speech::udp::udp_receiver<greeting, roll_dice>
-     {
-          p
-     } { }
+     explicit my_receiver ( speech::port p )
+        : speech::udp::udp_receiver<greeting, roll_dice> { p }
+    { }
 
 protected:
 
@@ -23,6 +22,7 @@ protected:
      {
           qDebug() << "receive => " << dice;
      }
+
 };
 
 int main ( int argc, char** argv )
