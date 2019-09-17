@@ -27,7 +27,7 @@ speech library doesn't use qmake as build system currently but it will be suppor
 - VS Compiler
 - Clang
 
-# Compile
+# Compile & Install
 ## Windows 
 ### Qt - MinGW
 Run git bash shell as administrator
