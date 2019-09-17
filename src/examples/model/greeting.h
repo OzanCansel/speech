@@ -4,7 +4,7 @@
 #include <QDataStream>
 #include <QDebug>
 #include <vector>
-#include <speech/serialize/container_serialize.h>
+#include <speech/speech.h>
 
 using namespace speech::serialization::container;
 
@@ -12,21 +12,11 @@ struct greeting
 {
     QString my_name_is;
     std::vector<int> numbers;
+
+    SPEECH_SERIALIZE( my_name_is , numbers )
+
 };
 
-inline QDataStream& operator>> ( QDataStream& in, greeting& greeting )
-{
-    return in >> greeting.my_name_is >> greeting.numbers;
-}
 
-inline QDataStream& operator<< ( QDataStream& out, const greeting& greeting )
-{
-    return out << greeting.my_name_is << greeting.numbers;
-}
-
-inline QDebug operator<<(QDebug out, const greeting& greeting)
-{
-    return out << "{ " << greeting.my_name_is << " numbers : " << greeting.numbers << " }";
-}
 
 #endif
