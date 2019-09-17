@@ -19,7 +19,7 @@ speech library doesn't use qmake as build system currently but it will be suppor
 # Dependencies and required(recommended) tools
 - Qt5
 - CMake
-- A compiler which supports C++14 and higher
+- A compiler which supports C++17
 
 # Compiler Support
 - GCC
@@ -27,98 +27,74 @@ speech library doesn't use qmake as build system currently but it will be suppor
 - VS Compiler
 - Clang
 
-## Define Models
+## tcp server
 ```c++
-//models.h
-#ifndef SPEECH_MODELS_H
-#define SPEECH_MODELS_H
-
-#include <QDataStream>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDateTime>
+#include <speech/speech.h>
 
 struct greeting
 {
     QString my_name_is;
+
+    SPEECH_SERIALIZE( my_name_is )
 };
 
-struct roll_dice
-{
-    int chance { rand() % 100 };
-    QDateTime timestamp { QDateTime::currentDateTime() };
+struct roll_dice {
+     int chance { rand() % 100 };
+     QDateTime timestamp { QDateTime::currentDateTime() };
+
+     SPEECH_SERIALIZE( chance , timestamp )
 };
 
-//State how to serialize/deserialize once
-QDataStream& operator>>(QDataStream& in, greeting& greeting)
+int main ( int argc, char** argv )
 {
-    return in >> greeting.my_name_is;
-}
-
-QDataStream& operator<<(QDataStream& out, const greeting& greeting)
-{
-    return out << greeting.my_name_is;
-}
-
-QDebug operator<<(QDebug out, const greeting& greeting)
-{
-    return out << "{ " << greeting.my_name_is << " }";
-}
-
-QDataStream& operator<<(QDataStream& out, const roll_dice& dice)
-{
-    return out << dice.chance << dice.timestamp;
-}
-
-QDataStream& operator>>(QDataStream& in, roll_dice& dice)
-{
-    return in >> dice.chance >> dice.timestamp;
-}
-
-QDebug operator<<(QDebug out, const roll_dice& dice)
-{
-    return out << "{ chance : " << dice.chance << " , timestamp : " << dice.timestamp.toString(Qt::DateFormat::ISODate) << " }";
-}
-
-#endif
-```
-
-## tcp server
-```c++
-#include <QCoreApplication>
-#include <QHostAddress>
-#include <QDebug>
-#include <speech/tcp/tcp_server.h>
-#include "models.h"
-
-int main(int argc, char** argv)
-{
-    QCoreApplication app(argc , argv);
+    QCoreApplication app ( argc, argv );
 
     using namespace speech;
     using namespace speech::tcp;
 
-    auto server = make_server( QHostAddress::Any ,  speech::port(24942) ,
-        make_handler_f<greeting>([](const greeting& greeting , QTcpSocket&){
-            qDebug() << greeting;
-        }) 
-        ,
-        make_handler_f<roll_dice>([](const roll_dice& dice , QTcpSocket&){
-            qDebug() << dice;
-        })
-    );
+    auto port = 24942;
 
-    app.exec();
+    tcp_server server { QHostAddress::Any , speech::port { port } };
+
+    auto listeners =
+            listen<roll_dice>( []( const roll_dice& e , QTcpSocket& ) {
+        qDebug() << "Received : " << e;
+    }) |
+            listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+        qDebug() << "Received : " << g;
+    });
+
+    server.listen( listeners );
+
+    qDebug() << "Tcp Server running at" << server.port() << "port";
+
+    return QCoreApplication::exec();
 }
 ```
 
 ## tcp transmit
 ```c++
-//a main .cpp file
 #include <QCoreApplication>
-#include <QHostAddress>
 #include <QDebug>
-#include <speech/tcp/tcp_transmitter.h>
-#include "models.h"
+#include <QDateTime>
+#include <speech/speech.h>
+
+struct greeting
+{
+    QString my_name_is;
+
+    SPEECH_SERIALIZE( my_name_is )
+};
+
+struct roll_dice {
+     int chance { rand() % 100 };
+     QDateTime timestamp { QDateTime::currentDateTime() };
+
+     SPEECH_SERIALIZE( chance , timestamp )
+};
 
 int main(int argc, char** argv)
 {
@@ -127,9 +103,13 @@ int main(int argc, char** argv)
     using namespace speech;
     using namespace speech::tcp;
 
-    tcp_transmitter<greeting , roll_dice> tcp{ QHostAddress::LocalHost , speech::port(24942) };
-    tcp.transmit(greeting{ "my name is speech-lib" });
-    tcp.transmit(roll_dice{});
+    tcp_transmitter<greeting , roll_dice> tcp{ QHostAddress::LocalHost , speech::port { 24942 } };
+    tcp.transmit( greeting { "from speech-lib" } );
+    tcp.transmit( roll_dice {} );
+
+    // Transmit without instance
+    transmit( roll_dice {} , QHostAddress::LocalHost , speech::port { 24942 } );
+
     app.exec();
 }
 ```
@@ -138,10 +118,24 @@ int main(int argc, char** argv)
 ```c++
 //a main .cpp file
 #include <QCoreApplication>
-#include <speech/udp/udp_transmitter.h>
-#include "models.h"
+#include <QDebug>
+#include <QDateTime>
+#include <speech/speech.h>
 
-//Now, we can transmit our models on desired protocol
+struct greeting
+{
+    QString my_name_is;
+
+    SPEECH_SERIALIZE( my_name_is )
+};
+
+struct roll_dice {
+     int chance { rand() % 100 };
+     QDateTime timestamp { QDateTime::currentDateTime() };
+
+     SPEECH_SERIALIZE( chance , timestamp )
+};
+
 int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
@@ -149,11 +143,13 @@ int main(int argc, char** argv)
     using namespace speech;
     using namespace speech::udp;
 
-    udp_transmitter<greeting, roll_dice> udp{QHostAddress{QHostAddress::Broadcast}, speech::port(12345)};
+    udp_transmitter<greeting, roll_dice> udp { QHostAddress { QHostAddress::Broadcast } , speech::port { 12345 } };
 
-    //Those models will be broadcasted
-    udp.transmit(greeting{ "my name is speech-lib" });
-    udp.transmit(roll_dice{ });
+    udp.transmit( greeting{ "from speech-lib" } );
+    udp.transmit( roll_dice{ } );
+
+    // Transmit without instance
+    transmit( roll_dice { } , QHostAddress {  QHostAddress::Broadcast } ,  speech::port { 12345 } );
 
     app.exec();
 }
@@ -199,9 +195,23 @@ int main(int argc, char** argv)
 //a main .cpp file
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDateTime>
 #include <QTimer>
-#include <speech/udp/udp_receiver.h>
-#include "models.h"
+#include <speech/speech.h>
+
+struct greeting
+{
+    QString my_name_is;
+
+    SPEECH_SERIALIZE( my_name_is )
+};
+
+struct roll_dice {
+     int chance { rand() % 100 };
+     QDateTime timestamp { QDateTime::currentDateTime() };
+
+     SPEECH_SERIALIZE( chance , timestamp )
+};
 
 int main(int argc, char **argv)
 {
@@ -209,11 +219,12 @@ int main(int argc, char **argv)
 
     QCoreApplication app(argc, argv);
 
-    queued_udp_receiver<greeting, roll_dice> udp{ speech::port(12345) };
+    queued_udp_receiver<greeting, roll_dice> udp { speech::port { 12345 } };
 
     QTimer checkMessages;
 
-    checkMessages.setInterval(30);
+    checkMessages.setInterval( 30 );
+
     QObject::connect(&checkMessages, &QTimer::timeout, [&]() {
         while (!udp.messages<roll_dice>().empty())
         {
