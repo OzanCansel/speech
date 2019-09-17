@@ -19,7 +19,7 @@ speech library doesn't use qmake as build system currently but it will be suppor
 # Dependencies and required(recommended) tools
 - Qt5
 - CMake
-- A compiler which supports C++14 and higher
+- A compiler which supports C++17
 
 # Compiler Support
 - GCC
