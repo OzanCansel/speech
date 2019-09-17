@@ -156,19 +156,32 @@ int main(int argc, char** argv)
 ```
 ## udp receive with inheritance
 ```c++
-//a main .cpp file
 #include <QCoreApplication>
 #include <QDebug>
-#include "models.h"
-#include <speech/udp/udp_receiver.h>
+#include <QDateTime>
+#include <speech/speech.h>
+
+struct greeting
+{
+    QString my_name_is;
+
+    SPEECH_SERIALIZE( my_name_is )
+};
+
+struct roll_dice {
+     int chance { rand() % 100 };
+     QDateTime timestamp { QDateTime::currentDateTime() };
+
+     SPEECH_SERIALIZE( chance , timestamp )
+};
 
 struct my_receiver : speech::udp::udp_receiver<greeting , roll_dice>
 {
-    
+
     my_receiver() : speech::udp::udp_receiver<greeting , roll_dice>{ speech::port(12345) } { }
 
     protected:
-        
+
         void on_receive(const greeting& greeting) override
         {
             qDebug() << "receive => " << greeting;
