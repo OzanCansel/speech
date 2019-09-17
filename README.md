@@ -27,6 +27,32 @@ speech library doesn't use qmake as build system currently but it will be suppor
 - VS Compiler
 - Clang
 
+# Compile
+## Windows 
+### Qt - MinGW
+Run git bash shell as administrator
+```
+git clone https://github.com/OzanCansel/speech
+cd speech
+mkdir build
+cd build
+## example run => cmake -G"MinGW Makefiles" -DCMAKE_MAKE_PROGRAM=/c/Qt/Tools/mingw730_64/bin/mingw32-make.exe -DCMAKE_PREFIX_PATH=/c/Qt/5.12.2/mingw73_64/lib/cmake ..
+cmake -G"MinGW Makefiles" -DCMAKE_MAKE_PROGRAM=<make_executable_path> -DCMAKE_PREFIX_PATH=<qt_cmake_definitions_path> ..
+cmake --build . --target install -- -j$(nproc)
+```
+
+## Example CMakeLists.txt Usage
+```
+project(speech-usage)
+cmake_minimum_required(VERSION 3.1)
+
+find_package( speech REQUIRED )
+
+add_executable( speech-usage your_main.cpp )
+
+target_link_libraries( speech-usage speech::speech )
+```
+
 ## tcp server
 ```c++
 #include <QCoreApplication>
