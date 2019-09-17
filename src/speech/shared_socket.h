@@ -27,8 +27,9 @@ public:
      explicit shared_socket ( std::unique_ptr<Socket> );
      shared_socket( const shared_socket<Socket>& ) = delete;
      shared_socket operator =( const shared_socket<Socket>& ) = delete;
-     shared_socket( shared_socket<Socket>&& ) = default;
-     shared_socket& operator =( shared_socket&& ) = default;
+     shared_socket( shared_socket<Socket>&& ) noexcept = default;
+     shared_socket& operator =( shared_socket&& ) noexcept = default;
+     ~shared_socket() noexcept = default;
 
      inline Socket &socket();
      void attach ( std::function<int ( const QByteArray& , Socket& ) > );

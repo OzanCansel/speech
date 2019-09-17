@@ -35,22 +35,20 @@ class transmitter_impl<i>
 {
 public:
      bool transmit();
+     virtual bool write( const QByteArray& ) { return false; }
 };
 
 template <size_t N, typename H, typename... T>
 class transmitter_impl<N, H, T...> : public transmitter_impl<N + 1, T...>
 {
 public:
-     static_assert ( implements_left_stream<QDataStream, H>::value, "T must be serialized to QDataStream, so must implement QDataStream& operator>>" );
+     static_assert ( implements_left_stream<QDataStream, H>::value, "T must be serialized to QDataStream, so must implement QDataStream& operator>>( QDataStream& , T& )" );
      static const QString type_hash;
 
-     using transmitter_impl<N + 1, T...>::transmit;
+     using transmitter_impl< N + 1 , T...>::transmit;
+     using transmitter_impl< N + 1 , T...>::write;
 
      bool transmit ( const H &value );
-     virtual bool write ( const QByteArray & )
-     {
-          return false;
-     }
 };
 } // namespace impl
 

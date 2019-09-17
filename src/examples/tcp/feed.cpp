@@ -65,7 +65,7 @@ int main ( int argc, char** argv )
           tcp_shared.transmit ( g );
           qDebug() << "transmit => " << g;
 
-          QThread::msleep ( delay );
+          QThread::msleep ( static_cast<unsigned long>( delay ) );
           QCoreApplication::processEvents();
 
           roll_dice dice;
@@ -81,8 +81,8 @@ int main ( int argc, char** argv )
           tcp.transmit ( me{} );
 
           QCoreApplication::processEvents();
-          QThread::msleep ( delay );
+          QThread::msleep ( static_cast<unsigned long>( delay ) );
      }
 
-     return app.exec();
+     return QCoreApplication::exec();
 }

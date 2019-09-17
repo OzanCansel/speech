@@ -15,7 +15,7 @@
 
 QString retrieve_mac_addr()
 {
-     for ( QNetworkInterface netInterface : QNetworkInterface::allInterfaces() ) {
+     for ( const QNetworkInterface& netInterface : QNetworkInterface::allInterfaces() ) {
           // Return only the first non-loopback MAC Address
           if ( ! ( netInterface.flags() & QNetworkInterface::IsLoopBack ) ) {
                return netInterface.hardwareAddress();
@@ -100,5 +100,5 @@ int main ( int argc, char **argv )
 
      discovery d { speech::port ( port ) };
 
-     app.exec();
+     return QCoreApplication::exec();
 }

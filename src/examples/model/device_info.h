@@ -15,19 +15,19 @@ struct device_info {
      QString kernel_version;
 };
 
-QDataStream& operator<< ( QDataStream& out, const device_info& device )
+inline QDataStream& operator<< ( QDataStream& out, const device_info& device )
 {
      return out << device.host_name << device.mac_addr << device.distro << device.abi
             << device.cpu_arch << device.kernel_type << device.kernel_version;
 }
 
-QDataStream& operator>> ( QDataStream& in, device_info& device )
+inline QDataStream& operator>> ( QDataStream& in, device_info& device )
 {
      return in >> device.host_name >> device.mac_addr >> device.distro >> device.abi
             >> device.cpu_arch >> device.kernel_type >> device.kernel_version;
 }
 
-QDebug operator<< ( QDebug out, const device_info& device )
+inline QDebug operator<< ( QDebug out, const device_info& device )
 {
      return out << "{ host :" << device.host_name
             << " mac_addr :" << device.mac_addr

@@ -30,7 +30,7 @@ enqueue ( NotMovable& val, identifier<NotMovable> )
 
 template <std::size_t i, bool EnableQueue>
 bool receiver_impl<i, EnableQueue>::
-receive ( QString, const QByteArray &, specializer<i> )
+receive ( const QString& , const QByteArray &, specializer<i> )
 {
     return false;
 }
@@ -56,14 +56,14 @@ const QString receiver_impl<N, EnableQueue, H, T...>::type_hash = speech::impl::
 template <size_t N, bool EnableQueue, typename H, typename... T>
 template <typename Regular>
 typename std::enable_if<!std::is_base_of<QObject, Regular>::value, bool>::type receiver_impl<N, EnableQueue, H, T...>::
-receive ( QString code, const QByteArray &value, specializer<N> s )
+receive ( const QString& code, const QByteArray &value, specializer<N> )
 {
     if ( code != type_hash ) {
         specializer<N + 1> s;
         return receiver_impl<N, EnableQueue, Regular, T...>::receive ( code, value, s );
     }
 
-    QDataStream ss ( &const_cast<QByteArray &> ( value ), QIODevice::ReadOnly );
+    QDataStream ss { value };
     ss.setVersion ( QDataStream::Qt_5_0 );
     Regular val;
 
@@ -79,14 +79,14 @@ receive ( QString code, const QByteArray &value, specializer<N> s )
 template <size_t N, bool EnableQueue, typename H, typename... T>
 template <typename QObj>
 typename std::enable_if<std::is_base_of<QObject, QObj>::value, bool>::type receiver_impl<N, EnableQueue, H, T...>::
-receive ( QString code, const QByteArray &value, specializer<N> s )
+receive ( const QString& code, const QByteArray &value, specializer<N> )
 {
     if ( code != type_hash ) {
         specializer<N + 1> s;
         return receiver_impl<N, EnableQueue, QObj, T...>::receive ( code, value, s );
     }
 
-    QDataStream ss ( &const_cast<QByteArray &> ( value ), QIODevice::ReadOnly );
+    QDataStream ss { value };
     ss.setVersion ( QDataStream::Qt_5_0 );
     auto val = new QObj();
 
@@ -108,7 +108,7 @@ parse ( const QByteArray &entity_data )
         return 0;
     }
 
-    QDataStream ss ( &const_cast<QByteArray &> ( entity_data ), QIODevice::ReadOnly );
+    QDataStream ss { entity_data };
     ss.setVersion ( QDataStream::Qt_5_0 );
 
     QByteArray id_tagged_array;
@@ -162,7 +162,7 @@ template <typename... T>
 std::tuple<T...> depack ( const QByteArray &data )
 {
     std::tuple<T...> values;
-    QDataStream ss ( &const_cast<QByteArray &> ( data ), QIODevice::ReadOnly );
+    QDataStream ss { data };
     ss.setVersion ( QDataStream::Qt_5_0 );
 
     depack_impl<0, std::tuple<T...>, T...> ( ss, values, specializer<0> {} );

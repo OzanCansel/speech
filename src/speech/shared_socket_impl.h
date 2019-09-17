@@ -2,6 +2,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <vector>
+#include <utility>
 #include <memory>
 #include "shared_socket.h"
 
@@ -12,23 +13,23 @@ namespace speech
     {
         public:
 
-            shared_socket<QTcpSocket>(QTcpSocket& socket) 
+            shared_socket<QTcpSocket>( QTcpSocket& socket )
                 : 
                 m_socket { new speech::handle::handle<QTcpSocket>{ socket } }
             { 
                 listen();
             }
 
-            shared_socket<QTcpSocket>(std::shared_ptr<QTcpSocket> socket)
+            shared_socket<QTcpSocket>( std::shared_ptr<QTcpSocket> socket )
                 :
-                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ socket }}
+                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ std::move( socket ) } }
             {   
                 listen();
             }
 
             shared_socket<QTcpSocket>(std::unique_ptr<QTcpSocket> socket)
                 :
-                m_socket{ new speech::handle::unique_ptr_handle{ std::move(socket) }}
+                m_socket{ new speech::handle::unique_ptr_handle{ std::move( socket ) }}
             {   
                 listen();
             }
@@ -43,14 +44,14 @@ namespace speech
                 return m_socket->ref();
             }
 
-            void attach(std::function<int(const QByteArray& , QTcpSocket&)> observer)
+            void attach( std::function<int(const QByteArray& , QTcpSocket&)>&& observer )
             {
-                m_listeners.push_back( observer );
+                m_listeners.push_back( std::forward<std::function<int(const QByteArray& , QTcpSocket&)>>( observer ) );
             }
 
             shared_socket<QTcpSocket>(const shared_socket<QTcpSocket>&) = delete;
             shared_socket<QTcpSocket>& operator=(const shared_socket<QTcpSocket>&) = delete;
-            shared_socket<QTcpSocket>(shared_socket<QTcpSocket>&& rhs)
+            shared_socket<QTcpSocket>( shared_socket<QTcpSocket>&& rhs ) noexcept
             {
                 m_socket = std::move(rhs.m_socket);
                 m_buffer = std::move(rhs.m_buffer);
@@ -58,7 +59,7 @@ namespace speech
                 listen();
             }
 
-            shared_socket<QTcpSocket>& operator=(shared_socket<QTcpSocket>&& rhs)
+            shared_socket<QTcpSocket>& operator=(shared_socket<QTcpSocket>&& rhs) noexcept
             {
                 m_socket = std::move(rhs.m_socket);
                 m_buffer = std::move(rhs.m_buffer);
@@ -92,7 +93,7 @@ namespace speech
                     parsed_data_length = 0;
 
                     //Call listeners
-                    for(auto f : m_listeners)
+                    for( auto& f : m_listeners )
                     {
                         auto processed_bytes = f ( m_buffer , m_socket->ref() );
 

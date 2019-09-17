@@ -51,5 +51,5 @@ int main ( int argc, char **argv )
 
      qDebug() << "Udp port " << port << " is listening.";
 
-     return app.exec();
+     return QCoreApplication::exec();
 }

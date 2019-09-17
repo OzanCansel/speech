@@ -8,17 +8,17 @@ struct roll_dice {
      QDateTime timestamp { QDateTime::currentDateTime() };
 };
 
-QDataStream& operator<< ( QDataStream& out, const roll_dice& dice )
+inline QDataStream& operator<< ( QDataStream& out, const roll_dice& dice )
 {
      return out << dice.chance << dice.timestamp;
 }
 
-QDataStream& operator>> ( QDataStream& in, roll_dice& dice )
+inline QDataStream& operator>> ( QDataStream& in, roll_dice& dice )
 {
      return in >> dice.chance >> dice.timestamp;
 }
 
-QDebug operator<< ( QDebug out, const roll_dice& dice )
+inline QDebug operator<< ( QDebug out, const roll_dice& dice )
 {
      out << "{ chance : " << dice.chance << " , timestamp : " << dice.timestamp.toString ( Qt::DateFormat::ISODate ) << " }";
      return out;

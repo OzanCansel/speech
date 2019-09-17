@@ -8,6 +8,7 @@
 #include <tuple>
 #include <functional>
 #include <memory>
+#include <utility>
 #include "speech/util.h"
 #include "speech/shared_socket.h"
 #include "speech/tcp/tcp_receiver.h"
@@ -37,14 +38,15 @@ public:
 
     using client_cb = std::function<void( const T& , QTcpSocket& )>;
 
-    handler( client_cb cb , std::shared_ptr<impl::lifetime> c )
-        : m_conn { c }
-        , m_cb { cb }
+    handler( client_cb&& cb , std::shared_ptr<impl::lifetime> c )
+        : m_conn { std::move( c ) }
+        , m_cb { std::forward<client_cb>( cb ) }
     {
         using namespace std::placeholders;
-        c->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
+       m_conn->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
     }
 
+    ~handler() noexcept = default;
     handler( const handler& ) = delete;
     handler& operator = ( const handler& ) = delete;
     handler( handler&& other ) noexcept
@@ -56,7 +58,7 @@ public:
         m_conn->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
     }
 
-    handler& operator = ( handler&& other )
+    handler& operator = ( handler&& other ) noexcept
     {
         using namespace std::placeholders;
 
@@ -67,7 +69,7 @@ public:
 
 protected:
 
-    void on_receive( const T& e )
+    void on_receive( const T& e ) override
     {
         m_cb( e , tcp_receiver<T>::socket() );
     }
@@ -138,9 +140,9 @@ private:
 };
 
 template<typename T>
-handler<T> listen( typename handler<T>::client_cb cb )
+handler<T> listen( typename handler<T>::client_cb&& cb )
 {
-    return handler<T> {  cb , std::make_shared<impl::lifetime>() };
+    return handler<T> {  std::forward<typename handler<T>::client_cb>( cb ) , std::make_shared<impl::lifetime>() };
 }
 
 template< typename L , typename R >

@@ -26,8 +26,8 @@ public:
      ~udp_transmitter() noexcept;
      udp_transmitter ( const udp_transmitter<T...>& ) = delete;
      udp_transmitter<T...>& operator = ( const udp_transmitter<T...>& ) = delete;
-     udp_transmitter ( udp_transmitter<T...>&& ) = default;
-     udp_transmitter& operator = ( udp_transmitter<T...>&& ) = default;
+     udp_transmitter ( udp_transmitter<T...>&& ) noexcept = default;
+     udp_transmitter& operator = ( udp_transmitter<T...>&& ) noexcept = default;
 
      int port() const;
      QHostAddress destination() const;

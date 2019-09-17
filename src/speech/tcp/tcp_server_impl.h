@@ -29,7 +29,7 @@ void tcp_server::new_connection()
     //Fork new receiver and push to receivers list
     auto socket = m_server.nextPendingConnection();
 
-    m_alive_connections.push_back( shared_socket<QTcpSocket> { std::ref( *socket )  } );
+    m_alive_connections.emplace_back( std::ref( *socket ) );
 
     m_alive_connections.back().attach( std::bind( &tcp_server::ready_read_callback , this ,
                                                   std::placeholders::_1 ,

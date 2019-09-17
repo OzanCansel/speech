@@ -78,7 +78,7 @@ template <std::size_t i, bool EnableQueue>
 class receiver_impl<i, EnableQueue>
 {
 public:
-    bool receive ( QString code, const QByteArray &data, specializer<i> specializer );
+    bool receive ( const QString& code, const QByteArray &data, specializer<i> specializer );
 
     void messages() = delete;
 
@@ -95,16 +95,22 @@ class receiver_impl<N, EnableQueue, H, T...> :
         public receiver_impl<N + 1, EnableQueue, T...>,
         public message_queue<EnableQueue, H>
 {
+
 public:
 
-    static_assert ( implements_right_stream<QDataStream, H>::value, "T must be deserialized from QDataStream, so must implement QDataStream& operator>>" );
+    static_assert ( implements_right_stream<QDataStream, H>::value, "T must be deserialized from QDataStream, so must implement QDataStream& operator>>( QDataStream& , const T& )" );
     static_assert ( std::is_constructible<H>::value, "T must have default constructor." );
     static_assert ( std::is_base_of<QObject, H>::value || ( std::is_copy_constructible<H>::value || std::is_move_constructible<H>::value ), "T type must be either copy constructible or move constructible." );
 
     constexpr static size_t SizeOfLengthTag = 8;
     static const QString type_hash;
 
-    virtual ~receiver_impl() {}
+    receiver_impl() = default;
+    virtual ~receiver_impl() noexcept = default;
+    receiver_impl( const receiver_impl& ) = delete;
+    receiver_impl& operator =( const receiver_impl& ) = delete;
+    receiver_impl( receiver_impl&& ) noexcept = default;
+    receiver_impl& operator =( receiver_impl&& ) noexcept = default;
 
     using receiver_impl<N + 1 , EnableQueue , T...>::receive;
     using receiver_impl<N + 1 , EnableQueue , T...>::messages;
@@ -121,12 +127,12 @@ public:
     //Primary template
     template<typename Regular = H>
     typename std::enable_if<!std::is_base_of<QObject, Regular>::value, bool>::type
-    receive ( QString code, const QByteArray &value, specializer<N> s );
+    receive ( const QString& code, const QByteArray &value, specializer<N> s );
 
     //Specialization for QObject
     template<typename QObj = H>
     typename std::enable_if<std::is_base_of<QObject, QObj>::value, bool>::type
-    receive ( QString code, const QByteArray &value, specializer<N> s );
+    receive ( const QString& code , const QByteArray &value, specializer<N> s );
 
 protected:
 

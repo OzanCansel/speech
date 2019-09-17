@@ -34,7 +34,7 @@ QString identify()
 
 #if GCC_COMPILER || CLANG_COMPILER
      int status;
-     auto class_name = abi::__cxa_demangle ( typeid ( T ).name(), 0, 0, &status );
+     auto class_name = abi::__cxa_demangle ( typeid ( T ).name(), nullptr , nullptr , &status );
 
      return QString::fromLatin1 ( class_name );
 #endif

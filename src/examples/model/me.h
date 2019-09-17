@@ -9,17 +9,17 @@ struct me {
      QString name;
 };
 
-QDataStream& operator<< ( QDataStream& out, const me& m )
+inline QDataStream& operator<< ( QDataStream& out, const me& m )
 {
      return out << m.ip << m.name;
 }
 
-QDataStream& operator>> ( QDataStream& in, me& m )
+inline QDataStream& operator>> ( QDataStream& in, me& m )
 {
      return in >> m.ip >> m.name;
 }
 
-QDebug operator<< ( QDebug out, const me& m )
+inline QDebug operator<< ( QDebug out, const me& m )
 {
      return out << "{ ip : " << m.ip << " , name : " << m.name << " }";
 }

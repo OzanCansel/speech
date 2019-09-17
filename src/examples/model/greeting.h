@@ -14,17 +14,17 @@ struct greeting
     std::vector<int> numbers;
 };
 
-QDataStream& operator>> ( QDataStream& in, greeting& greeting )
+inline QDataStream& operator>> ( QDataStream& in, greeting& greeting )
 {
     return in >> greeting.my_name_is >> greeting.numbers;
 }
 
-QDataStream& operator<< ( QDataStream& out, const greeting& greeting )
+inline QDataStream& operator<< ( QDataStream& out, const greeting& greeting )
 {
     return out << greeting.my_name_is << greeting.numbers;
 }
 
-QDebug operator<<(QDebug out, const greeting& greeting)
+inline QDebug operator<<(QDebug out, const greeting& greeting)
 {
     return out << "{ " << greeting.my_name_is << " numbers : " << greeting.numbers << " }";
 }

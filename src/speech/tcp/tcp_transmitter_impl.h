@@ -54,15 +54,15 @@ namespace speech
         }
 
         template<typename... T>
-        tcp_transmitter<T...>::tcp_transmitter(std::shared_ptr<QTcpSocket> sck)
+        tcp_transmitter<T...>::tcp_transmitter( std::shared_ptr<QTcpSocket> sck )
             :
-                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ sck } }
+                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ std::move( sck ) } }
         {   }
 
         template<typename... T>
-        tcp_transmitter<T...>::tcp_transmitter(std::shared_ptr<QTcpSocket>  sck , const QHostAddress& host , const speech::port& p)
+        tcp_transmitter<T...>::tcp_transmitter( std::shared_ptr<QTcpSocket>  sck , const QHostAddress& host , const speech::port& p )
             :
-                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ sck } }
+                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ std::move( sck ) } }
         {   
             if(!m_socket->ref().isOpen())
                 connect_to_host(host , p.get());

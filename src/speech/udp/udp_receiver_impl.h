@@ -10,7 +10,7 @@ namespace impl
 {
 template <bool EnableQueue, typename... T>
 udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(port p , QAbstractSocket::BindMode mode)
-    :   m_socket{ new speech::handle::unique_ptr_handle{  std::make_unique<QUdpSocket>() } }
+    :   m_socket { new speech::handle::unique_ptr_handle{  std::make_unique<QUdpSocket>() } }
 {
     if (!m_socket->ref().bind(p.get() , mode))
     {
@@ -42,7 +42,7 @@ udp_receiver_impl<EnableQueue ,T...>::udp_receiver_impl(QUdpSocket &socket, port
 }
 
 template<bool EnableQueue, typename... T>
-udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(udp_receiver_impl<EnableQueue , T...>&& rhs)
+udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(udp_receiver_impl<EnableQueue , T...>&& rhs) noexcept
 {
     m_buffer = std::move(rhs.m_buffer);
     m_socket = std::move(rhs.m_socket);
@@ -55,7 +55,7 @@ udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(udp_receiver_impl<Enabl
 }
 
 template<bool EnableQueue, typename... T>
-udp_receiver_impl<EnableQueue , T...>& udp_receiver_impl<EnableQueue , T...>::operator=(udp_receiver_impl<EnableQueue , T...>&& rhs)
+udp_receiver_impl<EnableQueue , T...>& udp_receiver_impl<EnableQueue , T...>::operator=(udp_receiver_impl<EnableQueue , T...>&& rhs) noexcept
 {
     m_buffer = std::move(rhs);
     m_socket = std::move(rhs.m_socket);

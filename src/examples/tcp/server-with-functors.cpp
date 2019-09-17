@@ -31,5 +31,5 @@ int main ( int argc, char** argv )
 
      qDebug() << "Tcp Server running at " << port << " port";
 
-     app.exec();
+     return QCoreApplication::exec();
 }
