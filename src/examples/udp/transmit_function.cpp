@@ -54,9 +54,10 @@ int main ( int argc, char **argv )
           QThread::msleep ( rand() % 1000 );
 
           roll_dice dice;
-          transmit ( dice, host, speech::port ( port ) );
-          transmit ( dice, host, speech::port ( port ), socket );
-          transmit ( dice, host, speech::port ( port ), make_unique<QUdpSocket>());
+//          transmit ( dice, host, speech::port { port } );
+//          transmit ( dice, host, speech::port { port } , socket );
+//          transmit ( dice, host, speech::port { port } , make_unique<QUdpSocket>());
+          broadcast( dice , speech::port { port } );
 
           qDebug() << "transmitting to" << port << "=>" << dice;
           QCoreApplication::processEvents();

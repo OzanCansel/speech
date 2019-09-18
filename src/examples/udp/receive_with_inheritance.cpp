@@ -5,10 +5,10 @@
 #include <roll_dice.h>
 #include <speech/udp/udp_receiver.h>
 
-struct my_receiver : speech::udp::udp_receiver<greeting, roll_dice> {
+struct my_receiver : speech::udp::udp_receiver<greeting , roll_dice> {
 
     explicit my_receiver ( speech::port p )
-        : speech::udp::udp_receiver<greeting, roll_dice> { p }
+        : speech::udp::udp_receiver<greeting , roll_dice> { p }
     { }
 
 protected:
@@ -43,7 +43,7 @@ int main ( int argc, char** argv )
         port = parser.value ( "p" ).toInt();
     }
 
-    my_receiver receiver{ speech::port{port} };
+    my_receiver receiver{ speech::port { port } };
 
     qDebug() << "Udp port " << port << " is listening.";
 

@@ -23,6 +23,10 @@ std::vector<QHostAddress> broadcast_addresses_of( const QNetworkInterface& iface
         for (const QNetworkAddressEntry& address : iface.addressEntries()) {
 
             auto broadcast_addr = address.broadcast();
+
+            if ( broadcast_addr.isNull() )
+                continue;
+
             addresses.push_back( broadcast_addr );
 
         }
