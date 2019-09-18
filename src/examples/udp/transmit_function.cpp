@@ -28,14 +28,14 @@ int main ( int argc, char **argv )
 
      //Defaults
      auto port = 24942;
-     QHostAddress host{ QHostAddress::LocalHost };
+     QHostAddress host { QHostAddress::LocalHost };
 
      if ( parser.isSet ( "p" ) ) {
           port = parser.value ( "p" ).toInt();
      }
 
      if ( parser.isSet ( "a" ) )
-          host = QHostAddress{ parser.value ( "a" ) };
+          host = QHostAddress { parser.value ( "a" ) };
 
      auto shared_sck = make_shared<QUdpSocket>();
 
@@ -46,10 +46,10 @@ int main ( int argc, char **argv )
           greeting_msg.my_name_is = QString ( "%0 - %1" ).arg ( "Hi ! My name is Ozan -" ).arg ( i );
 
           transmit ( greeting_msg, host, speech::port ( port ) );
-          transmit ( greeting_msg, host, speech::port ( port ), socket );
-          transmit ( greeting_msg, host, speech::port ( port ), shared_sck );
+          transmit ( greeting_msg, host, speech::port ( port ) , socket );
+          transmit ( greeting_msg, host, speech::port ( port ) , shared_sck );
 
-          qDebug() << "transmitting to " << port << " => " << greeting_msg;
+          qDebug() << "transmitting to" << port << "=>" << greeting_msg;
           QCoreApplication::processEvents();
           QThread::msleep ( rand() % 1000 );
 
@@ -58,7 +58,7 @@ int main ( int argc, char **argv )
           transmit ( dice, host, speech::port ( port ), socket );
           transmit ( dice, host, speech::port ( port ), make_unique<QUdpSocket>());
 
-          qDebug() << "transmitting to " << port << " => " << dice;
+          qDebug() << "transmitting to" << port << "=>" << dice;
           QCoreApplication::processEvents();
           QThread::msleep ( rand() % 1000 );
      }

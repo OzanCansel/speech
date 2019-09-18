@@ -15,12 +15,12 @@ protected:
 
     void on_receive ( const greeting& greeting ) override
     {
-        qDebug() << "receive => " << greeting;
+        qDebug() << "receive =>" << greeting;
     }
 
     void on_receive ( const roll_dice& dice ) override
     {
-        qDebug() << "receive => " << dice;
+        qDebug() << "receive =>" << dice;
     }
 
 };

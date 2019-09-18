@@ -17,9 +17,9 @@ int main ( int argc, char **argv )
      QCommandLineParser parser;
      parser.addHelpOption();
 
-     parser.addOptions ( {{ {"p", "port"}, "Specify port number", "port number" }} );
+     parser.addOptions( {{ {"p", "port"}, "Specify port number", "port number" }} );
 
-     parser.process ( app );
+     parser.process( app );
 
      //Defaults
      auto port = 24942;
@@ -28,7 +28,7 @@ int main ( int argc, char **argv )
           port = parser.value ( "p" ).toInt();
      }
 
-     queued_udp_receiver<greeting, roll_dice> udp{ speech::port ( port ) };
+     queued_udp_receiver<greeting, roll_dice> udp { speech::port ( port ) };
 
      QTimer checkMessages;
 
