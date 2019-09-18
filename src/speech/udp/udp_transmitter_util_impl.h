@@ -12,7 +12,7 @@ namespace udp
 
 namespace impl
 {
-std::vector<QHostAddress> broadcast_addresses_of( const QNetworkInterface& iface )
+inline std::vector<QHostAddress> broadcast_addresses_of( const QNetworkInterface& iface )
 {
     std::vector<QHostAddress> addresses;
 
@@ -41,7 +41,7 @@ std::vector<QHostAddress> broadcast_addresses_of( const QNetworkInterface& iface
 }
 
 template<typename T, typename Socket>
-void transmit ( const T& entity, const QHostAddress& host, const speech::port& p, Socket&& socket )
+inline void transmit ( const T& entity, const QHostAddress& host, const speech::port& p, Socket&& socket )
 {
 
     static_assert ( std::is_same_v<Socket, QUdpSocket&> ||
@@ -56,20 +56,20 @@ void transmit ( const T& entity, const QHostAddress& host, const speech::port& p
 }
 
 template<typename T>
-void transmit ( const T& entity, const QHostAddress& host, const speech::port& p )
+inline void transmit ( const T& entity, const QHostAddress& host, const speech::port& p )
 {
     QUdpSocket socket;
     transmit ( entity , host , p , socket );
 }
 
 template<typename T>
-void broadcast( const T& entity , const speech::port& p )
+inline void broadcast( const T& entity , const speech::port& p )
 {
     broadcast( entity , p , QNetworkInterface::allInterfaces() );
 }
 
 template<typename T>
-void broadcast( const T& entity , const speech::port& p , const QNetworkInterface& iface )
+inline void broadcast( const T& entity , const speech::port& p , const QNetworkInterface& iface )
 {
     auto broadcast_addresses = impl::broadcast_addresses_of( iface );
 
@@ -79,7 +79,7 @@ void broadcast( const T& entity , const speech::port& p , const QNetworkInterfac
 }
 
 template<typename T>
-void broadcast( const T& entity , const speech::port& p , const QList<QNetworkInterface>& ifaces )
+inline void broadcast( const T& entity , const speech::port& p , const QList<QNetworkInterface>& ifaces )
 {
     std::vector< QHostAddress > broadcast_addresses;
 

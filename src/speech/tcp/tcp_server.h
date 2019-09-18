@@ -32,13 +32,13 @@ struct lifetime
 };
 
 template <typename Tuple, typename F, std::size_t ...Indices>
-void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>);
+inline void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>);
 
 template <typename Tuple, typename F>
-void for_each(Tuple&& tuple, F&& f);
+inline void for_each(Tuple&& tuple, F&& f);
 
 template<typename... T , typename E , size_t... I>
-auto forward_handler( std::tuple<T...>&& partial_cont , handler<E>&& rhs , std::index_sequence<I...> );
+inline auto forward_handler( std::tuple<T...>&& partial_cont , handler<E>&& rhs , std::index_sequence<I...> );
 
 }
 
@@ -74,20 +74,20 @@ class tcp_server
 {
 public:
 
-    tcp_server( const QHostAddress &address = QHostAddress::Any , speech::port = speech::port(0) );
-    int port() const;
+    inline tcp_server( const QHostAddress &address = QHostAddress::Any , speech::port = speech::port(0) );
+    inline int port() const;
 
     template<typename... T>
-    tcp_server& listen( const std::tuple<handler<T>...>& handlers );
+    inline tcp_server& listen( const std::tuple<handler<T>...>& handlers );
 
     template<typename T>
-    tcp_server& listen( const handler<T>& handler );
+    inline tcp_server& listen( const handler<T>& handler );
 
 private:
 
-    int ready_read_callback( const QByteArray& , QTcpSocket& );
-    void new_connection();
-    void disconnected ( QTcpSocket* );
+    inline int ready_read_callback( const QByteArray& , QTcpSocket& );
+    inline void new_connection();
+    inline void disconnected ( QTcpSocket* );
     std::vector<shared_socket<QTcpSocket>>  m_alive_connections;
     std::vector<std::shared_ptr<impl::lifetime>> m_lifetimes;
     QTcpServer m_server;

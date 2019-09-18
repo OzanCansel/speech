@@ -10,13 +10,13 @@ namespace tcp
 {
 
 template<typename T, typename Socket>
-void transmit( const T& , const QHostAddress&, const speech::port& , Socket&& );
+inline void transmit( const T& , const QHostAddress&, const speech::port& , Socket&& );
 
 template<typename T, typename Socket>
-void transmit( const T&, Socket&& );
+inline void transmit( const T&, Socket&& );
 
 template<typename T>
-void transmit( const T& , const QHostAddress& , const speech::port& );
+inline void transmit( const T& , const QHostAddress& , const speech::port& );
 
 }
 }

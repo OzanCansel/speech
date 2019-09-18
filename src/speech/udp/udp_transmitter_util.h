@@ -1,28 +1,36 @@
 #ifndef SPEECH_UDP_TRANSMITTER_UTIL_H
 #define SPEECH_UDP_TRANSMITTER_UTIL_H
 
-#include "udp_transmitter.h"
 #include <utility>
+#include <vector>
+#include <QNetworkInterface>
+#include <QList>
+#include "speech/util.h"
 
 namespace speech
 {
 namespace udp
 {
 
+namespace impl
+{
+inline std::vector<QHostAddress> broadcast_addresses_of( const QNetworkInterface& iface );
+}
+
 template<typename T, typename Socket>
-void transmit ( const T&, const QHostAddress&, const speech::port&, Socket&& );
+inline void transmit ( const T&, const QHostAddress&, const speech::port&, Socket&& );
 
 template<typename T>
-void transmit ( const T&, const QHostAddress&, const speech::port& );
+inline void transmit ( const T&, const QHostAddress&, const speech::port& );
 
 template<typename T>
-void broadcast ( const T& , const speech::port& );
+inline void broadcast ( const T& , const speech::port& );
 
 template<typename T>
-void broadcast ( const T& , const speech::port& , const QNetworkInterface& );
+inline void broadcast ( const T& , const speech::port& , const QNetworkInterface& );
 
 template<typename T>
-void broadcast ( const T& , const speech::port& , const QList<QNetworkInterface>& );
+inline void broadcast ( const T& , const speech::port& , const QList<QNetworkInterface>& );
 
 
 } // namespace udp
