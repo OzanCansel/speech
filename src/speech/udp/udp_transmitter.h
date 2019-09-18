@@ -4,6 +4,7 @@
 #include <memory>
 #include <QHostAddress>
 #include <QUdpSocket>
+#include <QNetworkInterface>
 #include "speech/util.h"
 #include "speech/transmitter.h"
 #include "speech/handle/handle.h"
@@ -38,16 +39,10 @@ protected:
 private:
 
      QHostAddress m_addr;
-     int m_port{ -1 };
+     int m_port { -1 };
      std::unique_ptr<speech::handle::handle<QUdpSocket>> m_socket;
 
 };
-
-template<typename T, typename Socket>
-void transmit ( const T&, const QHostAddress&, const speech::port&, Socket&& );
-
-template<typename T>
-void transmit ( const T&, const QHostAddress&, const speech::port& );
 
 } // namespace udp
 } // namespace speech

@@ -3,7 +3,7 @@
 #include <QHostAddress>
 #include <QThread>
 #include <QCommandLineParser>
-#include <speech/udp/udp_transmitter.h>
+#include <speech/speech.h>
 #include <memory>
 #include <greeting.h>
 #include <roll_dice.h>

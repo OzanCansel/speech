@@ -7,8 +7,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QNetworkInterface>
-#include <speech/udp/udp_transmitter.h>
-#include <speech/udp/udp_receiver.h>
+#include <speech/speech.h>
 #include <device_info.h>
 #include <vector>
 #include <algorithm>
