@@ -13,28 +13,20 @@ namespace tcp
 namespace impl
 {
 
-    template <typename Tuple, typename F, std::size_t ...Indices>
-    inline void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
-        using swallow = int[];
-        (void)swallow{1,
-            (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...
-        };
-    }
+template <typename Tuple, typename F, std::size_t ...Indices>
+inline void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
+    using swallow = int[];
+    (void)swallow{1,
+                  (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...
+                 };
+}
 
-    template <typename Tuple, typename F>
-    inline void for_each(Tuple&& tuple, F&& f) {
-        constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
-        for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
-                      std::make_index_sequence<N>{});
-    }
-
-    template<typename... T , typename E , size_t... I>
-    inline auto forward_handler( std::tuple<T...>&& partial_cont , handler<E>&& rhs , std::index_sequence<I...> )
-    {
-        using namespace std;
-
-        return tuple<T... , handler<E>>( move( get<I>( partial_cont ) )... , forward<handler<E>>( rhs ));
-    }
+template <typename Tuple, typename F>
+inline void for_each(Tuple&& tuple, F&& f) {
+    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+    for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
+                  std::make_index_sequence<N>{});
+}
 
 }
 
@@ -92,7 +84,7 @@ inline void tcp_server::new_connection()
     //Fork new receiver and push to receivers list
     auto socket = m_server.nextPendingConnection();
 
-    m_alive_connections.emplace_back( std::ref( *socket ) );
+    m_alive_connections.emplace_back( std::shared_ptr< QTcpSocket > { socket , socket_deleter {} } );
 
     m_alive_connections.back().attach( std::bind( &tcp_server::ready_read_callback , this ,
                                                   std::placeholders::_1 ,
@@ -106,7 +98,7 @@ inline void tcp_server::new_connection()
 inline void tcp_server::disconnected ( QTcpSocket* socket )
 {
     auto entry = std::find_if ( m_alive_connections.begin(), m_alive_connections.end(), [&socket] ( auto& shared_socket ) {
-        return &shared_socket.socket() == socket;
+        return shared_socket.socket().lock().get() == socket;
     } );
 
     if ( entry != m_alive_connections.end() ) {
@@ -115,7 +107,7 @@ inline void tcp_server::disconnected ( QTcpSocket* socket )
 
 }
 
-inline int tcp_server::ready_read_callback( const QByteArray& data , QTcpSocket& sck )
+inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_ptr<QTcpSocket> sck )
 {
 
     using namespace std;
@@ -173,25 +165,6 @@ inline tcp_server& tcp_server::listen( const handler<T>& handler )
 {
     m_lifetimes.push_back( handler.m_conn );
     return *this;
-}
-
-template<typename T>
-handler<T> listen( typename handler<T>::client_cb&& cb )
-{
-    return handler<T> {  std::forward<typename handler<T>::client_cb>( cb ) , std::make_shared<impl::lifetime>() };
-}
-
-template< typename L , typename R >
-std::tuple< handler<L> , handler<R> > operator | ( handler<L>&& lhs , handler<R>&& rhs )
-{
-    return std::make_tuple( std::forward<handler<L>>( lhs ) , std::forward<handler<R>>( rhs ) );
-}
-
-template< typename... L , typename R >
-auto operator | ( std::tuple<L...>&& lhs , handler<R>&& rhs )
-{
-    using namespace std;
-    return impl::forward_handler( forward<tuple<L...>>( lhs ) ,  forward<handler<R>>( rhs ), std::index_sequence_for< L... >() );
 }
 
 }

@@ -26,7 +26,7 @@ namespace impl
 struct lifetime
 {
 
-    using cb_type = std::function<int(const QByteArray& , QTcpSocket&)>;
+    using cb_type = std::function<int(const QByteArray& , std::weak_ptr<QTcpSocket> )>;
 
     cb_type cb;
 };
@@ -37,9 +37,6 @@ inline void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>)
 template <typename Tuple, typename F>
 inline void for_each(Tuple&& tuple, F&& f);
 
-template<typename... T , typename E , size_t... I>
-inline auto forward_handler( std::tuple<T...>&& partial_cont , handler<E>&& rhs , std::index_sequence<I...> );
-
 }
 
 template<typename T>
@@ -48,7 +45,7 @@ class handler : public tcp_receiver<T>
 
 public:
 
-    using client_cb = std::function<void( const T& , QTcpSocket& )>;
+    using client_cb = std::function<void( const T& , std::weak_ptr<QTcpSocket> )>;
 
     handler( client_cb&& cb , std::shared_ptr<impl::lifetime> c );
     ~handler() noexcept = default;
@@ -85,7 +82,7 @@ public:
 
 private:
 
-    inline int ready_read_callback( const QByteArray& , QTcpSocket& );
+    inline int ready_read_callback( const QByteArray& , std::weak_ptr<QTcpSocket> );
     inline void new_connection();
     inline void disconnected ( QTcpSocket* );
     std::vector<shared_socket<QTcpSocket>>  m_alive_connections;
@@ -93,15 +90,6 @@ private:
     QTcpServer m_server;
 
 };
-
-template<typename T>
-handler<T> listen( typename handler<T>::client_cb&& cb );
-
-template< typename L , typename R >
-std::tuple< handler<L> , handler<R> > operator | ( handler<L>&& lhs , handler<R>&& rhs );
-
-template< typename... L , typename R >
-auto operator | ( std::tuple<L...>&& lhs , handler<R>&& rhs );
 
 }
 }

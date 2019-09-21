@@ -13,23 +13,11 @@ namespace speech
     {
         public:
 
-            shared_socket<QTcpSocket>( QTcpSocket& socket )
-                : 
-                m_socket { new speech::handle::handle<QTcpSocket>{ socket } }
-            { 
-                listen();
-            }
+        using observer_cb_t = std::function<int(const QByteArray& , std::weak_ptr<QTcpSocket> )>;
 
-            shared_socket<QTcpSocket>( std::shared_ptr<QTcpSocket> socket )
+            shared_socket<QTcpSocket>( std::shared_ptr<QTcpSocket>&& socket )
                 :
-                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ std::move( socket ) } }
-            {   
-                listen();
-            }
-
-            shared_socket<QTcpSocket>(std::unique_ptr<QTcpSocket> socket)
-                :
-                m_socket{ new speech::handle::unique_ptr_handle{ std::move( socket ) }}
+                m_socket { std::forward<std::shared_ptr<QTcpSocket>>( socket ) }
             {   
                 listen();
             }
@@ -39,14 +27,14 @@ namespace speech
                 QObject::disconnect( m_socket_listening_conn );
             }
 
-            QTcpSocket& socket()
+            std::weak_ptr<QTcpSocket> socket()
             {
-                return m_socket->ref();
+                return m_socket;
             }
 
-            void attach( std::function<int(const QByteArray& , QTcpSocket&)>&& observer )
+            void attach( observer_cb_t&& observer )
             {
-                m_listeners.push_back( std::forward<std::function<int(const QByteArray& , QTcpSocket&)>>( observer ) );
+                m_listeners.push_back( std::forward<observer_cb_t>( observer ) );
             }
 
             shared_socket<QTcpSocket>(const shared_socket<QTcpSocket>&) = delete;
@@ -73,14 +61,14 @@ namespace speech
 
             void listen()
             {
-                m_socket_listening_conn = QObject::connect(&m_socket->ref() , &QTcpSocket::readyRead , [this] {
+                m_socket_listening_conn = QObject::connect(m_socket.get() , &QTcpSocket::readyRead , [this] {
                     on_data_received();
                 });
             }
 
             void on_data_received()
             {
-                auto& sck = m_socket->ref();
+                auto& sck = *m_socket.get();
                 int parsed_data_length{};
                 do
                 {
@@ -95,7 +83,7 @@ namespace speech
                     //Call listeners
                     for( auto& f : m_listeners )
                     {
-                        auto processed_bytes = f ( m_buffer , m_socket->ref() );
+                        auto processed_bytes = f ( m_buffer , m_socket );
 
                         if(processed_bytes == -1)
                         {
@@ -147,9 +135,9 @@ namespace speech
                 } while((!m_buffer.isEmpty() && parsed_data_length > 0) || sck.bytesAvailable());
             }
 
-            std::unique_ptr<speech::handle::handle<QTcpSocket>> m_socket;
+            std::shared_ptr<QTcpSocket> m_socket;
             QByteArray m_buffer;
-            std::vector<std::function<int(const QByteArray& , QTcpSocket& )>> m_listeners;
+            std::vector< observer_cb_t > m_listeners;
             QMetaObject::Connection m_socket_listening_conn;
     };
 }

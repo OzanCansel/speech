@@ -7,6 +7,12 @@
 #include <greeting.h>
 #include <roll_dice.h>
 
+struct tcp_server_redirects_entities_to_me
+{
+    void operator()( const greeting& g , std::weak_ptr<QTcpSocket> ) { qDebug() << "Redirected " << g; }
+    void operator()( const roll_dice& r , std::weak_ptr<QTcpSocket> ) { qDebug() << "Redirected " << r; }
+};
+
 int main ( int argc, char** argv )
 {
     QCoreApplication app ( argc, argv );
@@ -31,11 +37,14 @@ int main ( int argc, char** argv )
 
     tcp_server server { QHostAddress::Any , speech::port { port } };
 
+    tcp_server_redirects_entities_to_me subscriber;
+
     auto listeners =
-            listen<roll_dice>( []( const roll_dice& e , QTcpSocket& ) {
+            redirect< greeting , roll_dice >( subscriber ) |
+            listen<roll_dice>( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
         qDebug() << "Received : " << e;
     }) |
-            listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+            listen<greeting>( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
         qDebug() << "Received : " << g;
     });
 

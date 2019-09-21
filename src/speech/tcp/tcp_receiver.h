@@ -21,9 +21,9 @@ class tcp_receiver_impl : protected receiver<EnableQueue, T...>
 public:
 
      using socket_type = QTcpSocket;
-     int on_data_received ( const QByteArray & , QTcpSocket& );
+     int on_data_received ( const QByteArray & , std::weak_ptr<QTcpSocket>&& );
 
-     QTcpSocket& socket() { return *m_sck; }
+     std::weak_ptr<QTcpSocket> socket() { return m_sck; }
 
 protected:
 
@@ -31,7 +31,7 @@ protected:
 
 private:
 
-     QTcpSocket* m_sck {  };
+     std::weak_ptr<QTcpSocket> m_sck {  };
 
 };
 } // namespace impl
