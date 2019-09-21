@@ -113,7 +113,18 @@ inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_p
     using namespace std;
 
     auto max_res = -9999;
-    vector<shared_ptr<impl::lifetime>> ended_lifetimes;
+
+    // Clear invalidated lifetimes
+    m_lifetimes.erase(
+        std::remove_if(
+            m_lifetimes.begin(),
+            m_lifetimes.end(),
+            [](const auto& f) {
+                return !f || f.use_count() == 1;
+            }
+        ),
+        m_lifetimes.end()
+    );
 
     for ( auto& f : m_lifetimes )
     {
@@ -139,10 +150,6 @@ inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_p
         if( res > max_res )
             max_res = res;
     }
-
-    // Remove ended lifetimes
-    for ( auto& life : ended_lifetimes  )
-        m_lifetimes.erase( std::remove( m_lifetimes.begin() , m_lifetimes.end() ,  life ) );
 
     return max_res;
 }
