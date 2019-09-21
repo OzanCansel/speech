@@ -58,10 +58,10 @@ inline auto operator | ( std::tuple< handler<L>... >&& lhs , handler<R>&& rhs )
 }
 
 template< typename... L , typename... R >
-inline auto operator | ( std::tuple< handler<L>... >&& lhs , std::tuple< handler<L>... >&& rhs )
+inline auto operator | ( std::tuple< handler<L>... >&& lhs , std::tuple< handler<R>... >&& rhs )
 {
     using namespace std;
-    return impl::combine_tuples( forward<std::tuple< handler<L>... >>( lhs ), std::index_sequence_for< L... >{} , forward<std::tuple< handler<L>... >>( rhs ) , std::index_sequence_for< R... > { } );
+    return impl::combine_tuples( forward<std::tuple< handler<L>... >>( lhs ), std::index_sequence_for< L... >{} , forward<std::tuple< handler<R>... >>( rhs ) , std::index_sequence_for< R... > { } );
 }
 
 }
