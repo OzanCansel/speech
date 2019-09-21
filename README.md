@@ -22,10 +22,10 @@ speech library doesn't use qmake as build system currently but it will be suppor
 - A compiler which supports C++17
 
 # Compiler Support
-- GCC
-- MinGW
-- VS Compiler
-- Clang
+- GCC ( Tested 7.4.0 )
+- MinGW ( Tested 7.3.0 )
+- VS Compiler ( Tested MSVC 2017 )
+- Clang ( Not Tested )
 
 # Compile & Install
 ## Windows 
@@ -86,10 +86,10 @@ int main ( int argc, char** argv )
     tcp_server server { QHostAddress::Any , speech::port { port } };
 
     auto listeners =
-            listen<roll_dice>( []( const roll_dice& e , QTcpSocket& ) {
+            listen<roll_dice>( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
         qDebug() << "Received : " << e;
     }) |
-            listen<greeting>( [] ( const greeting& g , QTcpSocket& ){
+            listen<greeting>( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
         qDebug() << "Received : " << g;
     });
 
