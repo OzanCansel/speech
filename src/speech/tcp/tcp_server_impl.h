@@ -128,19 +128,6 @@ inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_p
 
     for ( auto& f : m_lifetimes )
     {
-
-        if ( !f )
-        {
-            ended_lifetimes.push_back( f );
-            continue;
-        }
-
-        if ( f.use_count() == 1 )
-        {
-            ended_lifetimes.push_back( f );
-            continue;
-        }
-
         auto res = f->cb( data , sck );
 
         // Bad should be refactored
