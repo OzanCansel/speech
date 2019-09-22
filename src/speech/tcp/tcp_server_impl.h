@@ -2,6 +2,7 @@
 #include "speech/error/port_in_use_error.h"
 #include "speech/util.h"
 #include "tcp_server.h"
+#include "speech/tcp/tcp_transmitter_util.h"
 #include <QObject>
 #include <utility>
 
@@ -36,7 +37,7 @@ handler<T>::handler( client_cb&& cb , std::shared_ptr<impl::lifetime> c )
     , m_cb { std::forward<client_cb>( cb ) }
 {
     using namespace std::placeholders;
-    m_conn->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
+    m_conn->cb = std::bind( &tcp_server_data_parser<T>::on_data_received , this , _1 , _2 );
 }
 
 template<typename T>
@@ -46,7 +47,7 @@ handler<T>::handler( handler<T>&& other ) noexcept
 
     m_conn = other.m_conn;
     m_cb = other.m_cb;
-    m_conn->cb = std::bind( &tcp_receiver<T>::on_data_received , this , _1 , _2 );
+    m_conn->cb = std::bind( &tcp_server_data_parser<T>::on_data_received , this , _1 , _2 );
 }
 
 template<typename T>
@@ -56,13 +57,20 @@ handler<T>& handler<T>::operator = ( handler&& other ) noexcept
 
     m_conn = other.m_conn;
     m_cb = other.m_cb;
-    m_conn->cb = std::bind( tcp_receiver<T>::on_data_received , this , _1 , _2 );
+    m_conn->cb = std::bind( &tcp_server_data_parser<T>::on_data_received , this , _1 , _2 );
 }
 
 template <typename T>
 void handler<T>::on_receive( const T& e )
 {
-    m_cb( e , tcp_receiver<T>::socket() );
+    m_cb( e , tcp_server_data_parser<T>::socket() );
+}
+
+template <typename... T>
+int tcp_server_data_parser<T...>::on_data_received ( const QByteArray &buffer , std::weak_ptr<QTcpSocket>&& sck )
+{
+    m_sck = std::forward<std::weak_ptr<QTcpSocket>>( sck );
+    return this->parse ( buffer );
 }
 
 inline tcp_server::tcp_server ( const QHostAddress &address, speech::port p )
@@ -105,6 +113,24 @@ inline void tcp_server::disconnected ( QTcpSocket* socket )
         m_alive_connections.erase ( entry );
     }
 
+}
+
+template<typename T>
+inline void tcp_server::broadcast( const T& entity )
+{
+    for ( shared_socket<QTcpSocket>& sck : m_alive_connections )
+    {
+        std::weak_ptr<QTcpSocket> client = sck.socket();
+
+        if ( client.expired() )
+            continue;
+
+        if ( client.lock()->state() != QAbstractSocket::ConnectedState )
+            continue;
+
+        speech::tcp::transmit( entity , client.lock() );
+
+    }
 }
 
 inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_ptr<QTcpSocket> sck )

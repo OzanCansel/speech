@@ -39,8 +39,28 @@ inline void for_each(Tuple&& tuple, F&& f);
 
 }
 
+template <typename... T>
+class tcp_server_data_parser : protected receiver<false, T...>
+{
+public:
+
+     using socket_type = QTcpSocket;
+     int on_data_received ( const QByteArray & , std::weak_ptr<QTcpSocket>&& );
+
+     std::weak_ptr<QTcpSocket> socket() { return m_sck; }
+
+protected:
+
+     inline QTcpSocket &device();
+
+private:
+
+     std::weak_ptr<QTcpSocket> m_sck {  };
+
+};
+
 template<typename T>
-class handler : public tcp_receiver<T>
+class handler : public tcp_server_data_parser<T>
 {
 
 public:
@@ -67,6 +87,7 @@ private:
 
 };
 
+
 class tcp_server
 {
 public:
@@ -79,6 +100,9 @@ public:
 
     template<typename T>
     inline tcp_server& listen( const handler<T>& handler );
+
+    template<typename T>
+    inline void broadcast( const T& );
 
 private:
 
