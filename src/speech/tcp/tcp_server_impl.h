@@ -4,6 +4,7 @@
 #include "tcp_server.h"
 #include "speech/tcp/tcp_transmitter_util.h"
 #include <QObject>
+#include <QTimer>
 #include <utility>
 
 namespace speech
@@ -133,6 +134,11 @@ inline void tcp_server::broadcast( const T& entity )
     }
 }
 
+inline void tcp_server::disconnect_socket ( std::weak_ptr<QTcpSocket> sck )
+{
+    QTimer::singleShot( 0 , [ sck ]() { sck.lock()->disconnectFromHost(); });
+}
+
 inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_ptr<QTcpSocket> sck )
 {
 
@@ -154,6 +160,12 @@ inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_p
 
     for ( auto& f : m_lifetimes )
     {
+        if ( !f )
+            continue;
+
+        if ( f.unique() )
+            continue;
+
         auto res = f->cb( data , sck );
 
         // Bad should be refactored

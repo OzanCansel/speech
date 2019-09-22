@@ -104,6 +104,8 @@ public:
     template<typename T>
     inline void broadcast( const T& );
 
+    inline void disconnect_socket ( std::weak_ptr<QTcpSocket> sck );
+
 private:
 
     inline int ready_read_callback( const QByteArray& , std::weak_ptr<QTcpSocket> );

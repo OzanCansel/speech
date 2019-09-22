@@ -35,4 +35,18 @@ struct send_message
 
 };
 
+struct disconnected
+{
+    QString user_name;
+
+    SPEECH_SERIALIZE( user_name )
+};
+
+struct chat_error
+{
+    QString message;
+
+    SPEECH_SERIALIZE( message )
+};
+
 #endif
