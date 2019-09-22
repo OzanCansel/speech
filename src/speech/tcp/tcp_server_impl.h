@@ -163,7 +163,7 @@ inline int tcp_server::ready_read_callback( const QByteArray& data , std::weak_p
         if ( !f )
             continue;
 
-        if ( f.unique() )
+        if ( f.use_count() == 1 )
             continue;
 
         auto res = f->cb( data , sck );
