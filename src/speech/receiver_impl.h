@@ -143,7 +143,7 @@ parse ( const QByteArray &entity_data )
     auto total_required_length = 3 * sizeof ( int ) + sizeof( quint16 ) + SizeOfLengthTag + size;
 
     //If available bytes are not enough to express the entity
-    if ( total_required_length >= static_cast<size_t> ( entity_data.size() ) ) {
+    if ( total_required_length > static_cast<size_t> ( entity_data.size() ) ) {
         return 0;     //There are remaining parts
     }
 
