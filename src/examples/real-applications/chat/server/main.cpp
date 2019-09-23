@@ -1,4 +1,6 @@
 #include <QCoreApplication>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 #include <QUuid>
 #include <QTimer>
 #include <QDebug>
@@ -13,7 +15,22 @@ int main( int argc , char** argv )
 
     QCoreApplication app( argc , argv );
 
-    tcp_server game_server { QHostAddress::Any , speech::port { 24942 } };
+    QCommandLineParser parser;
+    QCommandLineOption port_opt { { "p" , "port" } , "Listening port" , "port" , "24942" };
+    parser.addHelpOption();
+    parser.addOption( port_opt );
+
+    parser.process( app );
+
+    auto port = parser.value( port_opt ).toInt();
+
+    if ( port <= 0 )
+    {
+        qDebug() << "Port cannot be negative or zero.";
+        return 1;
+    }
+
+    tcp_server game_server { QHostAddress::Any , speech::port { port } };
 
     std::map<std::shared_ptr<QTcpSocket> , QString> socket_to_username;
 

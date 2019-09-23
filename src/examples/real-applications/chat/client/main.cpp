@@ -20,13 +20,29 @@ int main( int argc , char** argv )
     QApplication app( argc , argv );
 
     QCommandLineParser parser;
-    QCommandLineOption user_name_opt { { "u" , "user" } , "user_name in chat-client" , "user_name" , "Unknown"};
+    QCommandLineOption user_name_opt { { "u" , "user" } , "user_name in chat-client" , "user_name" , "Unknown"} ,
+                        host_opt { { "i" , "ip" } , "ip address of host" , "host" , "127.0.0.1" } ,
+                        port_opt { { "p" , "port" } , "port of host" , "port" , "24942" };
     parser.addHelpOption();
 
-    parser.addOption ( user_name_opt );
+    parser.addOptions ( { user_name_opt , host_opt , port_opt } );
     parser.process ( app );
 
     auto nick_name = parser.value( user_name_opt );
+    QHostAddress host_ip = QHostAddress { parser.value( host_opt ) };
+    auto port = parser.value( port_opt ).toInt();
+
+    if ( host_ip.isNull() )
+    {
+        qDebug() << "Ip is not suitable.";
+        return 1;
+    }
+
+    if ( port <= 0 )
+    {
+        qDebug() << "Port cannot be zero or negative.";
+        return 1;
+    }
 
     QMainWindow client_view;
 
@@ -65,7 +81,7 @@ int main( int argc , char** argv )
     server_comm comm { incoming_messages , connected_users , sck };
 
     // Initial connection
-    transmit( let_me_join { nick_name } , QHostAddress { QHostAddress::LocalHost } , port { 24942 } , sck );
+    transmit( let_me_join { nick_name } , host_ip , speech::port { port } , sck );
 
     QObject::connect( my_message , &send_event_text_edit::return_pressed , [ my_message , sck ]() {
         auto message = my_message->toPlainText();
