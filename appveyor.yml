@@ -7,7 +7,7 @@ for:
  - 
     matrix:
      only:
-      - image: Ubuntu
+      - image: Ubuntu1804
       
     before_build:
     - sudo apt-get update
