@@ -129,8 +129,7 @@ namespace speech
                         }
 
                         //discard current message and jump to next message
-                        auto start_of_msg_idx = m_buffer.indexOf(start_token);
-                        auto invalid_data_len = start_of_msg_idx == -1 ? m_buffer.size() : start_of_msg_idx;
+                        auto invalid_data_len = idx == -1 ? m_buffer.size() : idx;
                         m_buffer.remove(0 , invalid_data_len);
                     }
                     else
