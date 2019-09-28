@@ -58,6 +58,15 @@ struct tag_speech_qdebug_out{};
 }
 }
 
+#define SPEECH_SERIALIZE_EMPTY \
+    public : \
+    using __serialize_tag = speech::impl::tag_speech_serialize; \
+    using __qdebug_tag = speech::impl::tag_speech_qdebug_out; \
+    void operator <<( QDataStream& out ) const { } \
+    void operator >>( QDataStream& in ) { } \
+    void operator <<( QDebug& out ) const { } \
+
+
 #define SPEECH_SERIALIZE(...) \
     SPEECH_JUST_SERIALIZE( __VA_ARGS__ ) \
     SPEECH_QDEBUG_OUT( __VA_ARGS__ )
