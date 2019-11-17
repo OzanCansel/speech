@@ -15,17 +15,21 @@ inline auto combine_tuples( std::tuple<LTuple...>&& l_tuple , std::index_sequenc
     return make_tuple( forward< LTuple >( get<LIdx>( l_tuple ) )... , forward<RTuple>( get<RIdx>( r_tuple ) )... );
 }
 
-template<size_t , typename Observer , typename Entity>
-inline auto redirect_impl( Observer& cont , speech::impl::specializer<0> )
+template<typename T , typename Container>
+struct forwarder_sad
 {
-    return listen<Entity>( [&cont]( const Entity& e , std::weak_ptr<QTcpSocket> s ) { cont( e , s ); } );
-}
 
-template<size_t I , typename Observer , typename Entity , typename... Rest>
-inline auto redirect_impl ( Observer& cont , speech::impl::specializer<I> )
+    void operator()( const T&e , std::weak_ptr<QTcpSocket> s ) { m_cont( e , s ); }
+
+    forwarder_sad( Container& cont ) : m_cont { cont } { }
+
+    Container& m_cont;
+};
+
+template<typename Observer, typename... Entities>
+inline auto redirect_impl( Observer& cont)
 {
-    return listen<Entity>( [&cont]( const Entity& e , std::weak_ptr<QTcpSocket> s ) { cont( e , s ); } ) |
-            redirect_impl<I - 1 , Observer , Rest...>( cont , speech::impl::specializer< I - 1 >{});
+    return ( (listen<Entities>( forwarder_sad< Entities , Observer > ( cont ) )) | ... );
 }
 
 }
@@ -34,8 +38,9 @@ template<typename... Entities, typename Observer>
 inline auto redirect ( Observer& to )
 {
     static_assert( sizeof...( Entities ) > 0 , "You should specify at least one Entity type." );
-    return impl::redirect_impl<sizeof...(Entities) - 1 , Observer , Entities...>( to , speech::impl::specializer<sizeof...(Entities) - 1>{ });
+    return impl::redirect_impl<Observer , Entities...>( to );
 }
+
 
 template<typename T>
 inline handler<T> listen( typename handler<T>::client_cb&& cb )
