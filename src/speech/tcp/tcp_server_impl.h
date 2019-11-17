@@ -91,17 +91,20 @@ inline tcp_server::tcp_server ( const QHostAddress &address, speech::port p )
 inline void tcp_server::new_connection()
 {
     //Fork new receiver and push to receivers list
-    auto socket = m_server.nextPendingConnection();
+    while ( m_server.hasPendingConnections() )
+    {
+        auto socket = m_server.nextPendingConnection();
 
-    m_alive_connections.emplace_back( std::shared_ptr< QTcpSocket > { socket , socket_deleter {} } );
+        m_alive_connections.emplace_back( std::shared_ptr< QTcpSocket > { socket , socket_deleter {} } );
 
-    m_alive_connections.back().attach( std::bind( &tcp_server::ready_read_callback , this ,
-                                                  std::placeholders::_1 ,
-                                                  std::placeholders::_2 ) );
+        m_alive_connections.back().attach( std::bind( &tcp_server::ready_read_callback , this ,
+                                                      std::placeholders::_1 ,
+                                                      std::placeholders::_2 ) );
 
-    QObject::connect ( socket, &QTcpSocket::disconnected, [ this, socket ]() {
-        disconnected ( socket );
-    });
+        QObject::connect ( socket, &QTcpSocket::disconnected, [ this, socket ]() {
+            disconnected ( socket );
+        });
+    }
 }
 
 inline void tcp_server::disconnected ( QTcpSocket* socket )
