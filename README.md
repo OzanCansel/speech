@@ -40,6 +40,19 @@ cd build
 cmake -G"MinGW Makefiles" -DCMAKE_MAKE_PROGRAM=<make_executable_path> -DCMAKE_PREFIX_PATH=<qt_cmake_definitions_path> ..
 cmake --build . --target install -- -j$(nproc)
 ```
+## Linux
+### Ubuntu 18.04
+```
+sudo apt-get update
+sudo apt-get install qt5-default cmake build-essential
+git clone https://github.com/OzanCansel/speech
+cd speech
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+sudo make install
+```
 
 ## Example CMakeLists.txt Usage
 ```
