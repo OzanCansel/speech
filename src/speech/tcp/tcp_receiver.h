@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QByteArray>
+#include <utility>
 #include "speech/receiver.h"
 #include "speech/util.h"
 #include "speech/shared_socket.h"
@@ -19,18 +20,27 @@ template <bool EnableQueue, typename... T>
 class tcp_receiver_impl : protected receiver<EnableQueue, T...>
 {
 public:
-     using socket_type = QTcpSocket;
-     using shared_socket_Type = shared_socket<socket_type>;
 
-     explicit tcp_receiver_impl ( shared_socket<QTcpSocket> & );
+    tcp_receiver_impl( std::shared_ptr<QTcpSocket>&& s )
+        : m_socket { std::forward<std::shared_ptr<QTcpSocket>>( s ) }
+    {
+        using namespace std::placeholders;
+        m_socket.attach( std::bind( &tcp_receiver_impl::on_data_received , this , _1 , _2 ));
+    }
 
 protected:
-     inline QTcpSocket &device();
+
+    inline int on_data_received ( const QByteArray &buffer , std::weak_ptr<QTcpSocket>&& sck )
+    {
+        return this->parse ( buffer );
+    }
 
 private:
-     int on_data_received ( const QByteArray & );
-     QTcpSocket &m_socket;
+
+    shared_socket<QTcpSocket> m_socket;
+
 };
+
 } // namespace impl
 
 template<typename... T>

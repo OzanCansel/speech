@@ -34,7 +34,7 @@ QString identify()
 
 #if GCC_COMPILER || CLANG_COMPILER
      int status;
-     auto class_name = abi::__cxa_demangle ( typeid ( T ).name(), 0, 0, &status );
+     auto class_name = abi::__cxa_demangle ( typeid ( T ).name(), nullptr , nullptr , &status );
 
      return QString::fromLatin1 ( class_name );
 #endif
@@ -61,14 +61,15 @@ private:
      T m_value;
 };
 
-struct qobject_deleter {
+} // namespace impl
+
+
+struct socket_deleter {
      void operator() ( QObject* obj ) const
      {
           obj->deleteLater();
      }
 };
-
-} // namespace impl
 
 using port = impl::named_type<int, struct port_parameter>;
 

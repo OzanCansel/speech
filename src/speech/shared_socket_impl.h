@@ -2,7 +2,10 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <vector>
+#include <utility>
 #include <memory>
+#include "shared_socket.h"
+#include "speech/util.h"
 
 namespace speech
 {
@@ -11,40 +14,39 @@ namespace speech
     {
         public:
 
-            shared_socket<QTcpSocket>(QTcpSocket& socket) 
-                : 
-                m_socket { new speech::handle::handle<QTcpSocket>{ socket } }
-            { 
-                listen();
-            }
+        using observer_cb_t = std::function<int(const QByteArray& , std::weak_ptr<QTcpSocket> )>;
 
-            shared_socket<QTcpSocket>(std::shared_ptr<QTcpSocket> socket)
-                :
-                m_socket{ new speech::handle::shared_ptr_handle<QTcpSocket>{ socket }}
-            {   
-                listen();
-            }
-
-            shared_socket<QTcpSocket>(std::unique_ptr<QTcpSocket> socket)
-                :
-                m_socket{ new speech::handle::unique_ptr_handle<QTcpSocket>{ std::move(socket) }}
-            {   
-                listen();
-            }
-
-            QTcpSocket& socket()
+            shared_socket<QTcpSocket>( std::shared_ptr<QTcpSocket>&& socket )
+                :   m_socket { std::forward<std::shared_ptr<QTcpSocket>>( socket ) }
             {
-                return m_socket->ref();
+                listen();
             }
 
-            void attach(std::function<int(const QByteArray&)> observer)
+            shared_socket<QTcpSocket>( std::unique_ptr<QTcpSocket , socket_deleter>&& socket )
+                : m_socket { std::shared_ptr<QTcpSocket> { std::move( socket ) } }
             {
-                m_listeners.push_back(observer);
+                listen();
+            }
+
+            ~shared_socket() noexcept
+            {
+                QObject::disconnect( m_socket_listening_conn );
+                m_socket->disconnect();
+            }
+
+            std::weak_ptr<QTcpSocket> socket()
+            {
+                return m_socket;
+            }
+
+            void attach( observer_cb_t&& observer )
+            {
+                m_listeners.push_back( std::forward<observer_cb_t>( observer ) );
             }
 
             shared_socket<QTcpSocket>(const shared_socket<QTcpSocket>&) = delete;
             shared_socket<QTcpSocket>& operator=(const shared_socket<QTcpSocket>&) = delete;
-            shared_socket<QTcpSocket>(shared_socket<QTcpSocket>&& rhs)
+            shared_socket<QTcpSocket>( shared_socket<QTcpSocket>&& rhs ) noexcept
             {
                 m_socket = std::move(rhs.m_socket);
                 m_buffer = std::move(rhs.m_buffer);
@@ -52,26 +54,32 @@ namespace speech
                 listen();
             }
 
-            shared_socket<QTcpSocket>& operator=(shared_socket<QTcpSocket>&& rhs)
+            shared_socket<QTcpSocket>& operator=(shared_socket<QTcpSocket>&& rhs) noexcept
             {
                 m_socket = std::move(rhs.m_socket);
                 m_buffer = std::move(rhs.m_buffer);
                 m_listeners = std::move(rhs.m_listeners);
                 listen();
+
+                return *this;
             }
 
         private:
 
             void listen()
             {
-                m_socket_listening_conn = QObject::connect(&m_socket->ref() , &QTcpSocket::readyRead , [this] {
+                m_socket_listening_conn = QObject::connect(m_socket.get() , &QTcpSocket::readyRead , m_socket.get() , [this] {
                     on_data_received();
                 });
             }
 
             void on_data_received()
             {
-                auto& sck = m_socket->ref();
+
+                if ( !m_socket )
+                    return;
+
+                auto& sck = *m_socket.get();
                 int parsed_data_length{};
                 do
                 {
@@ -79,14 +87,14 @@ namespace speech
                     //Read bytes
                     m_buffer.append(sck.readAll());
 
-                    bool invalid_msg{ false };
-                    int could_not_be_parsed_count{};
+                    bool invalid_msg { false };
+                    int could_not_be_parsed_count {};
                     parsed_data_length = 0;
 
                     //Call listeners
-                    for(auto f : m_listeners)
+                    for( auto& f : m_listeners )
                     {
-                        auto processed_bytes = f(m_buffer);
+                        auto processed_bytes = f ( m_buffer , m_socket );
 
                         if(processed_bytes == -1)
                         {
@@ -116,12 +124,17 @@ namespace speech
                     if(invalid_msg || could_not_be_parsed)
                     {
 
-                        if(could_not_be_parsed)
-                            m_buffer.remove(0 , start_token.size());
+                        int idx = -1;
+                        idx = m_buffer.indexOf( start_token );
+
+                        if ( idx == 0 )
+                        {
+                            m_buffer.remove( 0 , start_token.size() );
+                            idx = m_buffer.indexOf( start_token );
+                        }
 
                         //discard current message and jump to next message
-                        auto start_of_msg_idx = m_buffer.indexOf(start_token);
-                        auto invalid_data_len = start_of_msg_idx == -1 ? m_buffer.size() : start_of_msg_idx;
+                        auto invalid_data_len = idx == -1 ? m_buffer.size() : idx;
                         m_buffer.remove(0 , invalid_data_len);
                     }
                     else
@@ -132,9 +145,9 @@ namespace speech
                 } while((!m_buffer.isEmpty() && parsed_data_length > 0) || sck.bytesAvailable());
             }
 
-            std::unique_ptr<speech::handle::handle<QTcpSocket>> m_socket;
+            std::shared_ptr<QTcpSocket> m_socket;
             QByteArray m_buffer;
-            std::vector<std::function<int(const QByteArray&)>> m_listeners;
+            std::vector< observer_cb_t > m_listeners;
             QMetaObject::Connection m_socket_listening_conn;
     };
 }

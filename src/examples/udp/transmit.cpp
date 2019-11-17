@@ -39,9 +39,9 @@ int main ( int argc, char **argv )
 
      auto shared_sck = make_shared<QUdpSocket>();
      auto unique_sck = make_unique<QUdpSocket>();
-     udp_transmitter<greeting, roll_dice> udp{ host, speech::port ( port ) };
-     udp_transmitter<greeting, roll_dice> udp_shared{ shared_sck, host, speech::port ( port ) };
-     udp_transmitter<greeting, roll_dice> udp_unique{ std::move ( unique_sck ), host, speech::port ( port ) };
+     udp_transmitter<greeting, roll_dice> udp { host, speech::port ( port ) };
+     udp_transmitter<greeting, roll_dice> udp_shared { shared_sck, host, speech::port ( port ) };
+     udp_transmitter<greeting, roll_dice> udp_unique { std::move ( unique_sck ), host, speech::port ( port ) };
 
     for (int i = 0;; ++i)
     {

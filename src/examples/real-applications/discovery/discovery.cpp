@@ -7,15 +7,14 @@
 #include <QTimer>
 #include <QDebug>
 #include <QNetworkInterface>
-#include <speech/udp/udp_transmitter.h>
-#include <speech/udp/udp_receiver.h>
+#include <speech/speech.h>
 #include <device_info.h>
 #include <vector>
 #include <algorithm>
 
 QString retrieve_mac_addr()
 {
-     for ( QNetworkInterface netInterface : QNetworkInterface::allInterfaces() ) {
+     for ( const QNetworkInterface& netInterface : QNetworkInterface::allInterfaces() ) {
           // Return only the first non-loopback MAC Address
           if ( ! ( netInterface.flags() & QNetworkInterface::IsLoopBack ) ) {
                return netInterface.hardwareAddress();
@@ -29,10 +28,8 @@ class discovery : speech::udp::udp_receiver<device_info>
 {
 public:
 
-     explicit discovery ( speech::port p ) : speech::udp::udp_receiver<device_info>
-     {
-          p
-     }
+     explicit discovery ( speech::port p )
+        : speech::udp::udp_receiver<device_info> { p }
      {
           m_broadcast_tick.setInterval ( 1000 );
 
@@ -40,7 +37,7 @@ public:
                using namespace speech;
                using namespace speech::udp;
 
-               udp_transmit
+               transmit
                (
                device_info {
                     QHostInfo::localHostName(),
@@ -58,7 +55,7 @@ public:
           m_broadcast_tick.start();
      }
 
-     void on_receive ( const device_info& device )
+     void on_receive ( const device_info& device ) override
      {
           bool exist = std::any_of ( m_devices.begin(), m_devices.end(), [&device] ( const auto& d ) {
                return d.mac_addr == device.mac_addr;
@@ -102,5 +99,5 @@ int main ( int argc, char **argv )
 
      discovery d { speech::port ( port ) };
 
-     app.exec();
+     return QCoreApplication::exec();
 }

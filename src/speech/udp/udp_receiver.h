@@ -23,14 +23,16 @@ class udp_receiver_impl : public receiver<EnableQueue, T...>
 {
 public:
 
-    udp_receiver_impl(port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform);
-    udp_receiver_impl(QUdpSocket &);
-    udp_receiver_impl(QUdpSocket &, port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform);
-    udp_receiver_impl<EnableQueue, T...>& operator=(const udp_receiver_impl<EnableQueue , T...>&) = delete;
-    udp_receiver_impl(udp_receiver_impl&&);
-    udp_receiver_impl<EnableQueue, T...>& operator=(udp_receiver_impl<EnableQueue , T...>&&);
-    QHostAddress incoming_addr() const { return m_client_address; };
-    quint16 incoming_port() const { return m_client_port; };
+    udp_receiver_impl( port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform );
+    udp_receiver_impl( QUdpSocket & );
+    udp_receiver_impl( QUdpSocket & , port , QAbstractSocket::BindMode = QAbstractSocket::DefaultForPlatform );
+    ~udp_receiver_impl() noexcept = default;
+    udp_receiver_impl( const udp_receiver_impl& ) = delete;
+    udp_receiver_impl& operator=( const udp_receiver_impl& ) = delete;
+    udp_receiver_impl( udp_receiver_impl&& ) noexcept;
+    udp_receiver_impl& operator=( udp_receiver_impl&& ) noexcept;
+    QHostAddress incoming_addr() const { return m_client_address; }
+    quint16 incoming_port() const { return m_client_port; }
 
 private:
 
@@ -39,7 +41,7 @@ private:
     QByteArray m_buffer;
     //Read datagram
     QHostAddress m_client_address;
-    quint16 m_client_port;
+    quint16 m_client_port {};
     std::unique_ptr<speech::handle::handle<QUdpSocket>>  m_socket;
     QMetaObject::Connection m_signal_slot_conn;
 };

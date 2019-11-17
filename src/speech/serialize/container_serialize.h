@@ -53,6 +53,17 @@ QDebug operator<<( QDebug out , const Cont& cont)
     return out << cont.at(cont.size() - 1) << " ] ";
 }
 
+template<typename Cont , typename = typename std::enable_if<is_container<Cont>::value>::type>
+std::ostream& operator<<( std::ostream& out , const Cont& cont)
+{
+    out << " [ ";
+
+    for( auto i = 0; i < cont.size() - 1; ++i)
+        out << cont.at(i) << " , ";
+
+    return out << cont.at(cont.size() - 1) << " ] ";
+}
+
 }
 }
 }

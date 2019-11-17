@@ -20,15 +20,18 @@ namespace speech
                 tcp_transmitter(QTcpSocket&);
                 tcp_transmitter(const QHostAddress&, const speech::port&);
                 tcp_transmitter(QTcpSocket&, const QHostAddress&, const speech::port&);
-                tcp_transmitter(std::unique_ptr<QTcpSocket>);
-                tcp_transmitter(std::unique_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
+
+                template<typename Deleter>
+                tcp_transmitter(std::unique_ptr<QTcpSocket , Deleter>);
+                template<typename Deleter>
+                tcp_transmitter(std::unique_ptr<QTcpSocket , Deleter> , const QHostAddress&, const speech::port&);
                 tcp_transmitter(std::shared_ptr<QTcpSocket>);
                 tcp_transmitter(std::shared_ptr<QTcpSocket> , const QHostAddress&, const speech::port&);
                 ~tcp_transmitter() noexcept;
                 tcp_transmitter(const tcp_transmitter<T...>&) = delete;
                 tcp_transmitter<T...>& operator=(const tcp_transmitter<T...>&) = delete;
-                tcp_transmitter<T...>& operator=( tcp_transmitter<T...>&& ) = default;
-                tcp_transmitter<T...>( tcp_transmitter<T...>&& ) = default;
+                tcp_transmitter<T...>& operator=( tcp_transmitter<T...>&& ) noexcept = default;
+                tcp_transmitter<T...>( tcp_transmitter<T...>&& ) noexcept = default;
 
             protected:
 
@@ -42,13 +45,13 @@ namespace speech
         };
 
         template<typename T, typename Socket>
-        void tcp_transmit(const T& , const QHostAddress&, const speech::port& , Socket);
+        void transmit( const T& , const QHostAddress&, const speech::port& , Socket&& );
 
         template<typename T, typename Socket>
-        void tcp_transmit(const T&, Socket);
+        void transmit( const T&, Socket&& );
         
         template<typename T>
-        void tcp_transmit(const T&, const QHostAddress&, const speech::port&);
+        void transmit( const T& , const QHostAddress& , const speech::port& );
     }
 }
 

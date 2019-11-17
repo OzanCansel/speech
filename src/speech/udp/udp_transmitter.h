@@ -4,6 +4,7 @@
 #include <memory>
 #include <QHostAddress>
 #include <QUdpSocket>
+#include <QNetworkInterface>
 #include "speech/util.h"
 #include "speech/transmitter.h"
 #include "speech/handle/handle.h"
@@ -20,13 +21,14 @@ public:
 
      udp_transmitter ( const QHostAddress&, const speech::port& );
      udp_transmitter ( QUdpSocket&, const QHostAddress&, const speech::port& );
-     udp_transmitter ( std::unique_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
+     template<typename Deleter>
+     udp_transmitter ( std::unique_ptr<QUdpSocket , Deleter>, const QHostAddress&, const speech::port& );
      udp_transmitter ( std::shared_ptr<QUdpSocket>, const QHostAddress&, const speech::port& );
      ~udp_transmitter() noexcept;
      udp_transmitter ( const udp_transmitter<T...>& ) = delete;
      udp_transmitter<T...>& operator = ( const udp_transmitter<T...>& ) = delete;
-     udp_transmitter ( udp_transmitter<T...>&& ) = default;
-     udp_transmitter& operator = ( udp_transmitter<T...>&& ) = default;
+     udp_transmitter ( udp_transmitter<T...>&& ) noexcept = default;
+     udp_transmitter& operator = ( udp_transmitter<T...>&& ) noexcept = default;
 
      int port() const;
      QHostAddress destination() const;
@@ -37,16 +39,10 @@ protected:
 private:
 
      QHostAddress m_addr;
-     int m_port{ -1 };
+     int m_port { -1 };
      std::unique_ptr<speech::handle::handle<QUdpSocket>> m_socket;
 
 };
-
-template<typename T, typename Socket>
-void udp_transmit ( const T&, const QHostAddress&, const speech::port&, Socket );
-
-template<typename T>
-void udp_transmit ( const T&, const QHostAddress&, const speech::port& );
 
 } // namespace udp
 } // namespace speech

@@ -1,4 +1,5 @@
 #include <functional>
+#include "udp_receiver.h"
 
 namespace speech
 {
@@ -9,7 +10,7 @@ namespace impl
 {
 template <bool EnableQueue, typename... T>
 udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(port p , QAbstractSocket::BindMode mode)
-    :   m_socket{ new speech::handle::unique_ptr_handle<QUdpSocket>{  std::make_unique<QUdpSocket>() } }
+    :   m_socket { new speech::handle::unique_ptr_handle{  std::make_unique<QUdpSocket>() } }
 {
     if (!m_socket->ref().bind(p.get() , mode))
     {
@@ -41,7 +42,7 @@ udp_receiver_impl<EnableQueue ,T...>::udp_receiver_impl(QUdpSocket &socket, port
 }
 
 template<bool EnableQueue, typename... T>
-udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(udp_receiver_impl<EnableQueue , T...>&& rhs)
+udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(udp_receiver_impl<EnableQueue , T...>&& rhs) noexcept
 {
     m_buffer = std::move(rhs.m_buffer);
     m_socket = std::move(rhs.m_socket);
@@ -54,7 +55,7 @@ udp_receiver_impl<EnableQueue , T...>::udp_receiver_impl(udp_receiver_impl<Enabl
 }
 
 template<bool EnableQueue, typename... T>
-udp_receiver_impl<EnableQueue , T...>& udp_receiver_impl<EnableQueue , T...>::operator=(udp_receiver_impl<EnableQueue , T...>&& rhs)
+udp_receiver_impl<EnableQueue , T...>& udp_receiver_impl<EnableQueue , T...>::operator=(udp_receiver_impl<EnableQueue , T...>&& rhs) noexcept
 {
     m_buffer = std::move(rhs);
     m_socket = std::move(rhs.m_socket);
@@ -82,8 +83,35 @@ void udp_receiver_impl<EnableQueue, T...>::on_data_received  ()
 
         auto number_of_bytes_processed = this->parse(m_buffer);
 
-        //Clear processed bytes from buffer
-        m_buffer.remove(0, static_cast<int>(number_of_bytes_processed));
+        const static QByteArray start_token = [](){
+            QByteArray arr;
+            QDataStream ss(&arr , QIODevice::WriteOnly);
+            ss.setVersion(QDataStream::Qt_5_0);
+            ss << 241994 << 1511999 << 991973;
+            return arr;
+        }();
+
+        auto invalid_msg = number_of_bytes_processed == -2;
+        auto could_not_be_parsed = number_of_bytes_processed == -1;
+
+        if ( invalid_msg || could_not_be_parsed )
+        {
+            int idx = -1;
+            idx = m_buffer.indexOf( start_token );
+
+            if ( idx == 0 )
+            {
+                m_buffer.remove( 0 , start_token.size() );
+                idx = m_buffer.indexOf( start_token );
+            }
+
+            auto start_of_msg_idx = m_buffer.indexOf(start_token);
+            auto invalid_data_len = start_of_msg_idx == -1 ? m_buffer.size() : start_of_msg_idx;
+            m_buffer.remove(0 , invalid_data_len);
+        }
+        else
+            //Clear processed bytes from buffer
+            m_buffer.remove(0, static_cast<int>(number_of_bytes_processed));
     }
 }
 }

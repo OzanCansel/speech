@@ -9,8 +9,7 @@ namespace impl
 
 template <typename H>
 void pack_impl ( QDataStream & )
-{
-}
+{}
 
 template <typename H, typename... T>
 void pack_impl ( QDataStream &ss, const H &h, const T &... tail )
@@ -43,7 +42,8 @@ bool transmitter_impl<N, H, T...>::transmit ( const H &value )
 
      auto data = pack ( value );
      auto id_tagged = pack ( type_hash, data );
-     auto sized_pack = pack ( 241994, 1511999, 991973, id_tagged.size(), id_tagged );
+     auto crc = qChecksum( id_tagged.data() , id_tagged.size() );
+     auto sized_pack = pack ( 241994, 1511999, 991973, crc , id_tagged.size(), id_tagged );
 
      return write ( sized_pack );
 }

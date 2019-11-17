@@ -18,7 +18,7 @@ class car_info : public QObject
 public:
 
      QString name();
-     void set_name ( QString );
+     void set_name ( const QString& );
 
 private:
 

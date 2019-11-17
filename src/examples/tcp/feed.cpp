@@ -52,9 +52,9 @@ int main ( int argc, char** argv )
      auto shared_sck = std::make_shared<QTcpSocket>();
      auto unique_sck = std::make_unique<QTcpSocket>();
 
-     tcp_transmitter<greeting, roll_dice, me> tcp{ host, speech::port ( port ) };
-     tcp_transmitter<greeting, roll_dice, me> tcp_unique{ std::move ( unique_sck ), host, speech::port ( port ) };
-     tcp_transmitter<greeting, roll_dice, me> tcp_shared{ shared_sck, host, speech::port ( port ) };
+     tcp_transmitter<greeting, roll_dice, me> tcp { host, speech::port ( port ) };
+     tcp_transmitter<greeting, roll_dice, me> tcp_unique { std::move ( unique_sck ) , host, speech::port ( port ) };
+     tcp_transmitter<greeting, roll_dice, me> tcp_shared { shared_sck , host , speech::port ( port ) };
 
      for ( auto i = 0;; ++i ) {
           greeting g;
@@ -65,7 +65,7 @@ int main ( int argc, char** argv )
           tcp_shared.transmit ( g );
           qDebug() << "transmit => " << g;
 
-          QThread::msleep ( delay );
+          QThread::msleep ( static_cast<unsigned long>( delay ) );
           QCoreApplication::processEvents();
 
           roll_dice dice;
@@ -81,8 +81,8 @@ int main ( int argc, char** argv )
           tcp.transmit ( me{} );
 
           QCoreApplication::processEvents();
-          QThread::msleep ( delay );
+          QThread::msleep ( static_cast<unsigned long>( delay ) );
      }
 
-     return app.exec();
+     return QCoreApplication::exec();
 }

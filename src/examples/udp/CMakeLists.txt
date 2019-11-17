@@ -12,7 +12,7 @@ target_link_libraries(receive-from-queue speech model::model)
 target_link_libraries(transmit-function speech model::model)
 
 set_target_properties(transmit receive-with-inheritance receive-from-queue transmit-function PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )

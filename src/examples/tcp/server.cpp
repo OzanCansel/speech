@@ -7,101 +7,50 @@
 #include <greeting.h>
 #include <roll_dice.h>
 
-class handler_1 : public speech::tcp::tcp_receiver<greeting, roll_dice>
+struct tcp_server_redirects_entities_to_me
 {
-
-public:
-
-     explicit handler_1 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<greeting, roll_dice>
-     {
-          sck
-     }
-     {
-          qDebug() << "Handler_1 constructed. " << id.toString();
-     }
-
-     ~handler_1() override
-     {
-          qDebug() << "Handler_1 destroyed. " << id.toString();
-     }
-
-protected:
-
-     void on_receive ( const greeting& greeting ) override
-     {
-          qDebug() << greeting;
-     }
-
-     void on_receive ( const roll_dice& dice ) override
-     {
-          qDebug() << dice;
-     }
-
-private:
-
-     QUuid id { QUuid::createUuid() };
-
-};
-
-
-class handler_2 : public speech::tcp::tcp_receiver<roll_dice>
-{
-
-public:
-
-     explicit handler_2 ( speech::shared_socket<QTcpSocket>& sck ) : speech::tcp::tcp_receiver<roll_dice>
-     {
-          sck
-     }
-     {
-          qDebug() << "Handler_2 constructed. " << id.toString();
-     }
-
-     ~handler_2() override
-     {
-          qDebug() << "Handler_2 destroyed. " << id.toString();
-     }
-
-protected:
-
-     void on_receive ( const roll_dice& dice ) override
-     {
-          qDebug() << dice;
-     }
-
-private:
-
-     QUuid id { QUuid::createUuid() };
-
+    void operator()( const greeting& g , std::weak_ptr<QTcpSocket> ) { qDebug() << "Redirected " << g; }
+    void operator()( const roll_dice& r , std::weak_ptr<QTcpSocket> ) { qDebug() << "Redirected " << r; }
 };
 
 int main ( int argc, char** argv )
 {
-     QCoreApplication app ( argc, argv );
+    QCoreApplication app ( argc, argv );
 
-     using namespace speech;
-     using namespace speech::tcp;
+    using namespace speech;
+    using namespace speech::tcp;
 
-     QCommandLineParser parser;
-     parser.addHelpOption();
+    QCommandLineParser parser;
+    parser.addHelpOption();
 
-     parser.addOptions (
-     {{ {"p", "port"}, "Specify listening port number", "port number" }} );
+    parser.addOptions (
+    {{ {"p", "port"}, "Specify listening port number", "port number" }} );
 
-     parser.process ( app );
+    parser.process ( app );
 
-     //Defaults
-     auto port = 24942;
+    //Defaults
+    auto port = 24942;
 
-     if ( parser.isSet ( "p" ) ) {
-          port = parser.value ( "p" ).toInt();
-     }
+    if ( parser.isSet ( "p" ) ) {
+        port = parser.value ( "p" ).toInt();
+    }
 
-     auto sw = make_server ( QHostAddress::Any, speech::port{ port },
-                             make_handler<handler_1>(),
-                             make_handler<handler_2>() );
+    tcp_server server { QHostAddress::Any , speech::port { port } };
 
-     qDebug() << "Tcp Server running at " << port << " port";
+    tcp_server_redirects_entities_to_me subscriber;
 
-     return app.exec();
+    auto listeners =
+            redirect< greeting , roll_dice >( subscriber ) |
+            listen<roll_dice>( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
+        qDebug() << "Received : " << e;
+    }) |
+            listen<greeting>( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
+        qDebug() << "Received : " << g;
+    });
+
+    server.listen( listeners );
+
+    qDebug() << "Tcp Server running at " << port << " port";
+
+    return QCoreApplication::exec();
 }
