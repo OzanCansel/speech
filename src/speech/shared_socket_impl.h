@@ -31,6 +31,7 @@ namespace speech
             ~shared_socket() noexcept
             {
                 QObject::disconnect( m_socket_listening_conn );
+                m_socket->disconnect();
             }
 
             std::weak_ptr<QTcpSocket> socket()
@@ -67,13 +68,17 @@ namespace speech
 
             void listen()
             {
-                m_socket_listening_conn = QObject::connect(m_socket.get() , &QTcpSocket::readyRead , [this] {
+                m_socket_listening_conn = QObject::connect(m_socket.get() , &QTcpSocket::readyRead , m_socket.get() , [this] {
                     on_data_received();
                 });
             }
 
             void on_data_received()
             {
+
+                if ( !m_socket )
+                    return;
+
                 auto& sck = *m_socket.get();
                 int parsed_data_length{};
                 do
