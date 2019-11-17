@@ -26,7 +26,7 @@ for:
       - image: Visual Studio 2017
      
     before_build:
-     - set PATH=C:\Qt\5.9.7\msvc2015\lib\cmake;%PATH%
+     - set PATH=C:\Qt\5.11.3\msvc2015\lib\cmake;%PATH%
      
     build_script:
      - mkdir build
