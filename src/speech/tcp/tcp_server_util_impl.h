@@ -29,7 +29,7 @@ struct forwarder_sad
 template<typename Observer, typename... Entities>
 inline auto redirect_impl( Observer& cont)
 {
-    return ( (listen<Entities>( forwarder_sad< Entities , Observer > ( cont ) )) | ... );
+    return ( (listen<Entities>( forwarder_sad< Entities , Observer > ( static_cast<std::function< void ( const Entities& , std::weak_ptr<QTcpSocket>)>>( cont ) ) )) | ... );
 }
 
 }
@@ -42,10 +42,16 @@ inline auto redirect ( Observer& to )
 }
 
 
+//template<typename T>
+//inline handler<T> listen( typename handler<T>::client_cb&& cb )
+//{
+//    return handler<T> {  std::forward<typename handler<T>::client_cb>( cb ) , std::make_shared<impl::lifetime>() };
+//}
+
 template<typename T>
-inline handler<T> listen( typename handler<T>::client_cb&& cb )
+inline handler<T> listen( void (*cb)( const T& , std::weak_ptr<QTcpSocket> ))
 {
-    return handler<T> {  std::forward<typename handler<T>::client_cb>( cb ) , std::make_shared<impl::lifetime>() };
+    return handler<T> {  cb , std::make_shared<impl::lifetime>() };
 }
 
 template< typename L , typename R >

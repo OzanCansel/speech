@@ -46,6 +46,8 @@ int main ( int argc, char** argv )
     }) |
             listen<greeting>( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
         qDebug() << "Received : " << g;
+    }) |    listen( +[] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
+
     });
 
     server.listen( listeners );

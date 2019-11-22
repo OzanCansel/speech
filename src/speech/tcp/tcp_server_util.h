@@ -26,7 +26,7 @@ template<typename... Entities, typename Observer>
 inline auto redirect ( Observer& to );
 
 template<typename T>
-inline handler<T> listen( typename handler<T>::client_cb&& cb );
+inline handler<T> listen( void (*cb)( const T& , std::weak_ptr<QTcpSocket> ) );
 
 template< typename L , typename R >
 inline auto operator | ( handler<L>&& lhs , handler<R>&& rhs );
