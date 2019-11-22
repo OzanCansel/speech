@@ -54,7 +54,7 @@ make -j$(nproc)
 sudo make install
 ```
 
-## Example CMakeLists.txt Usage
+## How to include 'speech' library in CMake ?
 ```
 project(speech-usage)
 cmake_minimum_required(VERSION 3.1)
