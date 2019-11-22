@@ -29,7 +29,7 @@ struct forwarder_sad
 template<typename Observer, typename... Entities>
 inline auto redirect_impl( Observer& cont)
 {
-    return ( (listen<Entities>( forwarder_sad< Entities , Observer > ( static_cast<std::function< void ( const Entities& , std::weak_ptr<QTcpSocket>)>>( cont ) ) )) | ... );
+    return ( (listen<Entities>( forwarder_sad< Entities , Observer > ( cont ) )) | ... );
 }
 
 template<typename Ret, typename Arg , typename Arg2>
