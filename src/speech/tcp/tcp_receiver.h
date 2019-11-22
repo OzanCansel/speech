@@ -17,15 +17,20 @@ namespace impl
 {
 
 template <bool EnableQueue, typename... T>
-class tcp_receiver_impl : protected receiver<EnableQueue, T...>
+class tcp_receiver_impl : public receiver<EnableQueue, T...>
 {
 public:
 
-    tcp_receiver_impl( std::shared_ptr<QTcpSocket>&& s )
-        : m_socket { std::forward<std::shared_ptr<QTcpSocket>>( s ) }
+    tcp_receiver_impl( const std::shared_ptr<QTcpSocket>& s )
+        : m_socket { s }
     {
         using namespace std::placeholders;
         m_socket.attach( std::bind( &tcp_receiver_impl::on_data_received , this , _1 , _2 ));
+    }
+
+    bool wait_for_receive( int timeout )
+    {
+        return m_socket.socket().lock()->waitForReadyRead( timeout );
     }
 
 protected:

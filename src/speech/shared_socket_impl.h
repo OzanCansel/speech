@@ -16,8 +16,8 @@ namespace speech
 
         using observer_cb_t = std::function<int(const QByteArray& , std::weak_ptr<QTcpSocket> )>;
 
-            shared_socket<QTcpSocket>( std::shared_ptr<QTcpSocket>&& socket )
-                :   m_socket { std::forward<std::shared_ptr<QTcpSocket>>( socket ) }
+            shared_socket<QTcpSocket>( const std::shared_ptr<QTcpSocket>& socket )
+                :   m_socket {  socket }
             {
                 listen();
             }
