@@ -32,6 +32,26 @@ inline auto redirect_impl( Observer& cont)
     return ( (listen<Entities>( forwarder_sad< Entities , Observer > ( static_cast<std::function< void ( const Entities& , std::weak_ptr<QTcpSocket>)>>( cont ) ) )) | ... );
 }
 
+template<typename Ret, typename Arg , typename Arg2>
+Arg argument_type(Ret(*)(Arg , Arg2));
+
+template<typename Ret, typename Fn, typename Arg , typename Arg2 >
+Arg argument_type(Ret(Fn::*)(Arg , Arg2) const);
+
+template<typename Fn>
+auto argument_type(Fn) -> decltype(argument_type(&Fn::operator()));
+
+template<typename Arg, typename Fn, typename Arg2>
+struct argument {
+    static_assert(std::is_invocable_v<Fn, Arg , Arg2 >);
+    using type = Arg;
+};
+
+template<typename Fn>
+struct argument<void, Fn , std::weak_ptr< QTcpSocket > >{
+    using type = decltype(argument_type(std::declval<Fn>()));
+};
+
 }
 
 template<typename... Entities, typename Observer>
@@ -41,17 +61,10 @@ inline auto redirect ( Observer& to )
     return impl::redirect_impl<Observer , Entities...>( to );
 }
 
-
-//template<typename T>
-//inline handler<T> listen( typename handler<T>::client_cb&& cb )
-//{
-//    return handler<T> {  std::forward<typename handler<T>::client_cb>( cb ) , std::make_shared<impl::lifetime>() };
-//}
-
-template<typename T>
-inline handler<T> listen( void (*cb)( const T& , std::weak_ptr<QTcpSocket> ))
-{
-    return handler<T> {  cb , std::make_shared<impl::lifetime>() };
+template<typename T, typename Fn>
+inline auto listen(Fn fn) {
+    using Arg = std::decay_t<typename impl::argument<T, Fn , std::weak_ptr<QTcpSocket>>::type>;
+    return handler<Arg> {  std::forward<typename handler<Arg>::client_cb>( fn ) , std::make_shared<impl::lifetime>() };
 }
 
 template< typename L , typename R >

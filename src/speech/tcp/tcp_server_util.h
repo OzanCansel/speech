@@ -25,8 +25,11 @@ inline auto redirect_impl ( Observer& cont , speech::impl::specializer<I> );
 template<typename... Entities, typename Observer>
 inline auto redirect ( Observer& to );
 
-template<typename T>
-inline handler<T> listen( void (*cb)( const T& , std::weak_ptr<QTcpSocket> ) );
+template<typename T = void , typename Fn>
+inline auto listen( Fn );
+
+//template<typename T>
+//inline handler<T> listen( void (*cb)( const T& , std::weak_ptr<QTcpSocket> ) );
 
 template< typename L , typename R >
 inline auto operator | ( handler<L>&& lhs , handler<R>&& rhs );
@@ -36,6 +39,7 @@ inline auto operator | ( std::tuple< handler<L>...>&& lhs , handler<R>&& rhs );
 
 template< typename... L , typename... R >
 inline auto operator | ( std::tuple< handler<L>... >&& lhs , std::tuple< handler<R>... >&& rhs );
+
 
 }
 }
