@@ -87,13 +87,13 @@ private:
 
 }
 
-template<typename... PossibleResults , typename Question , typename = std::enable_if_t< ( sizeof...( PossibleResults ) > 0 ) >>
+template<typename... PossibleResults , typename Question , typename >
 std::variant< PossibleResults... > ask( const Question& q , std::shared_ptr< QTcpSocket > sck , const std::chrono::milliseconds& timeout )
 {
     return impl::ask_impl< PossibleResults... >{ sck }( q , timeout );
 }
 
-template<typename... PossibleResults , typename Question , typename = std::enable_if_t< ( sizeof...( PossibleResults ) == 0 ) >>
+template<typename... PossibleResults , typename Question , typename >
 response_of< Question > ask( const Question& q , std::shared_ptr< QTcpSocket > sck , const std::chrono::milliseconds& timeout )
 {
     return std::get<0>( impl::ask_impl< response_of< Question > >{ sck }( q , timeout ) );
