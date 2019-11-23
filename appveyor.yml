@@ -1,6 +1,7 @@
 image:
 - Ubuntu1804
 - Visual Studio 2017
+- Visual Studio 2019
 build: off
 
 for:
@@ -32,4 +33,18 @@ for:
      - mkdir build
      - cd build
      - cmake -G "Visual Studio 15 2017" ..
+     - cmake --build .
+
+ -
+    matrix:
+     only:
+      - image: Visual Studio 2019
+     
+    before_build:
+     - set PATH=C:\Qt\5.12.5\msvc2017\lib\cmake;%PATH%
+     
+    build_script:
+     - mkdir build
+     - cd build
+     - cmake -G "Visual Studio 16 2019" ..
      - cmake --build .
