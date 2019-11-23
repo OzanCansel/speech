@@ -5,34 +5,7 @@
 #include <speech/tcp/tcp_transmitter.h>
 #include <speech/tcp/tcp_ask.h>
 #include <speech/speech.h>
-
-struct u_there
-{
-    SPEECH_SERIALIZE_EMPTY
-};
-
-struct roll_a_dice
-{
-  SPEECH_SERIALIZE_EMPTY
-};
-
-struct yes
-{
-    SPEECH_SERIALIZE_EMPTY
-};
-
-struct no
-{
-    SPEECH_SERIALIZE_EMPTY
-};
-
-template<>
-struct speech::tcp::response_of< roll_a_dice >
-{
-    int luck {};
-
-    SPEECH_SERIALIZE( luck )
-};
+#include "questions.h"
 
 int main ( int argc, char** argv )
 {
@@ -53,7 +26,6 @@ int main ( int argc, char** argv )
 
     //Defaults
     auto port{ 24942 };
-
     QHostAddress host ( QHostAddress::LocalHost );
 
     if ( parser.isSet ( "p" ) ) {
@@ -71,31 +43,44 @@ int main ( int argc, char** argv )
     if ( !sck->waitForConnected() )
         throw std::runtime_error { std::string { "Could not connect to " } + host.toString().toStdString() + std::string { ":" } + std::to_string( port ) };
 
-    auto res = ask<yes , no>( u_there{} , sck , std::chrono::milliseconds { 5000 } );
+    auto res = ask<yes , no> ( u_there{} , sck );
+
+    qDebug().noquote() << QString( 80 , '=' );
 
     if ( responded_with< yes > ( res ) )
-    {
         qDebug() << "He says yes";
-    }
 
     if ( responded_with< no > ( res ) )
-    {
         qDebug() << "He says no";
-    }
 
+    qDebug().noquote() << QString( 80 , '=' );
 
-    constexpr int loop_c = 10;
-    auto start = std::chrono::high_resolution_clock::now();
-    for ( auto i = 0; i < loop_c; i++ )
+    qDebug() << "Roll a dice ten times";
+
+    qDebug().noquote() << QString( 80 , '=' );
+
+    std::vector< int > chances;
+
+    for ( auto i = 0; i < 10; i++ )
     {
-        auto roll = ask( roll_a_dice {} , sck , std::chrono::milliseconds { 50 } );
+        auto roll = ask( roll_a_dice {} , sck );
         qDebug() << roll;
+
+        chances.push_back( roll.luck );
     }
 
-    auto time_in_ms = static_cast<double> ( std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::high_resolution_clock::now() - start ).count() );
-    auto fps = 1000000.0 / ( time_in_ms / loop_c );
+    auto average = std::accumulate( chances.begin() , chances.end() , 0 ) / chances.size();
 
-    qDebug() << "FPS : " << fps;
+    qDebug().noquote() << QString( 80 , '=' );
+
+    if ( average < 40 )
+        qDebug() << "It seems you are not lucky today.";
+    else if ( average >= 40 && average <= 60 )
+        qDebug() << "Not bad at all";
+    else
+        qDebug() << "Wow, very good";
+
+    qDebug().noquote() << QString( 80 , '=' );
 
     return QCoreApplication::exec();
 }

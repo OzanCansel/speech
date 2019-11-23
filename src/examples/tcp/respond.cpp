@@ -6,34 +6,7 @@
 #include <speech/tcp/tcp_receiver.h>
 #include <speech/tcp/tcp_ask.h>
 #include <speech/speech.h>
-
-struct u_there
-{
-    SPEECH_SERIALIZE_EMPTY
-};
-
-struct roll_a_dice
-{
-  SPEECH_SERIALIZE_EMPTY
-};
-
-struct yes
-{
-    SPEECH_SERIALIZE_EMPTY
-};
-
-struct no
-{
-    SPEECH_SERIALIZE_EMPTY
-};
-
-template<>
-struct speech::tcp::response_of< roll_a_dice >
-{
-    int luck {};
-
-    SPEECH_SERIALIZE( luck )
-};
+#include "questions.h"
 
 int main ( int argc, char** argv )
 {
@@ -75,6 +48,7 @@ int main ( int argc, char** argv )
     server.listen( listeners );
 
     qDebug() << "Tcp Server running at " << port << " port";
+    qDebug() << "I will respond to 'roll_a_dice' and 'u_there' questions.";
 
     return QCoreApplication::exec();
 }
