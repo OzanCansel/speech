@@ -41,7 +41,7 @@ for:
       - image: Visual Studio 2019
      
     before_build:
-     - set PATH=C:\Qt\5.12.5\msvc2017\lib\cmake;%PATH%
+     - set PATH=C:\Qt\5.12.5\msvc2017_64\lib\cmake;%PATH%
      
     build_script:
      - mkdir build
