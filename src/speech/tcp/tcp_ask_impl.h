@@ -32,7 +32,7 @@ bool assign_if_any( Variant& v , Receiver& rec , std::index_sequence< Indices...
     auto msgs = rec.messages( speech::impl::identifier< HeadResult > {} );
     if ( ! msgs.empty() )
     {
-        std::get< HeadResult >( v ) = msgs.front();
+        v = msgs.front();
         return true;
     }
 
