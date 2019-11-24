@@ -99,10 +99,10 @@ int main ( int argc, char** argv )
     tcp_server server { QHostAddress::Any , speech::port { port } };
 
     auto listeners =
-            listen<roll_dice>( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
+            listen( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
         qDebug() << "Received : " << e;
     }) |
-            listen<greeting>( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
+            listen( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
         qDebug() << "Received : " << g;
     });
 
