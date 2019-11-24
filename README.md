@@ -11,7 +11,7 @@ The library is composed of only headers. We aim to follow modern c++ approach.
 It is under GNU General Public License.
 
 # CMake
-speech library uses CMake build system. We are using modern-cmake approach and paradigm which enforces us to use CMake 3.1x.
+speech library uses CMake build system. We are using modern-cmake approach and paradigm.
 
 # QMake
 speech library doesn't use qmake as build system currently but it will be supported at future.
@@ -54,7 +54,7 @@ make -j$(nproc)
 sudo make install
 ```
 
-## Example CMakeLists.txt Usage
+## How to include 'speech' library in CMake ?
 ```
 project(speech-usage)
 cmake_minimum_required(VERSION 3.1)
