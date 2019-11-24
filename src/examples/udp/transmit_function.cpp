@@ -21,8 +21,7 @@ int main ( int argc, char **argv )
      parser.addOptions ( {
           { {"p", "port"}, "Specify port number", "port number" },
           { {"a", "addr"}, "Specify address ip", "address" }
-     }
-                       );
+     } );
 
      parser.process ( app );
 
@@ -30,9 +29,8 @@ int main ( int argc, char **argv )
      auto port = 24942;
      QHostAddress host { QHostAddress::LocalHost };
 
-     if ( parser.isSet ( "p" ) ) {
+     if ( parser.isSet ( "p" ) )
           port = parser.value ( "p" ).toInt();
-     }
 
      if ( parser.isSet ( "a" ) )
           host = QHostAddress { parser.value ( "a" ) };
@@ -56,7 +54,7 @@ int main ( int argc, char **argv )
           roll_dice dice;
           transmit ( dice, host, speech::port ( port ) );
           transmit ( dice, host, speech::port ( port ), socket );
-          transmit ( dice, host, speech::port ( port ), make_unique<QUdpSocket>());
+          transmit ( dice, host, speech::port ( port ), make_unique<QUdpSocket>() );
 
           qDebug() << "transmitting to" << port << "=>" << dice;
           QCoreApplication::processEvents();

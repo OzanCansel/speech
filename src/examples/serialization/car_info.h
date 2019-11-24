@@ -1,7 +1,3 @@
-/*
- * QObject serialization example of class
- */
-
 #ifndef SPEECH_CAR_INFO_H
 #define SPEECH_CAR_INFO_H
 
@@ -18,7 +14,7 @@ class car_info : public QObject
 public:
 
      QString name();
-     void set_name ( const QString& );
+     void set_name( const QString& );
 
 private:
 

@@ -13,9 +13,9 @@ struct my_receiver : speech::udp::udp_receiver<greeting , roll_dice> {
 
 protected:
 
-    void on_receive ( const greeting& greeting ) override
+    void on_receive ( const greeting& g ) override
     {
-        qDebug() << "receive =>" << greeting;
+        qDebug() << "receive =>" << g;
     }
 
     void on_receive ( const roll_dice& dice ) override
@@ -32,16 +32,15 @@ int main ( int argc, char** argv )
     QCommandLineParser parser;
     parser.addHelpOption();
 
-    parser.addOptions ( {{ {"p", "port"}, "Specify port number", "port number" }} );
+    parser.addOptions ( { {"p", "port"}, "Specify port number", "port number" } );
 
     parser.process ( app );
 
     //Defaults
     auto port = 24942;
 
-    if ( parser.isSet ( "p" ) ) {
+    if ( parser.isSet ( "p" ) )
         port = parser.value ( "p" ).toInt();
-    }
 
     my_receiver receiver{ speech::port { port } };
 

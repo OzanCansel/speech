@@ -44,9 +44,9 @@ struct ask_impl
 {
     template<typename Question >
     std::variant< PossibleResults... > operator()( const Question& q , const std::chrono::milliseconds& timeout )
-{
-    return ask( q , timeout );
-}
+    {
+        return ask( q , timeout );
+    }
 
     template< typename Question >
     std::variant< PossibleResults... > ask( const Question& q , const std::chrono::milliseconds& timeout )

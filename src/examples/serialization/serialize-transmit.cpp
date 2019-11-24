@@ -27,13 +27,11 @@ int main ( int argc, char **argv )
      auto port = 24942;
      auto fps = 2;
 
-     if ( parser.isSet ( "p" ) ) {
+     if ( parser.isSet ( "p" ) )
           port = parser.value ( "p" ).toInt();
-     }
 
-     if ( parser.isSet ( "f" ) ) {
+     if ( parser.isSet ( "f" ) )
           fps = parser.value ( "f" ).toInt();
-     }
 
      //twice in a second
      auto delay = 500.0 / fps;

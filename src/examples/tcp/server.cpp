@@ -41,12 +41,12 @@ int main ( int argc, char** argv )
 
     auto listeners =
             redirect< greeting , roll_dice >( subscriber ) |
-            listen<roll_dice>( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
+            listen( []( const roll_dice& e , std::weak_ptr<QTcpSocket> ) {
         qDebug() << "Received : " << e;
     }) |
-            listen<greeting>( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
+            listen( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
         qDebug() << "Received : " << g;
-    }) |    listen( +[] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
+    }) |    listen( [] ( const greeting& g , std::weak_ptr<QTcpSocket> ){
 
     });
 

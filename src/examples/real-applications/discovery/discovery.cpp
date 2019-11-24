@@ -83,19 +83,15 @@ int main ( int argc, char **argv )
      QCommandLineParser parser;
      parser.addHelpOption();
 
-     parser.addOptions ( {
-          { {"p", "port"}, "Specify port number", "port number" }
-     }
-                       );
+     parser.addOptions ( { {"p", "port"}, "Specify port number", "port number" } );
 
      parser.process ( app );
 
      //Defaults
      auto port = 24942;
 
-     if ( parser.isSet ( "p" ) ) {
+     if ( parser.isSet ( "p" ) )
           port = parser.value ( "p" ).toInt();
-     }
 
      discovery d { speech::port ( port ) };
 

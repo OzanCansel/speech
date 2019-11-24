@@ -8,7 +8,7 @@ struct roll_dice {
      QDateTime timestamp { QDateTime::currentDateTime() };
 };
 
-// Example of custom implementation of any Entity
+// Custom serialization implementation example
 inline QDataStream& operator<< ( QDataStream& out, const roll_dice& dice )
 {
      return out << dice.chance << dice.timestamp;

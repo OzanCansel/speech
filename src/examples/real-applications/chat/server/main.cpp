@@ -35,7 +35,7 @@ int main( int argc , char** argv )
     std::map<std::shared_ptr<QTcpSocket> , QString> socket_to_username;
 
     auto accepted_messages =
-            listen<let_me_join> ( [ &game_server , &socket_to_username ]( const let_me_join& e , std::weak_ptr<QTcpSocket> sck )
+            listen( [ &game_server , &socket_to_username ]( const let_me_join& e , std::weak_ptr<QTcpSocket> sck )
     {
 
         bool nick_name_exist = std::any_of( socket_to_username.begin() , socket_to_username.end() , [ &e ]( const auto& p ) { return p.second == e.nick_name ;});
@@ -58,7 +58,7 @@ int main( int argc , char** argv )
         game_server.broadcast( new_user_joined{ e.nick_name } );
 
     }) |
-            listen<send_message>( [ &game_server , &socket_to_username ] ( const send_message& m , std::weak_ptr<QTcpSocket> sck )
+            listen( [ &game_server , &socket_to_username ] ( const send_message& m , std::weak_ptr<QTcpSocket> sck )
     {
         try {
             auto user_name = socket_to_username.at( sck.lock() );

@@ -33,15 +33,13 @@ int main ( int argc, char** argv )
     tcp_server server { QHostAddress::Any , speech::port { port } };
 
     auto listeners =
-            listen< u_there >( []( const u_there& , std::weak_ptr< QTcpSocket > sck )
-    {
+            listen( []( const u_there& , std::weak_ptr< QTcpSocket > sck ) {
         if ( std::rand() % 2 == 0 )
             transmit( yes{} , sck.lock() );
         else
             transmit( no{} , sck.lock() );
     }) |
-            listen< roll_a_dice >( [](const roll_a_dice& , std::weak_ptr< QTcpSocket > sck )
-    {
+            listen( [](const roll_a_dice& , std::weak_ptr< QTcpSocket > sck ) {
         transmit( response_of< roll_a_dice > { std::rand() % 100 } , sck.lock() );
     });
 
