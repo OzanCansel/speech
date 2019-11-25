@@ -32,7 +32,7 @@ int main ( int argc, char** argv )
     QCommandLineParser parser;
     parser.addHelpOption();
 
-    parser.addOptions ( { {"p", "port"}, "Specify port number", "port number" } );
+    parser.addOptions ( { { {"p", "port"}, "Specify port number", "port number" } } );
 
     parser.process ( app );
 
