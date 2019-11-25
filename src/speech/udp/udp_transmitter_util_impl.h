@@ -97,5 +97,10 @@ inline void broadcast( const T& entity , const speech::port& p , const QList<QNe
         transmit( entity , address , p );
 }
 
+inline QDebug operator << ( QDebug out , const speech::udp::interface_idx& idx )
+{
+    return out << static_cast< int > ( idx.get() );
+}
+
 } // namespace udp
 } // namespace speech

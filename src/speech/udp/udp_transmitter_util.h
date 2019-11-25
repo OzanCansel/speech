@@ -3,9 +3,12 @@
 
 #include <utility>
 #include <vector>
+#include <type_traits>
 #include <QNetworkInterface>
 #include <QList>
+#include <QDebug>
 #include "speech/util.h"
+#include "speech/udp/udp_transmitter.h"
 
 namespace speech
 {
@@ -32,6 +35,7 @@ inline void broadcast ( const T& , const speech::port& , const QNetworkInterface
 template<typename T>
 inline void broadcast ( const T& , const speech::port& , const QList<QNetworkInterface>& );
 
+inline QDebug operator << ( QDebug , const speech::udp::interface_idx& );
 
 } // namespace udp
 } // namespace speech
