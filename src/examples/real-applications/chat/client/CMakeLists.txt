@@ -20,4 +20,7 @@ else()
         CXX_EXTENSIONS NO
     )
 
+    install(TARGETS chat-client
+                    RUNTIME DESTINATION bin/examples/real-applications)
+
 endif()

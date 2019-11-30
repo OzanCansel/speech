@@ -11,3 +11,6 @@ set_target_properties( chat-server PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
+
+install(TARGETS chat-server
+                RUNTIME DESTINATION bin/examples/real-applications)
