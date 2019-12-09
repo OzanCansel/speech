@@ -1,0 +1,35 @@
+jobs:
+- name: build
+  plan:
+  - get: speech-repo
+    trigger: true
+  - config:
+      container_limits: {}
+      image_resource:
+        source:
+          repository: ozancansel/speech
+          tag: "v1"
+        type: docker-image
+      inputs:
+      - name: speech-repo
+      platform: linux
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          #apt-get update
+          #apt-get -y install qt5-default cmake build-essential
+          cd speech-repo
+          mkdir -p build
+          cd build
+          cmake ..
+          cmake --build .
+    task: build-speech
+  public: true
+resources:
+- icon: github-circle
+  name: speech-repo
+  source:
+    uri: https://github.com/OzanCansel/speech
+  type: git
